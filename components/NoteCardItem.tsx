@@ -1,6 +1,7 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Note } from "../utils/types";
+import { Link } from "expo-router";
 
 interface NoteItemProps {
   data: Note;
@@ -8,13 +9,17 @@ interface NoteItemProps {
 
 export default function NoteItem({ data }: NoteItemProps) {
   return (
-    <View style={styles.noteCardContainer}>
-      <Text style={styles.textSmall}>{data.creationDate}</Text>
-      <Text numberOfLines={1} style={styles.textBold}>
-        {data.title}
-      </Text>
-      <Text numberOfLines={1}>{data.content}</Text>
-    </View>
+    <Link href={`/notes/${data.id} `} asChild>
+      <Pressable>
+        <View style={styles.noteCardContainer}>
+          <Text style={styles.textSmall}>{data.creationDate}</Text>
+          <Text numberOfLines={1} style={styles.textBold}>
+            {data.title}
+          </Text>
+          <Text numberOfLines={1}>{data.content}</Text>
+        </View>
+      </Pressable>
+    </Link>
   );
 }
 const styles = StyleSheet.create({

@@ -43,8 +43,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginTop: 16,
   },
-  lastNotesContainer: {},
-
   title: {
     fontSize: 24,
     lineHeight: 28,
