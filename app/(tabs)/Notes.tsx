@@ -1,10 +1,12 @@
 import React from "react";
 import { View, Text } from "react-native";
+import NotesCardContainer from "../../components/NotesCardContainer";
+import { Container } from "../../components/styled-components/StyledSafeAreaView";
 
 export default function Notes() {
   return (
-    <View>
-      <Text>Notas</Text>
-    </View>
+    <Container>
+      <NotesCardContainer></NotesCardContainer>
+    </Container>
   );
 }

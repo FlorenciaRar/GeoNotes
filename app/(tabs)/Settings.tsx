@@ -1,10 +1,11 @@
 import React from "react";
 import { View, Text } from "react-native";
+import { Container } from "../../components/styled-components/StyledSafeAreaView";
 
 export default function Settings() {
   return (
-    <View>
-      <Text>Notas</Text>
-    </View>
+    <Container>
+      <Text>Configuración</Text>
+    </Container>
   );
 }
