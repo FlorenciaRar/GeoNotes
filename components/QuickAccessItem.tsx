@@ -1,8 +1,8 @@
 import React from "react";
-import { Text, StyleSheet, Dimensions, Pressable } from "react-native";
+import { StyleSheet, Dimensions, Pressable } from "react-native";
 import Icon, { IconName } from "../utils/icons";
 import { Link } from "expo-router";
-import { Title } from "../utils/fonts";
+import { StyledText } from "../styled-components/StyledText";
 
 const anchoPantalla = Dimensions.get("window").width;
 const itemWidth = anchoPantalla / 2 - 22;
@@ -13,16 +13,14 @@ interface QuickAccessItemProps {
   name: string;
 }
 
-export default function QuickAccessItem({
-  link,
-  iconName,
-  name,
-}: QuickAccessItemProps) {
+export default function QuickAccessItem({ link, iconName, name }: QuickAccessItemProps) {
   return (
     <Link href={link} asChild>
       <Pressable style={styles.quickAccessItem}>
         <Icon iconName={iconName} />
-        <Title size="xm">{name}</Title>
+        <StyledText variant="bold" size="xm">
+          {name}
+        </StyledText>
       </Pressable>
     </Link>
   );

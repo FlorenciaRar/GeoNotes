@@ -18,5 +18,9 @@ declare module "styled-components/native" {
       md: string;
       lg: string;
     };
+    fontWeights: {
+      normal: string;
+      bold: string;
+    };
   }
 }

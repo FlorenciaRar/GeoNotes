@@ -1,17 +1,10 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  TextInput,
-  Button,
-  Text,
-  StyleSheet,
-  Pressable,
-} from "react-native";
+import { View, TextInput, Button, Text, StyleSheet, Pressable } from "react-native";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import * as Location from "expo-location";
 import { useRouter } from "expo-router";
-import { Note } from "../utils/types";
+import { Note } from "../models/noteModel";
 
 interface NoteFormProps {
   initialValues?: Partial<Note>;
@@ -19,12 +12,8 @@ interface NoteFormProps {
 }
 
 const NoteSchema = Yup.object().shape({
-  title: Yup.string()
-    .required("El título es obligatorio")
-    .min(3, "Debe tener al menos 3 caracteres"),
-  content: Yup.string()
-    .required("El contenido es obligatorio")
-    .min(5, "Debe tener al menos 5 caracteres"),
+  title: Yup.string().required("El título es obligatorio").min(3, "Debe tener al menos 3 caracteres"),
+  content: Yup.string().required("El contenido es obligatorio").min(5, "Debe tener al menos 5 caracteres"),
   adress: Yup.string().when("useCurrentLocation", {
     is: (val: boolean) => val === false,
     then: (schema) => schema.required("La dirección es obligatoria"),
@@ -53,9 +42,7 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
       latitude,
       longitude,
     });
-    const readableAddress = `${address.street ?? ""} ${address.name ?? ""}, ${
-      address.city ?? ""
-    }, ${address.region ?? ""}, ${address.country ?? ""}`;
+    const readableAddress = `${address.street ?? ""} ${address.name ?? ""}, ${address.city ?? ""}, ${address.region ?? ""}, ${address.country ?? ""}`;
 
     setLocation(readableAddress);
   };
@@ -70,9 +57,7 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
       }}
       validationSchema={NoteSchema}
       onSubmit={(values) => {
-        const finalAddress = values.useCurrentLocation
-          ? location
-          : values.adress;
+        const finalAddress = values.useCurrentLocation ? location : values.adress;
         onSubmit({
           title: values.title,
           content: values.content,
@@ -81,15 +66,7 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
         });
         router.push("/");
       }}>
-      {({
-        handleChange,
-        handleBlur,
-        handleSubmit,
-        values,
-        errors,
-        touched,
-        setFieldValue,
-      }) => (
+      {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
         <View>
           <TextInput
             placeholder="Título"
@@ -98,18 +75,12 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
             onChangeText={handleChange("title")}
             onBlur={handleBlur("title")}
           />
-          {touched.title && errors.title && (
-            <Text style={styles.error}>{errors.title}</Text>
-          )}
+          {touched.title && errors.title && <Text style={styles.error}>{errors.title}</Text>}
 
           {/* Radios */}
           <View style={styles.radioContainer}>
-            <Pressable
-              style={styles.radioOption}
-              onPress={() => setFieldValue("useCurrentLocation", false)}>
-              <Text>
-                {!values.useCurrentLocation ? "🔘" : "⚪️"} Establecer ubicación
-              </Text>
+            <Pressable style={styles.radioOption} onPress={() => setFieldValue("useCurrentLocation", false)}>
+              <Text style={!values.useCurrentLocation ? styles.activeOption : styles.inactiveOption}>Establecer ubicación</Text>
             </Pressable>
             <Pressable
               style={styles.radioOption}
@@ -117,21 +88,10 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
                 setFieldValue("useCurrentLocation", true);
                 getCurrentLocation();
               }}>
-              <Text
-                style={
-                  values.useCurrentLocation
-                    ? styles.activeOption
-                    : styles.inactiveOption
-                }>
-                Usar ubicación actual
-              </Text>
+              <Text style={values.useCurrentLocation ? styles.activeOption : styles.inactiveOption}>Usar ubicación actual</Text>
             </Pressable>
           </View>
-          {values.useCurrentLocation && location ? (
-            <Text style={{ marginBottom: 8, color: "green" }}>
-              Ubicación actual: {location}
-            </Text>
-          ) : null}
+          {values.useCurrentLocation && location ? <Text style={{ marginBottom: 8 }}>Ubicación actual: {location}</Text> : null}
 
           {/* Input solo si elige manual */}
           {!values.useCurrentLocation && (
@@ -143,9 +103,7 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
               onBlur={handleBlur("adress")}
             />
           )}
-          {touched.adress && errors.adress && (
-            <Text style={styles.error}>{errors.adress}</Text>
-          )}
+          {touched.adress && errors.adress && <Text style={styles.error}>{errors.adress}</Text>}
 
           <TextInput
             placeholder="Contenido"
@@ -155,9 +113,7 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
             onBlur={handleBlur("content")}
             multiline
           />
-          {touched.content && errors.content && (
-            <Text style={styles.error}>{errors.content}</Text>
-          )}
+          {touched.content && errors.content && <Text style={styles.error}>{errors.content}</Text>}
 
           <Button title="Guardar" onPress={() => handleSubmit()} />
         </View>
