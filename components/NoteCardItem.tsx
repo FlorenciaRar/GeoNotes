@@ -1,28 +1,35 @@
 import React from "react";
-import { View, StyleSheet, Pressable } from "react-native";
-import { Note } from "../utils/types";
+import { View, StyleSheet, Pressable, Text } from "react-native";
+import { Note } from "../models/noteModel";
 import { Link } from "expo-router";
-import { BodyText, Title } from "../utils/fonts";
+import { StyledText } from "../styled-components/StyledText";
+import NoteCardOptionsMenu from "./NoteCardOptions";
 
 interface NoteItemProps {
   data: Note;
+  onDelete: (id: string) => void;
 }
 
-export default function NoteCardItem({ data }: NoteItemProps) {
+export default function NoteCardItem({ data, onDelete }: NoteItemProps) {
   return (
-    <Link href={`/notes/${data.id}`} asChild>
-      <Pressable>
-        <View style={styles.noteCardContainer}>
-          <BodyText size="xm">{data.creationDate}</BodyText>
-          <Title size="sm" numberOfLines={1}>
+    <View style={styles.noteCardContainer}>
+      <Link href={`/notes/${data.id}`} asChild>
+        <Pressable>
+          <StyledText size="xm">{data.creationDate}</StyledText>
+          <StyledText variant="bold" size="sm" numberOfLines={1}>
             {data.title}
-          </Title>
-          <BodyText size="xm" numberOfLines={1}>
+          </StyledText>
+          <StyledText size="xm" numberOfLines={1}>
             {data.content}
-          </BodyText>
-        </View>
-      </Pressable>
-    </Link>
+          </StyledText>
+        </Pressable>
+      </Link>
+      <NoteCardOptionsMenu
+        onDelete={() => {
+          onDelete(data.id);
+        }}
+      />
+    </View>
   );
 }
 const styles = StyleSheet.create({
@@ -31,5 +38,6 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 16,
     marginBottom: 16,
+    position: "relative",
   },
 });

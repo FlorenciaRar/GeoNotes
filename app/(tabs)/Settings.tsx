@@ -1,4 +1,3 @@
-// app/(tabs)/configuracion.tsx
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet, Text } from "react-native";
 import { useTheme } from "../../context/ThemeContextProvider";

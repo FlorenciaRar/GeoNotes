@@ -10,6 +10,9 @@ const icons = {
   plus: "plus",
   profile: "account-circle-outline",
   settings: "cog-outline",
+  options: "dots-vertical",
+  trash: "trash-can-outline",
+  share: "share-variant-outline",
 } as const;
 
 export type IconName = keyof typeof icons;

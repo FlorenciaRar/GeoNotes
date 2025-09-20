@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { Link } from "expo-router";
 import QuickAccessItem from "../../components/QuickAccessItem";
 import NotesCardContainer from "../../components/NotesCardContainer";
@@ -16,26 +16,26 @@ export default function HomeScreen() {
   return (
     <Container style={styles.container}>
       <View>
-        <Title size="lg">Hola, Tony</Title>
+        <StyledText variant="bold" size="lg">
+          Hola, Tony
+        </StyledText>
       </View>
       <View style={styles.quickAccessContainer}>
         <QuickAccessItem link="/Notes" iconName="note" name="Todas mis notas" />
-        <QuickAccessItem link="/CreateNote" iconName="plus" name="Crear nota" />
+        <QuickAccessItem link="/NewNote" iconName="plus" name="Crear nota" />
         <QuickAccessItem link="/Map" iconName="map" name="Ver mapa" />
-        <QuickAccessItem
-          link="/SharedNotes"
-          iconName="profile"
-          name="Compartidas conmigo"
-        />
+        <QuickAccessItem link="/SharedNotes" iconName="profile" name="Compartidas conmigo" />
       </View>
       <View style={styles.lastNotesTextContainer}>
-        <Title size="md">Últimas notas</Title>
+        <StyledText variant="bold" size="md">
+          Últimas notas
+        </StyledText>
         <Link href="/Notes">
           <Text>Ver todo</Text>
         </Link>
       </View>
 
-      <NotesCardContainer></NotesCardContainer>
+      <NotesCardContainer maxItems={3} />
     </Container>
   );
 }

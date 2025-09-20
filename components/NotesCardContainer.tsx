@@ -1,10 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, FlatList } from "react-native";
+import { useEffect, useState } from "react";
+import { View, FlatList } from "react-native";
 import NoteCardItem from "./NoteCardItem";
-import { Note } from "../utils/types";
+import { Note } from "../models/noteModel";
 
-export default function NotesCardContainer() {
+interface NotesCardContainerProps {
+  maxItems?: number;
+}
+
+export default function NotesCardContainer({ maxItems }: NotesCardContainerProps) {
   const [notes, setNotes] = useState<Note[]>([]);
+
+  const maxNotes = maxItems ? notes.slice(0, maxItems) : notes;
+
+  const handleDelete = (id: string) => {
+    console.log("Borrar nota:", id);
+  };
 
   const initialNotes = [
     {
@@ -21,6 +31,48 @@ export default function NotesCardContainer() {
       adress: "Calle falsa 124",
       content: "Contenido de la nota 2",
     },
+    {
+      id: "2dasd456ad48awMODASIODFOAPIO9d1ad98q",
+      creationDate: "25:05:2026",
+      title: "Nota 2",
+      adress: "Calle falsa 124",
+      content: "Contenido de la nota 2",
+    },
+    {
+      id: "2dasd456adDA<EW90RFW9F48aw9d1ad98q",
+      creationDate: "25:05:2026",
+      title: "Nota 2",
+      adress: "Calle falsa 124",
+      content: "Contenido de la nota 2",
+    },
+    {
+      id: "2dasd456ad4BSCV<NIOWE8R928aw9d1ad98q",
+      creationDate: "25:05:2026",
+      title: "Nota 2",
+      adress: "Calle falsa 124",
+      content: "Contenido de la nota 2",
+    },
+    {
+      id: "dadeqwadqWDqeDW",
+      creationDate: "25:05:2026",
+      title: "Nota 2",
+      adress: "Calle falsa 124",
+      content: "Contenido de la nota 2",
+    },
+    {
+      id: "dadeqwadqWDqeDWfsdfsdf",
+      creationDate: "25:05:2026",
+      title: "Nota 2",
+      adress: "Calle falsa 124",
+      content: "Contenido de la nota 2",
+    },
+    {
+      id: "dadeqwadqWDqeDWfsdffsdfsdfsdf",
+      creationDate: "25:05:2026",
+      title: "Nota 2",
+      adress: "Calle falsa 124",
+      content: "Contenido de la nota 2",
+    },
   ];
   useEffect(() => {
     setNotes(initialNotes);
@@ -28,11 +80,7 @@ export default function NotesCardContainer() {
 
   return (
     <View>
-      <FlatList
-        data={notes}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <NoteCardItem data={item} />}
-      />
+      <FlatList data={maxNotes} keyExtractor={(item) => item.id} renderItem={({ item }) => <NoteCardItem data={item} onDelete={handleDelete} />} />
     </View>
   );
 }
