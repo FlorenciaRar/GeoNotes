@@ -1,3 +1,5 @@
+import { DefaultTheme } from "styled-components/native";
+
 // utils/themes.ts
 export type AppTheme = {
   name: string;
@@ -13,6 +15,48 @@ export type AppTheme = {
   onSurfaceVariant: string;
   outline: string;
   error: string;
+};
+
+export type BaseTheme = {
+  spacing: {
+    sm: string;
+    md: string;
+    lg: string;
+  };
+  fontSizes: {
+    xm: string;
+    sm: string;
+    md: string;
+    lg: string;
+  };
+  fontWeights: {
+    normal: string;
+    bold: string;
+  };
+};
+
+declare module "styled-components/native" {
+  export interface DefaultTheme extends BaseTheme {
+    colors: AppTheme;
+  }
+}
+
+export const baseTheme: BaseTheme = {
+  spacing: {
+    sm: "8px",
+    md: "16px",
+    lg: "24px",
+  },
+  fontSizes: {
+    xm: "14px",
+    sm: "16px",
+    md: "20px",
+    lg: "24px",
+  },
+  fontWeights: {
+    normal: "400",
+    bold: "600",
+  },
 };
 
 /**
@@ -238,3 +282,8 @@ export const appThemes: AppTheme[] = [
     error: "#FF6B6B",
   },
 ];
+
+export const themes: DefaultTheme[] = appThemes.map((colors) => ({
+  ...baseTheme,
+  colors,
+}));

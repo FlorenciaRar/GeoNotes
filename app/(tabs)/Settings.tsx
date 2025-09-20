@@ -8,12 +8,8 @@ export default function Configuracion() {
   const { themes } = useTheme();
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: themes.background }]}
-    >
-      <Text style={[styles.title, { color: themes.onBackground }]}>
-        Pantalla de Configuración
-      </Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: themes.colors.background }]}>
+      <Text style={[styles.title, { color: themes.colors.onBackground }]}>Pantalla de Configuración</Text>
       <ThemePicker />
       <ThemePreview />
     </SafeAreaView>

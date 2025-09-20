@@ -1,11 +1,4 @@
-import {
-  FlatList,
-  Pressable,
-  View,
-  Text,
-  StyleSheet,
-  useWindowDimensions,
-} from "react-native";
+import { FlatList, Pressable, View, Text, StyleSheet, useWindowDimensions } from "react-native";
 import { appThemes } from "../utils";
 import { useTheme } from "../context/ThemeContextProvider";
 
@@ -40,26 +33,18 @@ export default function ThemePicker() {
               styles.card,
               {
                 width: CARD_WIDTH,
-                backgroundColor: themes.surface, // todas iguales
-                borderColor: active ? themes.primary : themes.outline,
+                backgroundColor: themes.colors.surface, // todas iguales
+                borderColor: active ? themes.colors.primary : themes.colors.outline,
               },
-            ]}
-          >
-            <Text
-              style={[
-                styles.name,
-                { color: themes.onSurface, fontWeight: active ? "700" : "500" },
-              ]}
-            >
-              {item.name}
-            </Text>
+            ]}>
+            <Text style={[styles.name, { color: themes.colors.onSurface, fontWeight: active ? "700" : "500" }]}>{item.name}</Text>
             <View style={styles.swatches}>
               <View
                 style={[
                   styles.swatch,
                   {
                     backgroundColor: item.background,
-                    borderColor: themes.outline,
+                    borderColor: themes.colors.outline,
                   },
                 ]}
               />
@@ -68,7 +53,7 @@ export default function ThemePicker() {
                   styles.swatch,
                   {
                     backgroundColor: item.surface,
-                    borderColor: themes.outline,
+                    borderColor: themes.colors.outline,
                   },
                 ]}
               />
@@ -77,7 +62,7 @@ export default function ThemePicker() {
                   styles.swatch,
                   {
                     backgroundColor: item.primary,
-                    borderColor: themes.outline,
+                    borderColor: themes.colors.outline,
                   },
                 ]}
               />
@@ -86,7 +71,7 @@ export default function ThemePicker() {
                   styles.swatch,
                   {
                     backgroundColor: item.secondary,
-                    borderColor: themes.outline,
+                    borderColor: themes.colors.outline,
                   },
                 ]}
               />
@@ -95,7 +80,7 @@ export default function ThemePicker() {
                   styles.swatch,
                   {
                     backgroundColor: item.tertiary,
-                    borderColor: themes.outline,
+                    borderColor: themes.colors.outline,
                   },
                 ]}
               />

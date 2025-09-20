@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { DefaultTheme } from "styled-components/native";
 
 // Sitio para ver los iconos: https://icons.expo.fyi/Index
 

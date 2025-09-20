@@ -1,15 +1,15 @@
 import styled from "styled-components/native";
-import { theme } from "../utils/theme";
+import { DefaultTheme } from "styled-components/native";
 
-type TitleProps = {
-  variant?: keyof typeof theme.fontWeights;
-  color?: keyof typeof theme.colors;
-  size?: keyof typeof theme.fontSizes;
+type TextProps = {
+  variant?: keyof DefaultTheme["fontWeights"]; // usa el theme actual
+  size?: keyof DefaultTheme["fontSizes"];
+  color?: keyof DefaultTheme["colors"];
 };
 
-export const StyledText = styled.Text<TitleProps>`
+export const StyledText = styled.Text<TextProps>`
   font-weight: ${({ variant = "normal", theme }) => theme.fontWeights[variant]};
-  color: ${({ theme }) => theme.colors.text};
   font-size: ${({ size = "md", theme }) => theme.fontSizes[size]};
   line-height: ${({ size = "md", theme }) => parseInt(theme.fontSizes[size]) + 4}px;
+  color: ${({ color = "onBackground", theme }) => theme.colors[color]};
 `;

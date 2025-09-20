@@ -1,13 +1,11 @@
-import React from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { Link } from "expo-router";
 import QuickAccessItem from "../../components/QuickAccessItem";
 import NotesCardContainer from "../../components/NotesCardContainer";
-import { Container } from "../../components/styled-components/StyledSafeAreaView";
-import { Title } from "../../utils/fonts";
 import { useTheme } from "../../context/ThemeContextProvider";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
-import { AppTheme } from "../../utils";
+import { StyledText } from "../../styled-components/StyledText";
+import { Container } from "../../styled-components/StyledSafeAreaView";
+import { DefaultTheme } from "styled-components/native";
 
 export default function HomeScreen() {
   const { themes } = useTheme();
@@ -40,10 +38,10 @@ export default function HomeScreen() {
   );
 }
 
-function getStyles(themes: AppTheme) {
+function getStyles(themes: DefaultTheme) {
   return StyleSheet.create({
     container: {
-      backgroundColor: themes.background,
+      backgroundColor: themes.colors.background,
     },
     quickAccessContainer: {
       flexDirection: "row",
@@ -55,6 +53,5 @@ function getStyles(themes: AppTheme) {
       flexWrap: "wrap",
       justifyContent: "space-between",
     },
-    card: {},
   });
 }

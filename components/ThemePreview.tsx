@@ -9,42 +9,26 @@ export default function ThemePreview() {
       style={[
         styles.wrap,
         {
-          backgroundColor: themes.surface,
-          borderColor: themes.outline,
+          backgroundColor: themes.colors.surface,
+          borderColor: themes.colors.outline,
         },
-      ]}
-    >
+      ]}>
       {/* Botón primario */}
-      <Pressable style={[styles.button, { backgroundColor: themes.primary }]}>
-        <Text style={[styles.buttonText, { color: themes.onPrimary }]}>
-          Botón primario
-        </Text>
+      <Pressable style={[styles.button, { backgroundColor: themes.colors.primary }]}>
+        <Text style={[styles.buttonText, { color: themes.colors.onPrimary }]}>Botón primario</Text>
       </Pressable>
 
       {/* Texto + enlace */}
-      <Text style={[styles.text, { color: themes.onBackground }]}>
-        Texto normal
-      </Text>
-      <Text style={[styles.link, { color: themes.primary }]}>Enlace</Text>
+      <Text style={[styles.text, { color: themes.colors.onBackground }]}>Texto normal</Text>
+      <Text style={[styles.link, { color: themes.colors.primary }]}>Enlace</Text>
 
       {/* Input */}
-      <View
-        style={[
-          styles.input,
-          { borderColor: themes.outline, backgroundColor: themes.surface },
-        ]}
-      >
-        <TextInput
-          placeholder="Placeholder"
-          placeholderTextColor={themes.onSurfaceVariant}
-          style={{ color: themes.onSurface }}
-        />
+      <View style={[styles.input, { borderColor: themes.colors.outline, backgroundColor: themes.colors.surface }]}>
+        <TextInput placeholder="Placeholder" placeholderTextColor={themes.colors.onSurfaceVariant} style={{ color: themes.colors.onSurface }} />
       </View>
 
       {/* Error */}
-      <Text style={[styles.error, { color: themes.error }]}>
-        Mensaje de error
-      </Text>
+      <Text style={[styles.error, { color: themes.colors.error }]}>Mensaje de error</Text>
     </View>
   );
 }

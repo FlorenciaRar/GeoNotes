@@ -1,15 +1,9 @@
 import { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  StyleSheet,
-  Alert,
-} from "react-native";
+import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { AppTheme } from "../../utils";
 import { useTheme } from "../../context/ThemeContextProvider";
+import { DefaultTheme } from "styled-components/native";
 
 export default function Login() {
   const router = useRouter();
@@ -40,7 +34,7 @@ export default function Login() {
       <TextInput
         style={styles.input}
         placeholder="Email"
-        placeholderTextColor={themes.onSurfaceVariant}
+        placeholderTextColor={themes.colors.onSurfaceVariant}
         value={email}
         autoCapitalize="none"
         keyboardType="email-address"
@@ -51,7 +45,7 @@ export default function Login() {
       <TextInput
         style={styles.input}
         placeholder="Contraseña"
-        placeholderTextColor={themes.onSurfaceVariant}
+        placeholderTextColor={themes.colors.onSurfaceVariant}
         value={pass}
         keyboardType="numeric"
         secureTextEntry
@@ -61,27 +55,21 @@ export default function Login() {
       />
 
       <Pressable
-        style={({ pressed }) => [
-          styles.btn,
-          !canSubmit && styles.btnDisabled,
-          pressed && canSubmit && styles.btnPressed,
-        ]}
+        style={({ pressed }) => [styles.btn, !canSubmit && styles.btnDisabled, pressed && canSubmit && styles.btnPressed]}
         onPress={handleLogin}
-        disabled={!canSubmit}
-      >
+        disabled={!canSubmit}>
         <Text style={styles.btnText}>Ingresar</Text>
       </Pressable>
-      <Text style={{ marginTop: 20, color: themes.onBackground }}>
+      <Text style={{ marginTop: 20, color: themes.colors.onBackground }}>
         ¿No tenes cuenta?{" "}
         <Text
           onPress={() => router.push("/register")}
           accessibilityRole="link"
           style={{
-            color: themes.primary,
+            color: themes.colors.primary,
             fontWeight: "bold",
             textDecorationLine: "none",
-          }}
-        >
+          }}>
           Registrate
         </Text>
       </Text>
@@ -89,34 +77,34 @@ export default function Login() {
   );
 }
 
-function getStyles(themes: AppTheme) {
+function getStyles(themes: DefaultTheme) {
   return StyleSheet.create({
     container: {
       flex: 1,
       justifyContent: "center",
       alignItems: "center",
       padding: 20,
-      backgroundColor: themes.background,
+      backgroundColor: themes.colors.background,
     },
     title: {
       fontSize: 26,
       fontWeight: "bold",
       marginBottom: 30,
-      color: themes.onBackground,
+      color: themes.colors.onBackground,
     },
     input: {
       width: "100%",
       height: 50,
       borderWidth: 1,
-      borderColor: themes.outline,
+      borderColor: themes.colors.outline,
       borderRadius: 8,
       marginBottom: 15,
       paddingHorizontal: 10,
-      backgroundColor: themes.surface,
-      color: themes.onSurface,
+      backgroundColor: themes.colors.surface,
+      color: themes.colors.onSurface,
     },
     btn: {
-      backgroundColor: themes.primary,
+      backgroundColor: themes.colors.primary,
       paddingVertical: 15,
       borderRadius: 8,
       width: "100%",
@@ -127,9 +115,9 @@ function getStyles(themes: AppTheme) {
       transform: [{ scale: 0.99 }],
     },
     btnDisabled: {
-      backgroundColor: themes.surfaceVariant,
+      backgroundColor: themes.colors.surfaceVariant,
     },
-    btnText: { color: themes.onPrimary, fontWeight: "bold" },
-    btnTextDisabled: { color: themes.onSurfaceVariant },
+    btnText: { color: themes.colors.onPrimary, fontWeight: "bold" },
+    btnTextDisabled: { color: themes.colors.onSurfaceVariant },
   });
 }
