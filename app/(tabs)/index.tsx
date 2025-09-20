@@ -1,48 +1,57 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { Link } from "expo-router";
 import QuickAccessItem from "../../components/QuickAccessItem";
 import NotesCardContainer from "../../components/NotesCardContainer";
-import { Container } from "../../components/styled-components/StyledSafeAreaView";
-import { Title } from "../../utils/fonts";
+import { useTheme } from "../../context/ThemeContextProvider";
+import { StyledText } from "../../styled-components/StyledText";
+import { Container } from "../../styled-components/StyledSafeAreaView";
+import { DefaultTheme } from "styled-components/native";
 
 export default function HomeScreen() {
+  const { themes } = useTheme();
+  const styles = getStyles(themes);
+
   return (
-    <Container>
+    <Container style={styles.container}>
       <View>
-        <Title size="lg">Hola, Tony</Title>
+        <StyledText variant="bold" size="lg">
+          Hola, Tony
+        </StyledText>
       </View>
       <View style={styles.quickAccessContainer}>
         <QuickAccessItem link="/Notes" iconName="note" name="Todas mis notas" />
-        <QuickAccessItem link="/CreateNote" iconName="plus" name="Crear nota" />
+        <QuickAccessItem link="/NewNote" iconName="plus" name="Crear nota" />
         <QuickAccessItem link="/Map" iconName="map" name="Ver mapa" />
-        <QuickAccessItem
-          link="/SharedNotes"
-          iconName="profile"
-          name="Compartidas conmigo"
-        />
+        <QuickAccessItem link="/SharedNotes" iconName="profile" name="Compartidas conmigo" />
       </View>
       <View style={styles.lastNotesTextContainer}>
-        <Title size="md">Últimas notas</Title>
+        <StyledText variant="bold" size="md">
+          Últimas notas
+        </StyledText>
         <Link href="/Notes">
           <Text>Ver todo</Text>
         </Link>
       </View>
 
-      <NotesCardContainer></NotesCardContainer>
+      <NotesCardContainer maxItems={3} />
     </Container>
   );
 }
 
-const styles = StyleSheet.create({
-  quickAccessContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  lastNotesTextContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-});
+function getStyles(themes: DefaultTheme) {
+  return StyleSheet.create({
+    container: {
+      backgroundColor: themes.colors.background,
+    },
+    quickAccessContainer: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      justifyContent: "space-between",
+    },
+    lastNotesTextContainer: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      justifyContent: "space-between",
+    },
+  });
+}

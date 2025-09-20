@@ -1,14 +1,27 @@
 import React from "react";
-import { Slot, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import { ThemeProvider } from "styled-components/native";
-import { theme } from "../utils/theme";
+import { MenuProvider } from "react-native-popup-menu";
+import { ThemeContextProvider, useTheme } from "../context/ThemeContextProvider";
+
+function InnerLayout() {
+  const { themes } = useTheme();
+
+  return (
+    <ThemeProvider theme={themes}>
+      <MenuProvider>
+        <Stack initialRouteName="(auth)" screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        </Stack>
+      </MenuProvider>
+    </ThemeProvider>
+  );
+}
 
 export default function Layout() {
   return (
-    <ThemeProvider theme={theme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack>
-    </ThemeProvider>
+    <ThemeContextProvider>
+      <InnerLayout />
+    </ThemeContextProvider>
   );
 }

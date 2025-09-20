@@ -2,8 +2,8 @@ import React from "react";
 import { View, Text } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import NoteForm from "../../components/NoteForm";
-import { Container } from "../../components/styled-components/StyledSafeAreaView";
-import { Note } from "../../utils/types";
+import { Container } from "../../styled-components/StyledSafeAreaView";
+import { Note } from "../../models/noteModel";
 
 export default function EditNote() {
   const { NoteId } = useLocalSearchParams<{ NoteId: string }>();

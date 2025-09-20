@@ -6,32 +6,19 @@ import {
   Text,
   StyleSheet,
   Pressable,
+  TouchableOpacity,
+  FlatList,
 } from "react-native";
 import { Formik } from "formik";
-import * as Yup from "yup";
 import * as Location from "expo-location";
 import { useRouter } from "expo-router";
-import { Note } from "../utils/types";
+import { Note } from "../models/noteModel";
+import { NoteSchema } from "../models/YupNoteSchema";
 
 interface NoteFormProps {
   initialValues?: Partial<Note>;
   onSubmit: (note: Omit<Note, "id">) => void;
 }
-
-const NoteSchema = Yup.object().shape({
-  title: Yup.string()
-    .required("El título es obligatorio")
-    .min(3, "Debe tener al menos 3 caracteres"),
-  content: Yup.string()
-    .required("El contenido es obligatorio")
-    .min(5, "Debe tener al menos 5 caracteres"),
-  adress: Yup.string().when("useCurrentLocation", {
-    is: (val: boolean) => val === false,
-    then: (schema) => schema.required("La dirección es obligatoria"),
-    otherwise: (schema) => schema,
-  }),
-  useCurrentLocation: Yup.boolean(),
-});
 
 export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
   const router = useRouter();
@@ -60,23 +47,60 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
     setLocation(readableAddress);
   };
 
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<any[]>([]); //cambiar el tipado de esto
+  const [debouncedQuery, setDebouncedQuery] = useState(query);
+  const [menuShown, setMenuShown] = useState(false);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [query]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (debouncedQuery.length > 2) {
+        try {
+          const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+            debouncedQuery
+          )}&format=json&addressdetails=1&limit=5&countrycodes=ar`;
+
+          const response = await fetch(url, {
+            headers: {
+              "User-Agent": "tu-app/1.0 (tuemail@dominio.com)", // requerido por OSM
+            },
+          });
+          const json = await response.json();
+          setResults(json);
+        } catch (err) {
+          console.error(err);
+        }
+      } else {
+        setResults([]);
+      }
+    };
+
+    fetchData();
+  }, [debouncedQuery]);
+
   return (
     <Formik
       initialValues={{
         title: initialValues?.title ?? "",
         content: initialValues?.content ?? "",
         adress: initialValues?.adress ?? "",
-        useCurrentLocation: false,
       }}
       validationSchema={NoteSchema}
       onSubmit={(values) => {
-        const finalAddress = values.useCurrentLocation
-          ? location
-          : values.adress;
         onSubmit({
           title: values.title,
           content: values.content,
-          adress: finalAddress,
+          adress: values.adress,
           creationDate: initialValues?.creationDate ?? new Date().toISOString(),
         });
         router.push("/");
@@ -102,51 +126,6 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
             <Text style={styles.error}>{errors.title}</Text>
           )}
 
-          {/* Radios */}
-          <View style={styles.radioContainer}>
-            <Pressable
-              style={styles.radioOption}
-              onPress={() => setFieldValue("useCurrentLocation", false)}>
-              <Text>
-                {!values.useCurrentLocation ? "🔘" : "⚪️"} Establecer ubicación
-              </Text>
-            </Pressable>
-            <Pressable
-              style={styles.radioOption}
-              onPress={() => {
-                setFieldValue("useCurrentLocation", true);
-                getCurrentLocation();
-              }}>
-              <Text
-                style={
-                  values.useCurrentLocation
-                    ? styles.activeOption
-                    : styles.inactiveOption
-                }>
-                Usar ubicación actual
-              </Text>
-            </Pressable>
-          </View>
-          {values.useCurrentLocation && location ? (
-            <Text style={{ marginBottom: 8, color: "green" }}>
-              Ubicación actual: {location}
-            </Text>
-          ) : null}
-
-          {/* Input solo si elige manual */}
-          {!values.useCurrentLocation && (
-            <TextInput
-              placeholder="Dirección"
-              style={styles.input}
-              value={values.adress}
-              onChangeText={handleChange("adress")}
-              onBlur={handleBlur("adress")}
-            />
-          )}
-          {touched.adress && errors.adress && (
-            <Text style={styles.error}>{errors.adress}</Text>
-          )}
-
           <TextInput
             placeholder="Contenido"
             style={[styles.input]}
@@ -159,6 +138,54 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
             <Text style={styles.error}>{errors.content}</Text>
           )}
 
+          <View>
+            <TextInput
+              placeholder="Buscar dirección..."
+              value={values.adress}
+              onChangeText={(text) => {
+                setFieldValue("adress", text);
+                setQuery(text);
+              }}
+              onPress={() => setMenuShown(true)}
+              style={{
+                borderWidth: 1,
+                borderColor: "#ccc",
+                borderRadius: 8,
+                padding: 10,
+                marginBottom: 10,
+              }}
+            />
+            {touched.adress && errors.adress && (
+              <Text style={styles.error}>{errors.adress}</Text>
+            )}
+            {menuShown && (
+              <View>
+                <Pressable
+                  onPress={async () => {
+                    await getCurrentLocation();
+                    setFieldValue("adress", location);
+                    setMenuShown(false);
+                  }}>
+                  <Text>Usar ubicación actual</Text>
+                </Pressable>
+                <FlatList
+                  data={results}
+                  keyExtractor={(item) => item.place_id}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setFieldValue("adress", item.display_name);
+                        console.log("Seleccionado:", item.display_name);
+                        console.log("Coords:", item.lat, item.lon);
+                        setMenuShown(false);
+                      }}>
+                      <Text style={{ padding: 10 }}>{item.display_name}</Text>
+                    </TouchableOpacity>
+                  )}
+                />
+              </View>
+            )}
+          </View>
           <Button title="Guardar" onPress={() => handleSubmit()} />
         </View>
       )}
@@ -182,7 +209,4 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "red",
   },
-  radioOption: { padding: 8 },
-  activeOption: { backgroundColor: "red" },
-  inactiveOption: {},
 });

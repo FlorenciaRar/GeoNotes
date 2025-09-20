@@ -1,8 +1,9 @@
-import React from "react";
-import { Text, StyleSheet, Dimensions, Pressable } from "react-native";
+import { StyleSheet, Dimensions, Pressable } from "react-native";
 import Icon, { IconName } from "../utils/icons";
 import { Link } from "expo-router";
-import { Title } from "../utils/fonts";
+import { StyledText } from "../styled-components/StyledText";
+import { useTheme } from "../context/ThemeContextProvider";
+import { DefaultTheme } from "styled-components/native";
 
 const anchoPantalla = Dimensions.get("window").width;
 const itemWidth = anchoPantalla / 2 - 22;
@@ -13,30 +14,31 @@ interface QuickAccessItemProps {
   name: string;
 }
 
-export default function QuickAccessItem({
-  link,
-  iconName,
-  name,
-}: QuickAccessItemProps) {
+export default function QuickAccessItem({ link, iconName, name }: QuickAccessItemProps) {
+  const { themes } = useTheme();
+  const styles = getStyles(themes);
   return (
     <Link href={link} asChild>
       <Pressable style={styles.quickAccessItem}>
-        <Icon iconName={iconName} />
-        <Title size="xm">{name}</Title>
+        <Icon color={themes.colors.onSurface} iconName={iconName} />
+        <StyledText variant="bold" size="xm">
+          {name}
+        </StyledText>
       </Pressable>
     </Link>
   );
 }
-
-const styles = StyleSheet.create({
-  quickAccessItem: {
-    width: itemWidth,
-    height: 90,
-    backgroundColor: "white",
-    borderRadius: 16,
-    marginBottom: 12,
-    padding: 16,
-    justifyContent: "center",
-    rowGap: 16,
-  },
-});
+function getStyles(themes: DefaultTheme) {
+  return StyleSheet.create({
+    quickAccessItem: {
+      width: itemWidth,
+      height: 90,
+      backgroundColor: themes.colors.surface,
+      borderRadius: 16,
+      marginBottom: 12,
+      padding: 16,
+      justifyContent: "center",
+      rowGap: 16,
+    },
+  });
+}
