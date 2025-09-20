@@ -5,10 +5,16 @@ import QuickAccessItem from "../../components/QuickAccessItem";
 import NotesCardContainer from "../../components/NotesCardContainer";
 import { Container } from "../../components/styled-components/StyledSafeAreaView";
 import { Title } from "../../utils/fonts";
+import { useTheme } from "../../context/ThemeContextProvider";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import { AppTheme } from "../../utils";
 
 export default function HomeScreen() {
+  const { themes } = useTheme();
+  const styles = getStyles(themes);
+
   return (
-    <Container>
+    <Container style={styles.container}>
       <View>
         <Title size="lg">Hola, Tony</Title>
       </View>
@@ -34,15 +40,21 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  quickAccessContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  lastNotesTextContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-});
+function getStyles(themes: AppTheme) {
+  return StyleSheet.create({
+    container: {
+      backgroundColor: themes.background,
+    },
+    quickAccessContainer: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      justifyContent: "space-between",
+    },
+    lastNotesTextContainer: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      justifyContent: "space-between",
+    },
+    card: {},
+  });
+}
