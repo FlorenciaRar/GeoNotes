@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  Alert,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { AppTheme } from "../../utils";
 import { useTheme } from "../../context/ThemeContextProvider";
@@ -55,9 +62,14 @@ export default function Login() {
       />
 
       <Pressable
-        style={({ pressed }) => [styles.btn, !canSubmit && styles.btnDisabled, pressed && canSubmit && styles.btnPressed]}
+        style={({ pressed }) => [
+          styles.btn,
+          !canSubmit && styles.btnDisabled,
+          pressed && canSubmit && styles.btnPressed,
+        ]}
         onPress={handleLogin}
-        disabled={!canSubmit}>
+        disabled={!canSubmit}
+      >
         <Text style={styles.btnText}>Ingresar</Text>
       </Pressable>
       <Text style={{ marginTop: 20, color: themes.colors.onBackground }}>
@@ -69,7 +81,8 @@ export default function Login() {
             color: themes.colors.primary,
             fontWeight: "bold",
             textDecorationLine: "none",
-          }}>
+          }}
+        >
           Registrate
         </Text>
       </Text>
