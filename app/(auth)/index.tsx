@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -11,8 +11,10 @@ import { useRouter } from "expo-router";
 import { AppTheme } from "../../utils";
 import { useTheme } from "../../context/ThemeContextProvider";
 import { DefaultTheme } from "styled-components/native";
+import { AUTH_ACTIONS, AuthContext } from "../../context/AuthContext";
 
 export default function Login() {
+  const { state, dispatch } = useContext(AuthContext);
   const router = useRouter();
   const [email, setEmail] = useState<string>("");
   const [pass, setPass] = useState<string>("");
@@ -29,6 +31,21 @@ export default function Login() {
     if (email === "test@gmail.com" && pass === "1234") {
       Alert.alert("Bienvenido " + email);
       router.replace("/(tabs)");
+
+      dispatch({
+        type: AUTH_ACTIONS.LOGIN,
+        payload: {
+          token: "TOKEN",
+          refreshToken: "REFRESH_TOKEN",
+          user: {
+            id: "1",
+            email: "test@gmail.com",
+            name: "Gastón",
+            surname: "Bordet",
+            birthdate: "19-04-1990",
+          },
+        },
+      });
     } else {
       Alert.alert("Credenciales incorrectas");
     }
