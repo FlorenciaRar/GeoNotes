@@ -1,19 +1,12 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  TextInput,
-  Button,
-  Text,
-  StyleSheet,
-  Pressable,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
+import { useState, useEffect } from "react";
+import { View, TextInput, Button, Text, StyleSheet, Pressable, TouchableOpacity, FlatList } from "react-native";
 import { Formik } from "formik";
 import * as Location from "expo-location";
 import { useRouter } from "expo-router";
-import { Note } from "../models/noteModel";
-import { NoteSchema } from "../models/YupNoteSchema";
+import { Note, NoteSchema } from "../models/";
+import { useTheme } from "../context/ThemeContextProvider";
+import { DefaultTheme } from "styled-components/native";
+import { StyledText } from "../styled-components";
 
 interface NoteFormProps {
   initialValues?: Partial<Note>;
@@ -21,6 +14,8 @@ interface NoteFormProps {
 }
 
 export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
+  const { themes } = useTheme();
+  const styles = getStyles(themes);
   const router = useRouter();
 
   const [location, setLocation] = useState<string>("");
@@ -40,9 +35,7 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
       latitude,
       longitude,
     });
-    const readableAddress = `${address.street ?? ""} ${address.name ?? ""}, ${
-      address.city ?? ""
-    }, ${address.region ?? ""}, ${address.country ?? ""}`;
+    const readableAddress = `${address.street ?? ""} ${address.name ?? ""}, ${address.city ?? ""}, ${address.region ?? ""}, ${address.country ?? ""}`;
 
     setLocation(readableAddress);
   };
@@ -50,6 +43,7 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]); //cambiar el tipado de esto
   const [debouncedQuery, setDebouncedQuery] = useState(query);
+
   const [menuShown, setMenuShown] = useState(false);
 
   useEffect(() => {
@@ -105,87 +99,73 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
         });
         router.push("/");
       }}>
-      {({
-        handleChange,
-        handleBlur,
-        handleSubmit,
-        values,
-        errors,
-        touched,
-        setFieldValue,
-      }) => (
+      {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
         <View>
-          <TextInput
-            placeholder="Título"
-            style={[styles.input, { fontSize: 20 }]}
-            value={values.title}
-            onChangeText={handleChange("title")}
-            onBlur={handleBlur("title")}
-          />
-          {touched.title && errors.title && (
-            <Text style={styles.error}>{errors.title}</Text>
-          )}
-
-          <TextInput
-            placeholder="Contenido"
-            style={[styles.input]}
-            value={values.content}
-            onChangeText={handleChange("content")}
-            onBlur={handleBlur("content")}
-            multiline
-          />
-          {touched.content && errors.content && (
-            <Text style={styles.error}>{errors.content}</Text>
-          )}
-
           <View>
             <TextInput
-              placeholder="Buscar dirección..."
+              placeholder="Buscar una dirección..."
+              placeholderTextColor={themes.colors.onSurfaceVariant}
               value={values.adress}
               onChangeText={(text) => {
                 setFieldValue("adress", text);
                 setQuery(text);
               }}
               onPress={() => setMenuShown(true)}
-              style={{
-                borderWidth: 1,
-                borderColor: "#ccc",
-                borderRadius: 8,
-                padding: 10,
-                marginBottom: 10,
-              }}
+              style={styles.locationInput}
             />
-            {touched.adress && errors.adress && (
-              <Text style={styles.error}>{errors.adress}</Text>
-            )}
+            {touched.adress && errors.adress && <Text style={styles.error}>{errors.adress}</Text>}
             {menuShown && (
-              <View>
+              <View style={styles.menuContainer}>
                 <Pressable
                   onPress={async () => {
                     await getCurrentLocation();
                     setFieldValue("adress", location);
                     setMenuShown(false);
                   }}>
-                  <Text>Usar ubicación actual</Text>
+                  <StyledText size="xm" color="onSurface">
+                    Usar ubicación actual
+                  </StyledText>
                 </Pressable>
                 <FlatList
                   data={results}
                   keyExtractor={(item) => item.place_id}
                   renderItem={({ item }) => (
-                    <TouchableOpacity
+                    <Pressable
+                      style={styles.menuAddressOption}
                       onPress={() => {
                         setFieldValue("adress", item.display_name);
-                        console.log("Seleccionado:", item.display_name);
-                        console.log("Coords:", item.lat, item.lon);
                         setMenuShown(false);
                       }}>
-                      <Text style={{ padding: 10 }}>{item.display_name}</Text>
-                    </TouchableOpacity>
+                      <StyledText size="xm" color="onSurface" numberOfLines={2}>
+                        {item.display_name}
+                      </StyledText>
+                    </Pressable>
                   )}
                 />
               </View>
             )}
           </View>
+          <TextInput
+            placeholder="Título"
+            placeholderTextColor={themes.colors.onSurfaceVariant}
+            style={[styles.input, { fontSize: 20 }]}
+            value={values.title}
+            onChangeText={handleChange("title")}
+            onBlur={handleBlur("title")}
+          />
+          {touched.title && errors.title && <Text style={styles.error}>{errors.title}</Text>}
+
+          <TextInput
+            placeholder="Contenido"
+            placeholderTextColor={themes.colors.onSurfaceVariant}
+            style={styles.input}
+            value={values.content}
+            onChangeText={handleChange("content")}
+            onBlur={handleBlur("content")}
+            multiline
+          />
+          {touched.content && errors.content && <Text style={styles.error}>{errors.content}</Text>}
+
           <Button title="Guardar" onPress={() => handleSubmit()} />
         </View>
       )}
@@ -193,20 +173,42 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  input: {
-    borderWidth: 0,
-    paddingVertical: 8,
-    paddingHorizontal: 0,
-    fontSize: 16,
-  },
-  error: { color: "red", fontSize: 12, marginTop: 0, marginBottom: 8 },
-  radioContainer: {
-    flexDirection: "row",
-    gap: 12,
-    marginVertical: 8,
-    borderRadius: 60,
-    borderWidth: 1,
-    borderColor: "red",
-  },
-});
+function getStyles(themes: DefaultTheme) {
+  return StyleSheet.create({
+    input: {
+      color: themes.colors.onBackground,
+      borderWidth: 0,
+      paddingVertical: 8,
+      paddingHorizontal: 0,
+      fontSize: themes.fontSizes.sm,
+    },
+    locationInput: {
+      backgroundColor: themes.colors.surface,
+      borderRadius: 60,
+      paddingHorizontal: themes.spacing.lg,
+      color: themes.colors.onSurface,
+    },
+    error: {
+      color: themes.colors.error,
+      fontSize: themes.fontSizes.xm,
+      marginTop: 0,
+      marginBottom: 8,
+    },
+    menuContainer: {
+      position: "absolute",
+      maxHeight: 200,
+      width: "100%",
+      top: 52,
+      zIndex: 1,
+      backgroundColor: themes.colors.surface,
+      padding: themes.spacing.md,
+      borderRadius: 16,
+    },
+    menuAddressOption: {
+      marginTop: themes.spacing.md,
+      paddingTop: themes.spacing.md,
+      borderTopWidth: 1,
+      borderTopColor: themes.colors.outline,
+    },
+  });
+}

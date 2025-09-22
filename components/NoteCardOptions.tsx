@@ -1,29 +1,30 @@
-import { StyleSheet, Text } from "react-native";
-import Icon from "../utils/icons";
+import { StyleSheet } from "react-native";
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from "react-native-popup-menu";
+import { useTheme } from "../context/ThemeContextProvider";
+import { DefaultTheme } from "styled-components/native";
+import { StyledText } from "../styled-components";
+import { Icon } from "../utils";
 
 interface MenuProps {
   onDelete: () => void;
 }
 
 export default function NoteCardOptionsMenu({ onDelete }: MenuProps) {
+  const { themes } = useTheme();
+  const styles = getStyles(themes);
   return (
     <Menu style={styles.optionsButton}>
       <MenuTrigger>
-        <Icon iconName="options" />
+        <Icon iconName="options" color={themes.colors.onSurface} />
       </MenuTrigger>
       <MenuOptions
         customStyles={{
           optionsContainer: {
             marginTop: 32,
-            padding: 8,
-            borderRadius: 12,
-            backgroundColor: "#fff",
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: 0.15,
-            shadowRadius: 4,
-            elevation: 4,
+            padding: themes.spacing.sm,
+            borderRadius: themes.spacing.md,
+            backgroundColor: `${themes.colors.surface}`,
+            shadowColor: `${themes.colors.onSurface}`,
           },
         }}>
         <MenuOption
@@ -31,54 +32,47 @@ export default function NoteCardOptionsMenu({ onDelete }: MenuProps) {
             optionWrapper: {
               flexDirection: "row",
               alignItems: "center",
-              gap: 4,
+              gap: themes.spacing.xm,
             },
-            optionText: {},
           }}
           onSelect={() => {}}>
-          <Icon iconName="share" size={20} />
-          <Text>Compartir</Text>
+          <Icon iconName="share" size={20} color={themes.colors.onSurface} />
+          <StyledText size="xm" color="onSurface">
+            {"Compartir"}
+          </StyledText>
         </MenuOption>
         <MenuOption
           customStyles={{
             optionWrapper: {
               flexDirection: "row",
               alignItems: "center",
-              gap: 4,
+              gap: themes.spacing.xm,
             },
-            optionText: {},
           }}
           onSelect={onDelete}>
-          <Icon iconName="trash" size={20} />
-          <Text>Borrar</Text>
+          <Icon iconName="trash" size={20} color={themes.colors.onSurface} />
+          <StyledText size="xm" color="onSurface">
+            {"Borrar"}
+          </StyledText>
         </MenuOption>
       </MenuOptions>
     </Menu>
   );
 }
 
-const styles = StyleSheet.create({
-  noteCardContainer: {
-    backgroundColor: "#ffffff",
-    padding: 16,
-    borderRadius: 16,
-    marginBottom: 16,
-    position: "relative",
-  },
-  optionsButton: {
-    position: "absolute",
-    right: 16,
-    top: 16,
-  },
-  optionsContainer: {
-    marginTop: 32,
-    padding: 8,
-    borderRadius: 12,
-    backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-});
+function getStyles(themes: DefaultTheme) {
+  return StyleSheet.create({
+    noteCardContainer: {
+      backgroundColor: themes.colors.surface,
+      padding: themes.spacing.md,
+      borderRadius: themes.spacing.md,
+      marginBottom: themes.spacing.md,
+      position: "relative",
+    },
+    optionsButton: {
+      position: "absolute",
+      right: themes.spacing.md,
+      top: themes.spacing.md,
+    },
+  });
+}
