@@ -28,6 +28,7 @@ const AuthProvider = (props: any) => {
     const { payload } = action;
     switch (action.type) {
       case AUTH_ACTIONS.LOGIN:
+        console.log("🔥 Reducer LOGIN con payload:", payload);
         setUser(payload.user);
         return {
           ...prevState,
@@ -35,7 +36,8 @@ const AuthProvider = (props: any) => {
           token: payload.token,
           refreshToken: payload.refreshToken,
         };
-      case AUTH_ACTIONS.LOGOUT: //se encarga de limpiar el estado
+      case AUTH_ACTIONS.LOGOUT:
+        console.log("🔥 Reducer LOGOUT");
         deleteUser();
         return initialState;
       default:

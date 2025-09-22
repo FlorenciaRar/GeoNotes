@@ -12,6 +12,7 @@ import { AppTheme } from "../../utils";
 import { useTheme } from "../../context/ThemeContextProvider";
 import { DefaultTheme } from "styled-components/native";
 import { AUTH_ACTIONS, AuthContext } from "../../context/AuthContext";
+import { setUser } from "../../utils/secure-store";
 
 export default function Login() {
   const { state, dispatch } = useContext(AuthContext);
@@ -25,12 +26,21 @@ export default function Login() {
   //Habilita el boton solo si ambos campos tienen contenido
   const canSubmit = email.length > 0 && pass.length > 0;
 
-  const handleLogin = (): void => {
+  const handleLogin = async (): Promise<void> => {
     if (!canSubmit) return;
 
     if (email === "test@gmail.com" && pass === "1234") {
       Alert.alert("Bienvenido " + email);
-      router.replace("/(tabs)");
+
+      //Guardar usuario en SecureStore
+      const user = {
+        id: "1",
+        email: "test@gmail.com",
+        name: "Gastón",
+        surname: "Bordet",
+        birthdate: "19-04-1990",
+      };
+      await setUser(user);
 
       dispatch({
         type: AUTH_ACTIONS.LOGIN,
@@ -46,6 +56,8 @@ export default function Login() {
           },
         },
       });
+
+      router.replace("/(tabs)");
     } else {
       Alert.alert("Credenciales incorrectas");
     }
