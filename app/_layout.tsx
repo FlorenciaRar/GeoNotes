@@ -1,9 +1,4 @@
-//Segun se puede ver con los log en consola, el usuario si persiste al cerrar la app y abrirla
-//El problema esta en no esta reconociendo que el usuario ya esta logueado hacia (tabs) y lo redirige a (auth)
-//Probablemente el problema este en el useEffect que carga el usuario desde SecureStore, no se si es un tema de asincronismo o que
-//El useEffect se ejecuta despues de que se decide la ruta inicial y por eso siempre va a (auth) y nunca a (tabs)
-//Tambien puede ser que el getUser no este funcionando bien, pero los log indican que si encuentra el usuario guardado
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { ThemeProvider } from "styled-components/native";
 import { MenuProvider } from "react-native-popup-menu";
@@ -28,13 +23,10 @@ function InnerLayout() {
 
   useEffect(() => {
     const loadUser = async () => {
-      console.log("🚀 Checking user in SecureStore...");
       const user = await getUser();
-      console.log("🔹 getUser returned:", user);
 
       if (user) {
         dispatch({ type: AUTH_ACTIONS.LOGIN, payload: { user } });
-        console.log("✅ Dispatch LOGIN with user:", user);
       }
 
       setIsLoading(false);
@@ -51,18 +43,14 @@ function InnerLayout() {
           if (currentRoot !== "(tabs)") {
             router.replace("/(tabs)");
           } else {
-            console.log("Already in (tabs), no replace needed");
           }
         } else {
           if (currentRoot !== "(auth)") {
             router.replace("/(auth)");
           } else {
-            console.log("Already in (auth), no replace needed");
           }
         }
-      } catch (err) {
-        console.log("Router replace error:", err);
-      }
+      } catch (err) {}
     };
 
     loadUser();

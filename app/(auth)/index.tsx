@@ -6,6 +6,7 @@ import {
   Pressable,
   StyleSheet,
   Alert,
+  KeyboardAvoidingView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { AppTheme } from "../../utils";
@@ -64,58 +65,61 @@ export default function Login() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}> Iniciar Sesion</Text>
+    // REVISAR KeyboardAvoidingView
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+      <View style={styles.container}>
+        <Text style={styles.title}> Iniciar Sesion</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor={themes.colors.onSurfaceVariant}
-        value={email}
-        autoCapitalize="none"
-        keyboardType="email-address"
-        onChangeText={setEmail}
-        returnKeyType="next"
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          placeholderTextColor={themes.colors.onSurfaceVariant}
+          value={email}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          onChangeText={setEmail}
+          returnKeyType="next"
+        />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        placeholderTextColor={themes.colors.onSurfaceVariant}
-        value={pass}
-        keyboardType="numeric"
-        secureTextEntry
-        onChangeText={setPass}
-        returnKeyType="done"
-        onSubmitEditing={handleLogin}
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Contraseña"
+          placeholderTextColor={themes.colors.onSurfaceVariant}
+          value={pass}
+          keyboardType="numeric"
+          secureTextEntry
+          onChangeText={setPass}
+          returnKeyType="done"
+          onSubmitEditing={handleLogin}
+        />
 
-      <Pressable
-        style={({ pressed }) => [
-          styles.btn,
-          !canSubmit && styles.btnDisabled,
-          pressed && canSubmit && styles.btnPressed,
-        ]}
-        onPress={handleLogin}
-        disabled={!canSubmit}
-      >
-        <Text style={styles.btnText}>Ingresar</Text>
-      </Pressable>
-      <Text style={{ marginTop: 20, color: themes.colors.onBackground }}>
-        ¿No tenes cuenta?{" "}
-        <Text
-          onPress={() => router.push("/register")}
-          accessibilityRole="link"
-          style={{
-            color: themes.colors.primary,
-            fontWeight: "bold",
-            textDecorationLine: "none",
-          }}
+        <Pressable
+          style={({ pressed }) => [
+            styles.btn,
+            !canSubmit && styles.btnDisabled,
+            pressed && canSubmit && styles.btnPressed,
+          ]}
+          onPress={handleLogin}
+          disabled={!canSubmit}
         >
-          Registrate
+          <Text style={styles.btnText}>Ingresar</Text>
+        </Pressable>
+        <Text style={{ marginTop: 20, color: themes.colors.onBackground }}>
+          ¿No tenes cuenta?{" "}
+          <Text
+            onPress={() => router.push("/register")}
+            accessibilityRole="link"
+            style={{
+              color: themes.colors.primary,
+              fontWeight: "bold",
+              textDecorationLine: "none",
+            }}
+          >
+            Registrate
+          </Text>
         </Text>
-      </Text>
-    </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
