@@ -12,6 +12,7 @@ function InnerLayout() {
       <MenuProvider>
         <Stack initialRouteName="(auth)" screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="notes/[NoteId]" options={{ headerShown: true }} />
         </Stack>
       </MenuProvider>
     </ThemeProvider>

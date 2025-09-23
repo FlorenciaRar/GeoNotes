@@ -9,7 +9,7 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: true,
         headerStyle: {
-          backgroundColor: `${themes.colors.surface}`, // Set your desired background color here
+          backgroundColor: `${themes.colors.surface}`,
         },
         headerTintColor: `${themes.colors.onSurface}`,
         tabBarActiveTintColor: `${themes.colors.onSurface}`,
@@ -37,7 +37,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="NewNote"
         options={{
-          title: "Crear una nueva nota",
+          title: "Nueva nota",
           tabBarIcon: () => <Icon iconName="plus" color={`${themes.colors.onPrimary}`} />,
           tabBarIconStyle: {
             backgroundColor: `${themes.colors.primary}`,
