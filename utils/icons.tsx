@@ -14,6 +14,7 @@ const icons = {
   options: "dots-vertical",
   trash: "trash-can-outline",
   share: "share-variant-outline",
+  back: "arrow-left",
 } as const;
 
 export type IconName = keyof typeof icons;
@@ -24,7 +25,11 @@ interface IconProps {
   color?: string;
 }
 
-export default function Icon({ iconName, size = 24, color = "black" }: IconProps) {
+export default function Icon({
+  iconName,
+  size = 24,
+  color = "black",
+}: IconProps) {
   const icon = icons[iconName];
   return <MaterialCommunityIcons name={icon} size={size} color={color} />;
 }

@@ -11,7 +11,8 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: "#00000088",
         headerBackButtonDisplayMode: "default",
         tabBarShowLabel: false,
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
@@ -53,6 +54,12 @@ export default function TabsLayout() {
         options={{
           title: "Configuración",
           tabBarIcon: ({ color }) => <Icon iconName="settings" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="select-theme"
+        options={{
+          title: "Seleccionar Tema",
         }}
       />
     </Tabs>

@@ -1,13 +1,11 @@
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet, Text, Pressable } from "react-native";
 import { useTheme } from "../../context/ThemeContextProvider";
-import ThemePicker from "../../components/ThemePicker";
-import ThemePreview from "../../components/ThemePreview";
 import { useContext } from "react";
 import { router } from "expo-router";
 import { AUTH_ACTIONS, AuthContext } from "../../context/AuthContext";
 
-export default function Configuracion() {
+export default function Settings() {
   const { themes } = useTheme();
   const { dispatch } = useContext(AuthContext);
 
@@ -21,12 +19,14 @@ export default function Configuracion() {
     <SafeAreaView
       style={[styles.container, { backgroundColor: themes.colors.background }]}
     >
-      <Text style={[styles.title, { color: themes.colors.onBackground }]}>
-        Pantalla de Configuración
-      </Text>
-      <ThemePicker />
-      <ThemePreview />
-
+      <Pressable
+        style={[styles.btn, { backgroundColor: themes.colors.primary }]}
+        onPress={() => router.push("/settings/select-theme")}
+      >
+        <Text style={[styles.btnText, { color: themes.colors.onPrimary }]}>
+          Personalización
+        </Text>
+      </Pressable>
       {/* Botón de logout */}
       <Pressable style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutText}>Cerrar sesión</Text>
@@ -51,6 +51,16 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 8,
     backgroundColor: "#E53935",
+  },
+  btn: {
+    marginTop: 32,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  btnText: {
+    textAlign: "center",
+    fontSize: 16,
+    fontWeight: "600",
   },
   logoutText: {
     textAlign: "center",
