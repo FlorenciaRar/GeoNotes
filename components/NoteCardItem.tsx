@@ -1,6 +1,5 @@
-import React from "react";
-import { View, StyleSheet, Pressable, Text } from "react-native";
-import { Note } from "../models/noteModel";
+import { View, StyleSheet, Pressable } from "react-native";
+import { Note } from "../models/";
 import { Link } from "expo-router";
 import { StyledText } from "../styled-components/StyledText";
 import NoteCardOptionsMenu from "./NoteCardOptions";
@@ -40,7 +39,7 @@ function getStyles(themes: DefaultTheme) {
   return StyleSheet.create({
     noteCardContainer: {
       backgroundColor: themes.colors.surface,
-      padding: 16,
+      padding: themes.spacing.md,
       borderRadius: 16,
       marginBottom: 16,
       position: "relative",

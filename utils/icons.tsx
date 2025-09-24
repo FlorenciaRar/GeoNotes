@@ -15,6 +15,8 @@ const icons = {
   trash: "trash-can-outline",
   share: "share-variant-outline",
   back: "arrow-left",
+  save: "content-save-outline",
+  attachment: "plus-box-outline",
 } as const;
 
 export type IconName = keyof typeof icons;

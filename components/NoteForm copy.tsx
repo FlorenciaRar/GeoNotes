@@ -14,13 +14,6 @@ interface NoteFormProps {
   onSubmit: (note: Omit<Note, "id">) => void;
 }
 
-interface searchResults {
-  place_id: string;
-  display_name: string;
-  lat: string;
-  lon: string;
-}
-
 interface LocationData {
   address: string;
   latitude: number;
@@ -58,9 +51,23 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
     });
   };
 
-  const [results, setResults] = useState<searchResults[]>([]);
-  const [menuShown, setMenuShown] = useState<Boolean>(false);
-  const [searchText, setSearchText] = useState<string>("");
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<any[]>([]); //cambiar el tipado de esto
+  const [debouncedQuery, setDebouncedQuery] = useState(query);
+
+  const [menuShown, setMenuShown] = useState(false);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [query]);
+
+  const [searchText, setSearchText] = useState("");
 
   const fetchAddress = async () => {
     if (!searchText.trim().length) {
@@ -69,24 +76,44 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
     const url = `https://nominatim.openstreetmap.org/search?q=${searchText}&format=json&addressdetails=1&limit=5&countrycodes=ar`;
 
     try {
-      const resp: Response = await fetch(url, {
+      const resp = await fetch(url, {
         headers: {
           "User-Agent": "tu-app/1.0 (tuemail@dominio.com)", // requerido por OSM
         },
       });
-      const json: searchResults[] = await resp.json();
-      setResults(json);
+      const json = await resp.json();
+      // setResults(json);
+      console.log("resultados" + json);
     } catch (err) {
       console.error(err);
     }
   };
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      fetchAddress();
-    }, 1000);
+    // const fetchData = async () => {
+    //   if (debouncedQuery.length > 2) {
+    //     try {
+    //       const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+    //         debouncedQuery
+    //       )}&format=json&addressdetails=1&limit=5&countrycodes=ar`;
 
-    return () => clearTimeout(timeout);
+    //       const response = await fetch(url, {
+    //         headers: {
+    //           "User-Agent": "tu-app/1.0 (tuemail@dominio.com)", // requerido por OSM
+    //         },
+    //       });
+    //       const json = await response.json();
+    //       setResults(json);
+    //     } catch (err) {
+    //       console.error(err);
+    //     }
+    //   } else {
+    //     setResults([]);
+    //   }
+    // };
+    // debouncedQuery
+    // fetchData();
+    fetchAddress();
   }, [searchText]);
 
   return (
@@ -133,6 +160,7 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
               onChangeText={(text) => {
                 setFieldValue("adress", text);
                 setSearchText(text);
+                setQuery(text);
               }}
               onPress={() => setMenuShown(true)}
               style={styles.locationInput}

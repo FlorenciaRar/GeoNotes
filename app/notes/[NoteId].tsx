@@ -1,20 +1,17 @@
-import React from "react";
 import { View, Text } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import NoteForm from "../../components/NoteForm";
-import { Container } from "../../styled-components/StyledSafeAreaView";
 import { Note } from "../../models/noteModel";
+import { Container } from "../../styled-components";
+import { useTheme } from "../../context/ThemeContextProvider";
+import { initialNotes } from "../../mocks/notes";
 
 export default function EditNote() {
   const { NoteId } = useLocalSearchParams<{ NoteId: string }>();
 
-  const mockNote = {
-    id: "2dasd456ad48aw9d1ad98q",
-    creationDate: "25:05:2026",
-    title: "Nota 2",
-    adress: "Calle falsa 124",
-    content: "Contenido de la nota 2",
-  };
+  const { themes } = useTheme();
+
+  const selectedNote = initialNotes.find((note) => note.id === NoteId);
 
   const handleSubmit = (updatedNote: Partial<Note>) => {
     console.log("Actualizar nota:", NoteId, updatedNote);
@@ -22,8 +19,24 @@ export default function EditNote() {
 
   return (
     <Container>
-      <Text>Editando: {NoteId}</Text>
-      <NoteForm initialValues={mockNote} onSubmit={handleSubmit} />
+      {!selectedNote ? (
+        <Text>no hay</Text>
+      ) : (
+        <>
+          <Stack.Screen
+            options={{
+              title: `${selectedNote.title}`,
+              headerShown: true,
+              headerStyle: {
+                backgroundColor: `${themes.colors.surface}`,
+              },
+              headerTintColor: `${themes.colors.onSurface}`,
+              headerBackButtonDisplayMode: "default",
+            }}
+          />
+          <NoteForm initialValues={selectedNote} onSubmit={handleSubmit} />
+        </>
+      )}
     </Container>
   );
 }

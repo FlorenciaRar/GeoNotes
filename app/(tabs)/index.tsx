@@ -40,7 +40,7 @@ export default function HomeScreen() {
           Últimas notas
         </StyledText>
         <Link href="/Notes">
-          <Text>Ver todo</Text>
+          <StyledText size="xm">Ver todo</StyledText>
         </Link>
       </View>
 

@@ -31,12 +31,7 @@ function InnerLayout() {
 
       setIsLoading(false);
 
-      // Forzamos navegación luego de cargar el usuario persistido.
-      // Esto evita la condición de carrera donde Expo Router decide la
-      // ruta inicial antes de que el estado de auth se actualice.
       try {
-        // Evitar reemplazos redundantes que generan un loop:
-        // comprobamos el primer segmento actual antes de hacer replace.
         const currentRoot =
           segments && segments.length > 0 ? segments[0] : null;
         if (user) {
@@ -56,19 +51,18 @@ function InnerLayout() {
     loadUser();
   }, []);
 
-  if (isLoading) return null; // opcional: splash screen o loader
+  if (isLoading) return null; 
 
   return (
     <ThemeProvider theme={themes}>
       <MenuProvider>
         <Stack screenOptions={{ headerShown: false }}>
           {state.user ? (
-            // Si hay usuario logueado, renderizamos las tabs
             <Stack.Screen name="(tabs)" />
           ) : (
-            // Si no hay usuario, renderizamos auth
             <Stack.Screen name="(auth)" />
           )}
+          <Stack.Screen name="notes/[NoteId]" options={{ headerShown: true }} />
         </Stack>
       </MenuProvider>
     </ThemeProvider>

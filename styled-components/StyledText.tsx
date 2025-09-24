@@ -9,7 +9,7 @@ type TextProps = {
 
 export const StyledText = styled.Text<TextProps>`
   font-weight: ${({ variant = "normal", theme }) => theme.fontWeights[variant]};
-  font-size: ${({ size = "md", theme }) => theme.fontSizes[size]};
-  line-height: ${({ size = "md", theme }) => parseInt(theme.fontSizes[size]) + 4}px;
+  font-size: ${({ size = "md", theme }) => theme.fontSizes[size]}px;
+  line-height: ${({ size = "md", theme }) => theme.fontSizes[size] + 4}px;
   color: ${({ color = "onBackground", theme }) => theme.colors[color]};
 `;
