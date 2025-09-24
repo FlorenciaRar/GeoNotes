@@ -63,6 +63,12 @@ export default function TabsLayout() {
           tabBarIcon: ({ color }) => <Icon iconName="settings" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="select-theme"
+        options={{
+          title: "Seleccionar Tema",
+        }}
+      />
     </Tabs>
   );
 }

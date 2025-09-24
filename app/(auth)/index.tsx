@@ -1,11 +1,22 @@
-import { useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-native";
+import { useContext, useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  Alert,
+  KeyboardAvoidingView,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { AppTheme } from "../../utils";
 import { useTheme } from "../../context/ThemeContextProvider";
 import { DefaultTheme } from "styled-components/native";
+import { AUTH_ACTIONS, AuthContext } from "../../context/AuthContext";
+import { setUser } from "../../utils/secure-store";
 
 export default function Login() {
+  const { state, dispatch } = useContext(AuthContext);
   const router = useRouter();
   const [email, setEmail] = useState<string>("");
   const [pass, setPass] = useState<string>("");
@@ -16,11 +27,37 @@ export default function Login() {
   //Habilita el boton solo si ambos campos tienen contenido
   const canSubmit = email.length > 0 && pass.length > 0;
 
-  const handleLogin = (): void => {
+  const handleLogin = async (): Promise<void> => {
     if (!canSubmit) return;
 
     if (email === "test@gmail.com" && pass === "1234") {
       Alert.alert("Bienvenido " + email);
+
+      //Guardar usuario en SecureStore
+      const user = {
+        id: "1",
+        email: "test@gmail.com",
+        name: "Gastón",
+        surname: "Bordet",
+        birthdate: "19-04-1990",
+      };
+      await setUser(user);
+
+      dispatch({
+        type: AUTH_ACTIONS.LOGIN,
+        payload: {
+          token: "TOKEN",
+          refreshToken: "REFRESH_TOKEN",
+          user: {
+            id: "1",
+            email: "test@gmail.com",
+            name: "Gastón",
+            surname: "Bordet",
+            birthdate: "19-04-1990",
+          },
+        },
+      });
+
       router.replace("/(tabs)");
     } else {
       Alert.alert("Credenciales incorrectas");
@@ -28,52 +65,61 @@ export default function Login() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}> Iniciar Sesion</Text>
+    // REVISAR KeyboardAvoidingView
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+      <View style={styles.container}>
+        <Text style={styles.title}> Iniciar Sesion</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor={themes.colors.onSurfaceVariant}
-        value={email}
-        autoCapitalize="none"
-        keyboardType="email-address"
-        onChangeText={setEmail}
-        returnKeyType="next"
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          placeholderTextColor={themes.colors.onSurfaceVariant}
+          value={email}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          onChangeText={setEmail}
+          returnKeyType="next"
+        />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        placeholderTextColor={themes.colors.onSurfaceVariant}
-        value={pass}
-        keyboardType="numeric"
-        secureTextEntry
-        onChangeText={setPass}
-        returnKeyType="done"
-        onSubmitEditing={handleLogin}
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Contraseña"
+          placeholderTextColor={themes.colors.onSurfaceVariant}
+          value={pass}
+          keyboardType="numeric"
+          secureTextEntry
+          onChangeText={setPass}
+          returnKeyType="done"
+          onSubmitEditing={handleLogin}
+        />
 
-      <Pressable
-        style={({ pressed }) => [styles.btn, !canSubmit && styles.btnDisabled, pressed && canSubmit && styles.btnPressed]}
-        onPress={handleLogin}
-        disabled={!canSubmit}>
-        <Text style={styles.btnText}>Ingresar</Text>
-      </Pressable>
-      <Text style={{ marginTop: 20, color: themes.colors.onBackground }}>
-        ¿No tenes cuenta?{" "}
-        <Text
-          onPress={() => router.push("/register")}
-          accessibilityRole="link"
-          style={{
-            color: themes.colors.primary,
-            fontWeight: "bold",
-            textDecorationLine: "none",
-          }}>
-          Registrate
+        <Pressable
+          style={({ pressed }) => [
+            styles.btn,
+            !canSubmit && styles.btnDisabled,
+            pressed && canSubmit && styles.btnPressed,
+          ]}
+          onPress={handleLogin}
+          disabled={!canSubmit}
+        >
+          <Text style={styles.btnText}>Ingresar</Text>
+        </Pressable>
+        <Text style={{ marginTop: 20, color: themes.colors.onBackground }}>
+          ¿No tenes cuenta?{" "}
+          <Text
+            onPress={() => router.push("/register")}
+            accessibilityRole="link"
+            style={{
+              color: themes.colors.primary,
+              fontWeight: "bold",
+              textDecorationLine: "none",
+            }}
+          >
+            Registrate
+          </Text>
         </Text>
-      </Text>
-    </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
