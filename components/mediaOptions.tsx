@@ -5,17 +5,18 @@ import { DefaultTheme } from "styled-components/native";
 import { StyledText } from "../styled-components";
 import { Icon } from "../utils";
 
-interface MenuProps {
-  onDelete: () => void;
+interface MediaMenuProps {
+  pickImage: () => void;
 }
 
-export default function NoteCardOptionsMenu({ onDelete }: MenuProps) {
+export default function MediaOptionsMenu({ pickImage }: MediaMenuProps) {
   const { themes } = useTheme();
   const styles = getStyles(themes);
+
   return (
     <Menu style={styles.optionsButton}>
       <MenuTrigger>
-        <Icon iconName="options" color={themes.colors.onSurface} />
+        <Icon iconName="attachment" color={themes.colors.onSurface} />
       </MenuTrigger>
       <MenuOptions
         customStyles={{
@@ -35,10 +36,10 @@ export default function NoteCardOptionsMenu({ onDelete }: MenuProps) {
               gap: themes.spacing.sm,
             },
           }}
-          onSelect={() => {}}>
-          <Icon iconName="share" size={20} color={themes.colors.onSurface} />
+          onSelect={() => alert("WIP")}>
+          <Icon iconName="camera" size={20} color={themes.colors.onSurface} />
           <StyledText size="xm" color="onSurface">
-            Compartir
+            Tomar una foto
           </StyledText>
         </MenuOption>
         <MenuOption
@@ -49,10 +50,10 @@ export default function NoteCardOptionsMenu({ onDelete }: MenuProps) {
               gap: themes.spacing.sm,
             },
           }}
-          onSelect={onDelete}>
-          <Icon iconName="trash" size={20} color={themes.colors.onSurface} />
+          onSelect={pickImage}>
+          <Icon iconName="galery" size={20} color={themes.colors.onSurface} />
           <StyledText size="xm" color="onSurface">
-            Borrar
+            Agregar una imagen
           </StyledText>
         </MenuOption>
       </MenuOptions>
@@ -66,13 +67,9 @@ function getStyles(themes: DefaultTheme) {
       backgroundColor: themes.colors.surface,
       padding: themes.spacing.md,
       borderRadius: themes.spacing.md,
-      marginBottom: themes.spacing.md,
+      margin: themes.spacing.md,
       position: "relative",
     },
-    optionsButton: {
-      position: "absolute",
-      right: themes.spacing.md,
-      top: themes.spacing.md,
-    },
+    optionsButton: {},
   });
 }

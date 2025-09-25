@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { Text } from "react-native";
 import { Stack, useLocalSearchParams } from "expo-router";
 import NoteForm from "../../components/NoteForm";
 import { Note } from "../../models/noteModel";
@@ -20,7 +20,7 @@ export default function EditNote() {
   return (
     <Container>
       {!selectedNote ? (
-        <Text>no hay</Text>
+        <Text>No se encontró la nota</Text>
       ) : (
         <>
           <Stack.Screen

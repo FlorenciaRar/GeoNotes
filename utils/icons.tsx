@@ -1,5 +1,4 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { DefaultTheme } from "styled-components/native";
 
 // Sitio para ver los iconos: https://icons.expo.fyi/Index
 
@@ -17,6 +16,10 @@ const icons = {
   back: "arrow-left",
   save: "content-save-outline",
   attachment: "plus-box-outline",
+  search: "magnify",
+  close: "close",
+  galery: "image-outline",
+  camera: "camera-outline",
 } as const;
 
 export type IconName = keyof typeof icons;
@@ -27,11 +30,7 @@ interface IconProps {
   color?: string;
 }
 
-export default function Icon({
-  iconName,
-  size = 24,
-  color = "black",
-}: IconProps) {
+export default function Icon({ iconName, size = 24, color = "black" }: IconProps) {
   const icon = icons[iconName];
   return <MaterialCommunityIcons name={icon} size={size} color={color} />;
 }
