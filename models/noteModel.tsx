@@ -4,4 +4,6 @@ export interface Note {
   title: string;
   adress: string;
   content: string;
+  longitude: number;
+  latitude: number;
 }

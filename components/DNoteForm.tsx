@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+/* import React, { useState, useEffect } from "react";
 import {
   View,
   TextInput,
@@ -94,8 +94,6 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
         title: initialValues?.title ?? "",
         content: initialValues?.content ?? "",
         adress: initialValues?.adress ?? "",
-        latitude: initialValues?.latitude ?? 0,
-        longitude: initialValues?.longitude ?? 0
       }}
       validationSchema={NoteSchema}
       onSubmit={(values) => {
@@ -103,9 +101,7 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
           title: values.title,
           content: values.content,
           adress: values.adress,
-          latitude: values.latitude,
-          longitude: values.longitude,
-          creationDate: initialValues?.creationDate ?? new Date().toISOString()
+          creationDate: initialValues?.creationDate ?? new Date().toISOString(),
         });
         router.push("/");
       }}>
@@ -214,3 +210,4 @@ const styles = StyleSheet.create({
     borderColor: "red",
   },
 });
+ */
