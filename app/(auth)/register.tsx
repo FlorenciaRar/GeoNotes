@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   View,
   Text,
@@ -8,102 +7,165 @@ import {
   Alert,
 } from "react-native";
 import { router } from "expo-router";
+import { Formik } from "formik";
+import * as Yup from "yup";
 
 export default function Register() {
-  const [name, setName] = useState("");
-  const [surname, setSurname] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const canSubmit =
-    name.length > 0 &&
-    surname.length > 0 &&
-    email.length > 0 &&
-    password.length > 0;
-
-  const handleRegister = () => {
-    //Validaciones de correo y contraseñas
-    if (!email.includes("@") || password.length < 4) {
-      Alert.alert(
-        "Por favor, ingresa un email válido y una contraseña de al menos 4 caracteres."
-      );
-      return;
-    }
-
-    //Simulacion de envio de datos
-    const data = { name, surname, email, password };
-    console.log(data);
-
-    Alert.alert("¡Cuenta creada!", `Bienvenido ${name} ${surname}`, [
-      {
-        text: "OK",
-        onPress: () => router.replace("/"), //Se ejecuta solo al precionar el OK
-      },
-    ]);
-  };
+  const RegisterSchema = Yup.object().shape({
+    name: Yup.string().required("El nombre es obligatorio"),
+    surname: Yup.string().required("El apellido es obligatorio"),
+    birthdate: Yup.string()
+      .matches(/^\d{2}\/\d{2}\/\d{4}$/, "Formato DD/MM/YYYY")
+      .required("La fecha de nacimiento es obligatoria"),
+    email: Yup.string()
+      .email("Debe ser un email válido")
+      .required("El email es obligatorio"),
+    password: Yup.string()
+      .min(4, "La contraseña debe tener al menos 4 caracteres")
+      .required("La contraseña es obligatoria"),
+  });
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}> Crear Cuenta</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Nombre"
-        value={name}
-        onChangeText={setName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Apellido"
-        value={surname}
-        onChangeText={setSurname}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Fecha de nacimiento (DD/MM/YYYY)"
-        keyboardType="numbers-and-punctuation"
-        maxLength={10}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        secureTextEntry
-        value={password}
-        keyboardType="numeric"
-        onChangeText={setPassword}
-      />
-      <Pressable
-        style={[styles.btn, !canSubmit && styles.btnDisabled]}
-        onPress={handleRegister}
-        disabled={!canSubmit}
-      >
-        <Text style={[styles.btnText, !canSubmit && styles.btnTextDisabled]}>
-          Crear cuenta
-        </Text>
-      </Pressable>
+    <Formik
+      initialValues={{
+        name: "",
+        surname: "",
+        birthdate: "",
+        email: "",
+        password: "",
+      }}
+      validationSchema={RegisterSchema}
+      onSubmit={(values) => {
+        Alert.alert(
+          "¡Cuenta creada!",
+          `Bienvenido ${values.name} ${values.surname}`,
+          [{ text: "OK", onPress: () => router.replace("/(tabs)") }]
+        );
+      }}
+    >
+      {({
+        handleChange,
+        handleBlur,
+        handleSubmit,
+        values,
+        errors,
+        touched,
+      }) => (
+        <View style={styles.container}>
+          <Text style={styles.title}> Crear Cuenta</Text>
 
-      <Text style={{ marginTop: 20 }}>
-        ¿Ya tenes una cuenta?{" "}
-        <Text
-          onPress={() => router.replace("/")}
-          accessibilityRole="link"
-          style={{
-            color: "#007AFF",
-            fontWeight: "bold",
-            textDecorationLine: "none",
-          }}
-        >
-          Inicia sesion
-        </Text>
-      </Text>
-    </View>
+          <TextInput
+            style={styles.input}
+            placeholder="Nombre"
+            value={values.name}
+            onChangeText={handleChange("name")}
+            onBlur={handleBlur("name")}
+          />
+          {errors.name && touched.name && (
+            <Text style={{ color: "red" }}>{errors.name}</Text>
+          )}
+
+          <TextInput
+            style={styles.input}
+            placeholder="Apellido"
+            value={values.surname}
+            onChangeText={handleChange("surname")}
+            onBlur={handleBlur("surname")}
+          />
+          {errors.surname && touched.surname && (
+            <Text style={{ color: "red" }}>{errors.surname}</Text>
+          )}
+
+          <TextInput
+            style={styles.input}
+            placeholder="Fecha de nacimiento (DD/MM/YYYY)"
+            value={values.birthdate}
+            onChangeText={handleChange("birthdate")}
+            onBlur={handleBlur("birthdate")}
+            keyboardType="numbers-and-punctuation"
+            maxLength={10}
+          />
+          {errors.birthdate && touched.birthdate && (
+            <Text style={{ color: "red" }}>{errors.birthdate}</Text>
+          )}
+
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={values.email}
+            onChangeText={handleChange("email")}
+            onBlur={handleBlur("email")}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          {errors.email && touched.email && (
+            <Text style={{ color: "red" }}>{errors.email}</Text>
+          )}
+
+          <TextInput
+            style={styles.input}
+            placeholder="Contraseña"
+            secureTextEntry
+            value={values.password}
+            onChangeText={handleChange("password")}
+            onBlur={handleBlur("password")}
+            keyboardType="default"
+          />
+          {errors.password && touched.password && (
+            <Text style={{ color: "red" }}>{errors.password}</Text>
+          )}
+
+          <Pressable
+            style={[
+              styles.btn,
+              (!values.name ||
+                !values.surname ||
+                !values.birthdate ||
+                !values.email ||
+                !values.password) &&
+                styles.btnDisabled,
+            ]}
+            onPress={() => handleSubmit()}
+            disabled={
+              !values.name ||
+              !values.surname ||
+              !values.birthdate ||
+              !values.email ||
+              !values.password
+            }
+          >
+            <Text
+              style={[
+                styles.btnText,
+                (!values.name ||
+                  !values.surname ||
+                  !values.birthdate ||
+                  !values.email ||
+                  !values.password) &&
+                  styles.btnTextDisabled,
+              ]}
+            >
+              Crear cuenta
+            </Text>
+          </Pressable>
+
+          <Text style={{ marginTop: 20 }}>
+            ¿Ya tenes una cuenta?{" "}
+            <Text
+              onPress={() => router.replace("/")}
+              accessibilityRole="link"
+              style={{
+                color: "#007AFF",
+                fontWeight: "bold",
+                textDecorationLine: "none",
+              }}
+            >
+              Inicia sesion
+            </Text>
+          </Text>
+        </View>
+      )}
+    </Formik>
   );
 }
 
@@ -138,7 +200,7 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.99 }],
   },
   btnDisabled: {
-    backgroundColor: "#bdbdbd", // gris cuando está deshabilitado
+    backgroundColor: "#bdbdbd",
   },
   btnText: { color: "#fff", fontWeight: "bold" },
   btnTextDisabled: { color: "#f0f0f0" },

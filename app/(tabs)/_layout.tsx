@@ -1,16 +1,24 @@
 import { Tabs } from "expo-router";
 import Icon from "../../utils/icons";
-import { StyleSheet } from "react-native";
+import { useTheme } from "../../context/ThemeContextProvider";
 
 export default function TabsLayout() {
+  const { themes } = useTheme();
   return (
     <Tabs
       screenOptions={{
         headerShown: true,
-        tabBarActiveTintColor: "#000000",
-        tabBarInactiveTintColor: "#00000088",
+        headerStyle: {
+          backgroundColor: `${themes.colors.surface}`,
+        },
+        headerTintColor: `${themes.colors.onSurface}`,
+        tabBarActiveTintColor: `${themes.colors.onSurface}`,
+        tabBarInactiveTintColor: `${themes.colors.onSurface}88`,
         headerBackButtonDisplayMode: "default",
         tabBarShowLabel: false,
+        tabBarStyle: {
+          backgroundColor: `${themes.colors.surface}`,
+        },
       }}>
       <Tabs.Screen
         name="index"
@@ -29,10 +37,10 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="NewNote"
         options={{
-          title: "Crear una nueva nota",
-          tabBarIcon: ({ color }) => <Icon iconName="plus" color={"white"} />,
+          title: "Nueva nota",
+          tabBarIcon: () => <Icon iconName="plus" color={`${themes.colors.onPrimary}`} />,
           tabBarIconStyle: {
-            backgroundColor: "black",
+            backgroundColor: `${themes.colors.primary}`,
             borderRadius: 60,
             position: "absolute",
             width: 60,
@@ -53,6 +61,12 @@ export default function TabsLayout() {
         options={{
           title: "Configuración",
           tabBarIcon: ({ color }) => <Icon iconName="settings" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="select-theme"
+        options={{
+          title: "Seleccionar Tema",
         }}
       />
     </Tabs>
