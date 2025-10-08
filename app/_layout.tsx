@@ -51,7 +51,7 @@ function InnerLayout() {
     loadUser();
   }, []);
 
-  if (isLoading) return null; 
+  if (isLoading) return null;
 
   return (
     <ThemeProvider theme={themes}>
@@ -63,6 +63,10 @@ function InnerLayout() {
             <Stack.Screen name="(auth)" />
           )}
           <Stack.Screen name="notes/[NoteId]" options={{ headerShown: true }} />
+
+          {/* Se agrega para evitar el WARN de "Route 'select-theme' is extraneous"*/}
+          {/* Como estamos usando Stack con childrens (modo explicito) deberiamos definir las rutas aca y settings no estaba */}
+          <Stack.Screen name="settings" />
         </Stack>
       </MenuProvider>
     </ThemeProvider>
