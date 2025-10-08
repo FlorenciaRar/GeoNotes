@@ -9,11 +9,9 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { AppTheme } from "../../utils";
 import { useTheme } from "../../context/ThemeContextProvider";
 import { DefaultTheme } from "styled-components/native";
 import { AUTH_ACTIONS, AuthContext } from "../../context/AuthContext";
-import { setUser } from "../../utils/secure-store";
 
 export default function Login() {
   const { state, dispatch } = useContext(AuthContext);
@@ -33,16 +31,8 @@ export default function Login() {
     if (email === "test@gmail.com" && pass === "1234") {
       Alert.alert("Bienvenido " + email);
 
-      //Guardar usuario en SecureStore
-      const user = {
-        id: "1",
-        email: "test@gmail.com",
-        name: "Gastón",
-        surname: "Bordet",
-        birthdate: "19-04-1990",
-      };
-      await setUser(user);
-
+      //La info que pasamos al payload seria lo que nos trae el backend
+      //Despues de hacer el login y obtener el token y refreshToken
       dispatch({
         type: AUTH_ACTIONS.LOGIN,
         payload: {
@@ -51,7 +41,7 @@ export default function Login() {
           user: {
             id: "1",
             email: "test@gmail.com",
-            name: "Gastón",
+            name: "Gaston",
             surname: "Bordet",
             birthdate: "19-04-1990",
           },
