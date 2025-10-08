@@ -19,7 +19,8 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: `${themes.colors.surface}`,
         },
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
@@ -38,7 +39,9 @@ export default function TabsLayout() {
         name="NewNote"
         options={{
           title: "Nueva nota",
-          tabBarIcon: () => <Icon iconName="plus" color={`${themes.colors.onPrimary}`} />,
+          tabBarIcon: () => (
+            <Icon iconName="plus" color={`${themes.colors.onPrimary}`} />
+          ),
           tabBarIconStyle: {
             backgroundColor: `${themes.colors.primary}`,
             borderRadius: 60,
@@ -63,12 +66,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color }) => <Icon iconName="settings" color={color} />,
         }}
       />
-      <Tabs.Screen
-        name="select-theme"
-        options={{
-          title: "Seleccionar Tema",
-        }}
-      />
+      {/* Borre una Tab.Screen incorrecta de name="select-theme" que no correspondia a tabs */}
     </Tabs>
   );
 }
