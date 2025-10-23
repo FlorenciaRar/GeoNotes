@@ -8,12 +8,12 @@ import { getAuth } from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAopSGKcT9aXSfVoG7sJCV-qsIhedC-WrU",
-  authDomain: "geonotes-6fa35.firebaseapp.com",
-  projectId: "geonotes-6fa35",
-  storageBucket: "geonotes-6fa35.firebasestorage.app",
-  messagingSenderId: "1026641029329",
-  appId: "1:1026641029329:web:30e44b1c7db5836d9e3df0",
+  apiKey: process.env.EXPO_PUBLIC_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_APP_ID,
 };
 
 // Initialize Firebase
