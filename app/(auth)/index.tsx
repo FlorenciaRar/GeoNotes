@@ -21,6 +21,7 @@ import { useRouter } from "expo-router";
 import { useTheme } from "../../context/ThemeContextProvider";
 import { DefaultTheme } from "styled-components/native";
 import AuthContext from "../../context/AuthContext/auth-context";
+import Loader from "../../components/Loader";
 
 export default function Login() {
   const { state, login } = useContext(AuthContext); // 👈 usamos la función login del contexto
@@ -41,7 +42,6 @@ export default function Login() {
       setLoading(true);
       await login(email, pass); // 🔥 Firebase Auth maneja login + persistencia
 
-      Alert.alert("Bienvenido", email);
       router.replace("/(tabs)"); // ✅ Redirige al home/tab principal
     } catch (error: any) {
       console.error("Error en login:", error);
@@ -108,6 +108,9 @@ export default function Login() {
             Registrate
           </Text>
         </Text>
+
+        {/* 🔹 Loader local — overlay transparente */}
+        <Loader visible={loading || state.isLoading} transparent />
       </View>
     </KeyboardAvoidingView>
   );

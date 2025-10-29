@@ -16,6 +16,7 @@ import {
   useTheme,
 } from "../context/ThemeContextProvider";
 import { AuthContext, AuthProvider } from "../context/AuthContext";
+import Loader from "../components/Loader";
 
 function InnerLayout() {
   const { themes } = useTheme();
@@ -39,7 +40,8 @@ function InnerLayout() {
   }, [state.user, state.isLoading]);
 
   // 🔄 Mientras Firebase verifica si hay sesión persistente
-  if (state.isLoading) return null;
+  if (state.isLoading && !state.user)
+    return <Loader visible transparent={true} />;
 
   return (
     <ThemeProvider theme={themes}>

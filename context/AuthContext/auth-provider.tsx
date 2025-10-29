@@ -60,6 +60,9 @@ function reducer(prevState: State, action: Action): State {
     case AUTH_ACTIONS.LOGOUT:
       return { ...initialState, isLoading: false };
 
+    case AUTH_ACTIONS.SET_LOADING:
+      return { ...prevState, isLoading: payload };
+
     default:
       return prevState;
   }
@@ -73,7 +76,7 @@ const AuthProvider = (props: any) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
       // 🔹 Simulación de carga para probar el loader
-      await new Promise((resolve) => setTimeout(resolve, 3000)); // 👈 3 segundos
+      // await new Promise((resolve) => setTimeout(resolve, 3000)); // 👈 6 segundos
 
       if (user) {
         const token = await user.getIdToken();
@@ -113,17 +116,19 @@ const AuthProvider = (props: any) => {
 
   // --- LOGIN: Inicia sesión en Firebase ---
   const login = async (email: string, password: string) => {
+    dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
         password
       );
-      return userCredential; // opcional, si querés acceder al user
-      // Firebase actualizará el estado automáticamente con onAuthStateChanged
+      return userCredential;
     } catch (error: any) {
       console.error("Error en login:", error.code);
       throw error;
+    } finally {
+      dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false }); // 🔚 oculta loader
     }
   };
 
@@ -132,16 +137,19 @@ const AuthProvider = (props: any) => {
     email: string,
     password: string
   ): Promise<UserCredential> => {
+    dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
-      return userCredential; // 🔥 Ahora devuelve el resultado correctamente
+      return userCredential;
     } catch (error: any) {
       console.error("Error en registro:", error.code);
       throw error;
+    } finally {
+      dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
     }
   };
 
