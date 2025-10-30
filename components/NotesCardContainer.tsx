@@ -1,81 +1,74 @@
-import { useEffect, useState } from "react";
-import { View, FlatList } from "react-native";
-import NoteCardItem from "./NoteCardItem";
-import { Note } from "../models/noteModel";
-import { StyledText } from "../styled-components";
-// import { initialNotes } from "../mocks/notes";
-import { db } from "../src/firebase/config";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { View, FlatList, Alert, ActivityIndicator } from 'react-native'
+import NoteCardItem from './NoteCardItem'
+import { StyledText } from '../styled-components'
+import { useNotes } from '../hooks/useNotes'
 
 interface NotesCardContainerProps {
-  maxItems?: number;
+  maxItems?: number
 }
 
-export default function NotesCardContainer({ maxItems }: NotesCardContainerProps) {
-  const [loading, setLoading] = useState<Boolean>(true);
-  const [notes, setNotes] = useState<Note[]>([]);
+export default function NotesCardContainer({
+  maxItems,
+}: NotesCardContainerProps) {
+  const { notes, loading, error, deleteNote } = useNotes()
 
-  const maxNotes = maxItems ? notes.slice(0, maxItems) : notes;
-
+  // Función para borrar con confirmación
   const handleDelete = (id: string) => {
-    console.log("Borrar nota:", id);
-  };
-
-  function mapearDocANota(doc: any): Note {
-    const data = doc.data();
-    const creation = data.creationDate?.toDate
-      ? data.creationDate.toDate()
-      : new Date(data.creationDate);
-    const modification = data.modificationDate?.toDate
-      ? data.modificationDate.toDate()
-      : new Date(data.modificationDate);
-
-    return {
-      id: doc.id,
-      title: data.title,
-      content: data.content,
-      adress: data.adress, // aca tendriamos que modificar a address
-      latitude: data.latitude,
-      longitude: data.longitude,
-      creationDate: creation.toISOString(),
-      modificationDate: modification.toISOString(),
-    };
+    Alert.alert(
+      'Borrar nota',
+      '¿Estás seguro de que querés borrar esta nota?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Borrar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteNote(id)
+            } catch (err) {
+              console.error('Error al borrar nota:', err)
+              Alert.alert('Error', 'No se pudo borrar la nota')
+            }
+          },
+        },
+      ]
+    )
   }
 
-  useEffect(() => {
-    async function cargarNotas() {
-      try {
-        const q = query(
-          collection(db, "notas"),
-          orderBy("modificationDate", "desc")
-        );
-        const snap = await getDocs(q);
-        const resultado = snap.docs.map((d) => mapearDocANota(d));
-        setNotes(resultado);
-      } catch (e) {
-        console.error("Error al obtener notas:", e);
-      } finally {
-        setLoading(false);
-      }
-    }
+  // Limitar la cantidad de notas si se pasa maxItems
+  const notesToRender = maxItems ? notes.slice(0, maxItems) : notes
 
-    cargarNotas();
-  }, []);
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size='large' />
+      </View>
+    )
+  }
+
+  if (error) {
+    return (
+      <View style={{ padding: 20 }}>
+        <StyledText>{error}</StyledText>
+      </View>
+    )
+  }
+
+  if (notesToRender.length === 0) {
+    return (
+      <View style={{ padding: 20 }}>
+        <StyledText>No hay notas creadas</StyledText>
+      </View>
+    )
+  }
 
   return (
-    <View>
-      {loading && <StyledText>Cargando</StyledText>}
-      {!loading && notes.length > 0 ? (
-        <FlatList
-          data={maxNotes}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <NoteCardItem data={item} onDelete={handleDelete} />
-          )}
-        />
-      ) : (
-        <StyledText>No hay notas creadas</StyledText>
+    <FlatList
+      data={notesToRender}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => (
+        <NoteCardItem data={item} onDelete={handleDelete} />
       )}
-    </View>
-  );
+    />
+  )
 }

@@ -1,42 +1,48 @@
-import { Text } from "react-native";
-import { Stack, useLocalSearchParams } from "expo-router";
-import NoteForm from "../../components/NoteForm";
-import { Note } from "../../models/noteModel";
-import { Container } from "../../styled-components";
-import { useTheme } from "../../context/ThemeContextProvider";
-import { initialNotes } from "../../mocks/notes";
+import { ActivityIndicator, Text } from 'react-native'
+import { Stack, useLocalSearchParams } from 'expo-router'
+import NoteForm from '../../components/NoteForm'
+import { Note } from '../../models/noteModel'
+import { Container, StyledText } from '../../styled-components'
+import { useTheme } from '../../context/ThemeContextProvider'
+// import { initialNotes } from "../../mocks/notes";
+import { useEffect, useState } from 'react'
+import { useNotes } from '../../hooks/useNotes'
 
 export default function EditNote() {
-  const { NoteId } = useLocalSearchParams<{ NoteId: string }>();
+	const { NoteId } = useLocalSearchParams<{ NoteId: string }>()
 
-  const { themes } = useTheme();
+	const { getNoteById, loading, error } = useNotes()
+	const [note, setNote] = useState<Note | null>(null)
 
-  const selectedNote = initialNotes.find((note) => note.id === NoteId);
+	async function buscarNota() {
+		const nota = await getNoteById(NoteId)
+		setNote(nota)
+	}
 
-  const handleSubmit = (updatedNote: Partial<Note>) => {
-    console.log("Actualizar nota:", NoteId, updatedNote);
-  };
+	useEffect(() => {
+		buscarNota()
+	}, [NoteId])
 
-  return (
-    <Container>
-      {!selectedNote ? (
-        <Text>No se encontró la nota</Text>
-      ) : (
-        <>
-          <Stack.Screen
-            options={{
-              title: `${selectedNote.title}`,
-              headerShown: true,
-              headerStyle: {
-                backgroundColor: `${themes.colors.surface}`,
-              },
-              headerTintColor: `${themes.colors.onSurface}`,
-              headerBackButtonDisplayMode: "default",
-            }}
-          />
-          <NoteForm initialValues={selectedNote} onSubmit={handleSubmit} />
-        </>
-      )}
-    </Container>
-  );
+	const handleSubmit = async (updatedNote: Partial<Note>) => {
+		console.log(updatedNote)
+	}
+
+	if (loading) return <ActivityIndicator size='large' />
+	if (error) return <StyledText>{error}</StyledText>
+	if (!note) return <StyledText>Nota no encontrada</StyledText>
+
+	return (
+		<Container>
+			{/* <Stack.Screen
+				options={{
+					title: note.title,
+					headerShown: true,
+					headerStyle: { backgroundColor: themes.colors.surface },
+					headerTintColor: themes.colors.onSurface,
+					headerBackButtonDisplayMode: 'default',
+				}}
+			/> */}
+			<NoteForm initialValues={note} onSubmit={handleSubmit} />
+		</Container>
+	)
 }
