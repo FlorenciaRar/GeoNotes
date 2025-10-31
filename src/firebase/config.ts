@@ -1,12 +1,22 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
+// --- Configuración de Firebase optimizada para React Native + Expo ---
+//
+// Puntos importantes:
+// 1. Se usa initializeAuth con getReactNativePersistence para mantener la sesión guardada
+//    en el almacenamiento local (AsyncStorage).
+// 2. Este archivo se ejecuta una sola vez para evitar errores de inicialización múltiple.
+// 3. Usa variables de entorno de Expo (process.env.EXPO_PUBLIC_...)
+
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import {
+  initializeAuth,
+  getAuth,
+  getReactNativePersistence,
+  Auth,
+} from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
+// Configuración del proyecto (usando las variables de entorno)
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_API_KEY,
   authDomain: process.env.EXPO_PUBLIC_AUTH_DOMAIN,
@@ -16,7 +26,22 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_APP_ID,
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Inicializa la app solo si no existe
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+
+let auth: Auth;
+
+// --- Autenticación con persistencia nativa ---
+try {
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+} catch (e) {
+  // Si ya fue inicializado (por hot reload), simplemente lo obtenemos
+  auth = getAuth(app);
+}
+
+// Firestore
 export const db = getFirestore(app);
-export const auth = getAuth(app);
+
+export { app, auth };

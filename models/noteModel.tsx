@@ -1,10 +1,11 @@
 export interface Note {
-  id: string;
-  creationDate: string;
-  modificationDate: string;
-  title: string;
-  adress: string;
-  latitude: number;
-  longitude: number;
-  content: string;
+  id: string
+  creationDate: string
+  modificationDate: string
+  title: string
+  address: string
+  latitude: number
+  longitude: number
+  content: string
+  userId: string
 }

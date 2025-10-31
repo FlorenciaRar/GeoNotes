@@ -1,42 +1,31 @@
-import { Text } from "react-native";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import NoteForm from "../../components/NoteForm";
 import { Note } from "../../models/noteModel";
-import { Container } from "../../styled-components";
-import { useTheme } from "../../context/ThemeContextProvider";
-import { initialNotes } from "../../mocks/notes";
+import { Container, StyledText } from "../../styled-components";
+import { useEffect } from "react";
+import { useNotes } from "../../hooks/useNotes";
+import Loader from "../../components/Loader";
 
 export default function EditNote() {
   const { NoteId } = useLocalSearchParams<{ NoteId: string }>();
 
-  const { themes } = useTheme();
+  const { note, getNoteById, updateNote, loading, error } = useNotes();
 
-  const selectedNote = initialNotes.find((note) => note.id === NoteId);
+  useEffect(() => {
+    if (NoteId) getNoteById(NoteId);
+  }, [NoteId]);
 
-  const handleSubmit = (updatedNote: Partial<Note>) => {
-    console.log("Actualizar nota:", NoteId, updatedNote);
+  const handleSubmit = async (updatedNote: Partial<Note>) => {
+    await updateNote(NoteId, updatedNote);
   };
 
   return (
     <Container>
-      {!selectedNote ? (
-        <Text>No se encontró la nota</Text>
-      ) : (
-        <>
-          <Stack.Screen
-            options={{
-              title: `${selectedNote.title}`,
-              headerShown: true,
-              headerStyle: {
-                backgroundColor: `${themes.colors.surface}`,
-              },
-              headerTintColor: `${themes.colors.onSurface}`,
-              headerBackButtonDisplayMode: "default",
-            }}
-          />
-          <NoteForm initialValues={selectedNote} onSubmit={handleSubmit} />
-        </>
-      )}
+      {loading && <Loader visible />}
+
+      {note && <NoteForm initialValues={note} onSubmit={handleSubmit} />}
+
+      {error && <StyledText color="error">{error}</StyledText>}
     </Container>
   );
 }

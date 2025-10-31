@@ -1,3 +1,11 @@
+// app/(auth)/index.tsx
+// --- Login adaptado a Firebase Auth ---
+//
+// Puntos clave:
+// 1️⃣ Usa el contexto para llamar a login(email, password).
+// 2️⃣ Muestra errores y estado de carga (Firebase se encarga de la sesión).
+// 3️⃣ Redirige automáticamente al iniciar sesión exitosa (usa router.replace).
+
 import { useContext, useState } from "react";
 import {
   View,
@@ -7,58 +15,46 @@ import {
   StyleSheet,
   Alert,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useTheme } from "../../context/ThemeContextProvider";
 import { DefaultTheme } from "styled-components/native";
-import { AUTH_ACTIONS, AuthContext } from "../../context/AuthContext";
+import AuthContext from "../../context/AuthContext/auth-context";
+import Loader from "../../components/Loader";
 
 export default function Login() {
-  const { state, dispatch } = useContext(AuthContext);
+  const { state, login } = useContext(AuthContext); // 👈 usamos la función login del contexto
   const router = useRouter();
   const [email, setEmail] = useState<string>("");
   const [pass, setPass] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const { themes } = useTheme();
   const styles = getStyles(themes);
 
-  //Habilita el boton solo si ambos campos tienen contenido
   const canSubmit = email.length > 0 && pass.length > 0;
 
   const handleLogin = async (): Promise<void> => {
-    if (!canSubmit) return;
+    if (!canSubmit || loading) return;
 
-    if (email === "test@gmail.com" && pass === "1234") {
-      Alert.alert("Bienvenido " + email);
+    try {
+      setLoading(true);
+      await login(email, pass); // 🔥 Firebase Auth maneja login + persistencia
 
-      //La info que pasamos al payload seria lo que nos trae el backend
-      //Despues de hacer el login y obtener el token y refreshToken
-      dispatch({
-        type: AUTH_ACTIONS.LOGIN,
-        payload: {
-          token: "TOKEN",
-          refreshToken: "REFRESH_TOKEN",
-          user: {
-            id: "1",
-            email: "test@gmail.com",
-            name: "Gaston",
-            surname: "Bordet",
-            birthdate: "19-04-1990",
-          },
-        },
-      });
-
-      router.replace("/(tabs)");
-    } else {
-      Alert.alert("Credenciales incorrectas");
+      router.replace("/(tabs)"); // ✅ Redirige al home/tab principal
+    } catch (error: any) {
+      console.error("Error en login:", error);
+      Alert.alert("Error", "Credenciales inválidas o error al iniciar sesión.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    // REVISAR KeyboardAvoidingView
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <View style={styles.container}>
-        <Text style={styles.title}> Iniciar Sesion</Text>
+        <Text style={styles.title}>Iniciar Sesión</Text>
 
         <TextInput
           style={styles.input}
@@ -76,7 +72,6 @@ export default function Login() {
           placeholder="Contraseña"
           placeholderTextColor={themes.colors.onSurfaceVariant}
           value={pass}
-          keyboardType="numeric"
           secureTextEntry
           onChangeText={setPass}
           returnKeyType="done"
@@ -90,12 +85,17 @@ export default function Login() {
             pressed && canSubmit && styles.btnPressed,
           ]}
           onPress={handleLogin}
-          disabled={!canSubmit}
+          disabled={!canSubmit || loading}
         >
-          <Text style={styles.btnText}>Ingresar</Text>
+          {loading ? (
+            <ActivityIndicator color={themes.colors.onPrimary} />
+          ) : (
+            <Text style={styles.btnText}>Ingresar</Text>
+          )}
         </Pressable>
+
         <Text style={{ marginTop: 20, color: themes.colors.onBackground }}>
-          ¿No tenes cuenta?{" "}
+          ¿No tenés cuenta?{" "}
           <Text
             onPress={() => router.push("/register")}
             accessibilityRole="link"
@@ -108,6 +108,9 @@ export default function Login() {
             Registrate
           </Text>
         </Text>
+
+        {/* 🔹 Loader local — overlay transparente */}
+        <Loader visible={loading || state.isLoading} transparent />
       </View>
     </KeyboardAvoidingView>
   );
@@ -154,6 +157,5 @@ function getStyles(themes: DefaultTheme) {
       backgroundColor: themes.colors.surfaceVariant,
     },
     btnText: { color: themes.colors.onPrimary, fontWeight: "bold" },
-    btnTextDisabled: { color: themes.colors.onSurfaceVariant },
   });
 }
