@@ -19,15 +19,16 @@ export type AppTheme = {
 
 export type BaseTheme = {
   spacing: {
-    sm: string;
-    md: string;
-    lg: string;
+    xm: number;
+    sm: number;
+    md: number;
+    lg: number;
   };
   fontSizes: {
-    xm: string;
-    sm: string;
-    md: string;
-    lg: string;
+    xm: number;
+    sm: number;
+    md: number;
+    lg: number;
   };
   fontWeights: {
     normal: string;
@@ -43,15 +44,16 @@ declare module "styled-components/native" {
 
 export const baseTheme: BaseTheme = {
   spacing: {
-    sm: "8px",
-    md: "16px",
-    lg: "24px",
+    xm: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
   },
   fontSizes: {
-    xm: "14px",
-    sm: "16px",
-    md: "20px",
-    lg: "24px",
+    xm: 14,
+    sm: 16,
+    md: 20,
+    lg: 24,
   },
   fontWeights: {
     normal: "400",

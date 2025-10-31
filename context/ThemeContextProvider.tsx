@@ -1,4 +1,3 @@
-// /context/ThemeContext.tsx
 import { createContext, useContext, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { appThemes } from "../utils"; // ajusta el path
@@ -16,7 +15,7 @@ const ThemeContext = createContext<Ctx | undefined>(undefined);
 const STORAGE_KEY = "@theme/index";
 
 export function ThemeContextProvider({ children }: { children: React.ReactNode }) {
-  const [themeIndex, setThemeIndexState] = useState(4);
+  const [themeIndex, setThemeIndexState] = useState(0);
 
   // Cargar guardado una sola vez
   useEffect(() => {
@@ -50,6 +49,6 @@ export function ThemeContextProvider({ children }: { children: React.ReactNode }
 
 export function useTheme() {
   const ctx = useContext(ThemeContext);
-  if (!ctx) throw new Error("useTheme debe usarse dentro de <ThemeProvider>");
+  if (!ctx) throw new Error("useTheme debe usarse dentro de <ThemeContextProvider>");
   return ctx;
 }

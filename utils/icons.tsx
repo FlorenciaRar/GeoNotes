@@ -1,5 +1,4 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { DefaultTheme } from "styled-components/native";
 
 // Sitio para ver los iconos: https://icons.expo.fyi/Index
 
@@ -14,6 +13,13 @@ const icons = {
   options: "dots-vertical",
   trash: "trash-can-outline",
   share: "share-variant-outline",
+  back: "arrow-left",
+  save: "content-save-outline",
+  attachment: "plus-box-outline",
+  search: "magnify",
+  close: "close",
+  galery: "image-outline",
+  camera: "camera-outline",
 } as const;
 
 export type IconName = keyof typeof icons;

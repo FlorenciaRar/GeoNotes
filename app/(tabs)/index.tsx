@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { Link } from "expo-router";
 import QuickAccessItem from "../../components/QuickAccessItem";
 import NotesCardContainer from "../../components/NotesCardContainer";
@@ -6,16 +6,21 @@ import { useTheme } from "../../context/ThemeContextProvider";
 import { StyledText } from "../../styled-components/StyledText";
 import { Container } from "../../styled-components/StyledSafeAreaView";
 import { DefaultTheme } from "styled-components/native";
+import { useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
 
 export default function HomeScreen() {
   const { themes } = useTheme();
   const styles = getStyles(themes);
 
+  const { state } = useContext(AuthContext);
+  const userName = state?.user?.name;
+
   return (
     <Container style={styles.container}>
       <View>
         <StyledText variant="bold" size="lg">
-          Hola, Tony
+          {`Hola ${userName || "Usuario"}`}
         </StyledText>
       </View>
       <View style={styles.quickAccessContainer}>
@@ -29,7 +34,7 @@ export default function HomeScreen() {
           Últimas notas
         </StyledText>
         <Link href="/Notes">
-          <Text>Ver todo</Text>
+          <StyledText size="xm">Ver todo</StyledText>
         </Link>
       </View>
 

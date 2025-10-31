@@ -1,36 +1,22 @@
-import { StyleSheet, Share } from "react-native";
-import {
-  Menu,
-  MenuOptions,
-  MenuOption,
-  MenuTrigger,
-} from "react-native-popup-menu";
-import * as Linking from "expo-linking";
+import { StyleSheet } from "react-native";
+import { Menu, MenuOptions, MenuOption, MenuTrigger } from "react-native-popup-menu";
 import { useTheme } from "../context/ThemeContextProvider";
 import { DefaultTheme } from "styled-components/native";
 import { StyledText } from "../styled-components";
 import { Icon } from "../utils";
 
-interface MenuProps {
-  onDelete: () => void;
-  noteId: string;
+interface MediaMenuProps {
+  pickImage: () => void;
 }
 
-export default function NoteCardOptionsMenu({ onDelete, noteId }: MenuProps) {
+export default function MediaOptionsMenu({ pickImage }: MediaMenuProps) {
   const { themes } = useTheme();
   const styles = getStyles(themes);
-
-  async function handleShare() {
-    const deepLink = Linking.createURL(`/notes/${noteId}`);
-    await Share.share({
-      message: `Abrir esta nota: ${deepLink}`,
-    });
-  }
 
   return (
     <Menu style={styles.optionsButton}>
       <MenuTrigger>
-        <Icon iconName="options" color={themes.colors.onSurface} />
+        <Icon iconName="attachment" color={themes.colors.onSurface} />
       </MenuTrigger>
       <MenuOptions
         customStyles={{
@@ -41,8 +27,7 @@ export default function NoteCardOptionsMenu({ onDelete, noteId }: MenuProps) {
             backgroundColor: `${themes.colors.surface}`,
             shadowColor: `${themes.colors.onSurface}`,
           },
-        }}
-      >
+        }}>
         <MenuOption
           customStyles={{
             optionWrapper: {
@@ -51,14 +36,12 @@ export default function NoteCardOptionsMenu({ onDelete, noteId }: MenuProps) {
               gap: themes.spacing.sm,
             },
           }}
-          onSelect={handleShare}
-        >
-          <Icon iconName="share" size={20} color={themes.colors.onSurface} />
+          onSelect={() => alert("WIP")}>
+          <Icon iconName="camera" size={20} color={themes.colors.onSurface} />
           <StyledText size="xm" color="onSurface">
-            Compartir
+            Tomar una foto
           </StyledText>
         </MenuOption>
-
         <MenuOption
           customStyles={{
             optionWrapper: {
@@ -67,11 +50,10 @@ export default function NoteCardOptionsMenu({ onDelete, noteId }: MenuProps) {
               gap: themes.spacing.sm,
             },
           }}
-          onSelect={onDelete}
-        >
-          <Icon iconName="trash" size={20} color={themes.colors.onSurface} />
+          onSelect={pickImage}>
+          <Icon iconName="galery" size={20} color={themes.colors.onSurface} />
           <StyledText size="xm" color="onSurface">
-            Borrar
+            Agregar una imagen
           </StyledText>
         </MenuOption>
       </MenuOptions>
@@ -81,10 +63,13 @@ export default function NoteCardOptionsMenu({ onDelete, noteId }: MenuProps) {
 
 function getStyles(themes: DefaultTheme) {
   return StyleSheet.create({
-    optionsButton: {
-      position: "absolute",
-      right: themes.spacing.md,
-      top: themes.spacing.md,
+    noteCardContainer: {
+      backgroundColor: themes.colors.surface,
+      padding: themes.spacing.md,
+      borderRadius: themes.spacing.md,
+      margin: themes.spacing.md,
+      position: "relative",
     },
+    optionsButton: {},
   });
 }

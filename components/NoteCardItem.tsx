@@ -1,6 +1,5 @@
-import React from "react";
-import { View, StyleSheet, Pressable, Text } from "react-native";
-import { Note } from "../models/noteModel";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
+import { Note } from "../models/";
 import { Link } from "expo-router";
 import { StyledText } from "../styled-components/StyledText";
 import NoteCardOptionsMenu from "./NoteCardOptions";
@@ -18,7 +17,7 @@ export default function NoteCardItem({ data, onDelete }: NoteItemProps) {
   return (
     <View style={styles.noteCardContainer}>
       <Link href={`/notes/${data.id}`} asChild>
-        <Pressable>
+        <TouchableOpacity>
           <StyledText size="xm">{data.creationDate}</StyledText>
           <StyledText variant="bold" size="sm" numberOfLines={1}>
             {data.title}
@@ -26,13 +25,12 @@ export default function NoteCardItem({ data, onDelete }: NoteItemProps) {
           <StyledText size="xm" numberOfLines={1}>
             {data.content}
           </StyledText>
-        </Pressable>
+        </TouchableOpacity>
       </Link>
       <NoteCardOptionsMenu
         onDelete={() => {
           onDelete(data.id);
-        }}
-      />
+        } } noteId={data.id}      />
     </View>
   );
 }
@@ -40,7 +38,7 @@ function getStyles(themes: DefaultTheme) {
   return StyleSheet.create({
     noteCardContainer: {
       backgroundColor: themes.colors.surface,
-      padding: 16,
+      padding: themes.spacing.md,
       borderRadius: 16,
       marginBottom: 16,
       position: "relative",

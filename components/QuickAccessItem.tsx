@@ -1,4 +1,4 @@
-import { StyleSheet, Dimensions, Pressable } from "react-native";
+import { StyleSheet, Dimensions, TouchableOpacity } from "react-native";
 import Icon, { IconName } from "../utils/icons";
 import { Link } from "expo-router";
 import { StyledText } from "../styled-components/StyledText";
@@ -19,12 +19,12 @@ export default function QuickAccessItem({ link, iconName, name }: QuickAccessIte
   const styles = getStyles(themes);
   return (
     <Link href={link} asChild>
-      <Pressable style={styles.quickAccessItem}>
+      <TouchableOpacity style={styles.quickAccessItem}>
         <Icon color={themes.colors.onSurface} iconName={iconName} />
         <StyledText variant="bold" size="xm">
           {name}
         </StyledText>
-      </Pressable>
+      </TouchableOpacity>
     </Link>
   );
 }
