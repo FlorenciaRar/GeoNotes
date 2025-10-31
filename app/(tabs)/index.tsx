@@ -27,11 +27,7 @@ export default function HomeScreen() {
         <QuickAccessItem link="/Notes" iconName="note" name="Todas mis notas" />
         <QuickAccessItem link="/NewNote" iconName="plus" name="Crear nota" />
         <QuickAccessItem link="/Map" iconName="map" name="Ver mapa" />
-        <QuickAccessItem
-          link="/SharedNotes"
-          iconName="profile"
-          name="Compartidas conmigo"
-        />
+        <QuickAccessItem link="/SharedNotes" iconName="profile" name="Compartidas conmigo" />
       </View>
       <View style={styles.lastNotesTextContainer}>
         <StyledText variant="bold" size="md">

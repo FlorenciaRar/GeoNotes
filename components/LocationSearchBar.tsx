@@ -135,145 +135,143 @@
 // 	})
 // }
 
-import { useState } from 'react'
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
-import { Icon } from '../utils'
-import { StyledText } from '../styled-components'
-import useLocationSearch from '../hooks/useLocationSearch'
-import { useTheme } from '../context/ThemeContextProvider'
-import { DefaultTheme } from 'styled-components/native'
+import { useState } from "react";
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Icon } from "../utils";
+import { StyledText } from "../styled-components";
+import useLocationSearch from "../hooks/useLocationSearch";
+import { useTheme } from "../context/ThemeContextProvider";
+import { DefaultTheme } from "styled-components/native";
 
 type LocationSearchBarProps = {
-	initialValue: string
-	onSelectLocation: (location: { address: string; latitude: number; longitude: number }) => void
-}
+  value: string;
+  onChangeValue?: (text: string) => void;
+  onSelectLocation: (location: { address: string; latitude: number; longitude: number }) => void;
+};
 
-export default function LocationSearchBar({ initialValue, onSelectLocation }: LocationSearchBarProps) {
-	const { themes } = useTheme()
-	const styles = getStyles(themes)
+export default function LocationSearchBar({ value, onChangeValue, onSelectLocation }: LocationSearchBarProps) {
+  const { themes } = useTheme();
+  const styles = getStyles(themes);
 
-	const { getCurrentLocation, setSearchText, searchResults, menuShown, setMenuShown, setLocation } = useLocationSearch()
+  const { getCurrentLocation, setSearchText, searchResults, menuShown, setMenuShown, setLocation } = useLocationSearch();
 
-	const [inputValue, setInputValue] = useState(initialValue ?? '')
-	const [loading, setLoading] = useState(false)
+  //   const [inputValue, setInputValue] = useState(initialValue ?? "");
+  const [loading, setLoading] = useState(false);
 
-	const handleSelect = (address: string, lat: number, lon: number) => {
-		setInputValue(address)
-		setMenuShown(false)
-		setLocation({ address, latitude: lat, longitude: lon })
-		onSelectLocation({ address, latitude: lat, longitude: lon })
-	}
+  const handleSelect = (address: string, lat: number, lon: number) => {
+    onChangeValue?.(address);
+    setMenuShown(false);
+    setLocation({ address, latitude: lat, longitude: lon });
+    onSelectLocation({ address, latitude: lat, longitude: lon });
+  };
 
-	const EmptySearch = () => {
-		if (loading) {
-			return (
-				<View>
-					<ActivityIndicator size='small' color={themes.colors.primary} />
-					<Text>Buscando direcciones...</Text>
-				</View>
-			)
-		}
+  const EmptySearch = () => {
+    if (loading) {
+      return (
+        <View>
+          <ActivityIndicator size="small" color={themes.colors.primary} />
+          <Text>Buscando direcciones...</Text>
+        </View>
+      );
+    }
 
-		return (
-			// <View style={styles.emptyContainer}>
-			<Text>No se encontraron resultados</Text>
-			// </View>
-		)
-	}
+    return (
+      // <View style={styles.emptyContainer}>
+      <Text>No se encontraron resultados</Text>
+      // </View>
+    );
+  };
 
-	return (
-		<View>
-			<View style={styles.locationInputContainer}>
-				<Icon iconName='search' size={20} color={themes.colors.onSurface} />
-				<TextInput
-					style={styles.locationInput}
-					placeholder='Buscar una dirección...'
-					placeholderTextColor={themes.colors.onSurfaceVariant}
-					value={inputValue}
-					onChangeText={(text) => {
-						setInputValue(text)
-						setSearchText(text)
-						setMenuShown(true)
-					}}
-					onPress={() => setMenuShown(true)}
-				/>
-				{inputValue.trim().length > 0 && (
-					<Pressable
-						onPress={() => {
-							setInputValue('')
-							setSearchText('')
-							setLocation(null)
-							setMenuShown(false)
-						}}
-					>
-						<Icon iconName='close' size={20} color={themes.colors.onSurface} />
-					</Pressable>
-				)}
-			</View>
+  return (
+    <View>
+      <View style={styles.locationInputContainer}>
+        <Icon iconName="search" size={20} color={themes.colors.onSurface} />
+        <TextInput
+          style={styles.locationInput}
+          placeholder="Buscar una dirección..."
+          placeholderTextColor={themes.colors.onSurfaceVariant}
+          value={value}
+          onChangeText={(text) => {
+            onChangeValue?.(text);
+            setSearchText(text);
+            setMenuShown(true);
+          }}
+        />
+        {value.trim().length > 0 && (
+          <Pressable
+            onPress={() => {
+              onChangeValue?.("");
+              setSearchText("");
+              setLocation(null);
+              setMenuShown(false);
+            }}>
+            <Icon iconName="close" size={20} color={themes.colors.onSurface} />
+          </Pressable>
+        )}
+      </View>
 
-			{menuShown && (
-				<View style={styles.menuContainer}>
-					<Pressable
-						onPress={async () => {
-							const currentLocation = await getCurrentLocation()
-							if (currentLocation) {
-								handleSelect(currentLocation.address, currentLocation.latitude, currentLocation.longitude)
-							}
-						}}
-					>
-						<StyledText size='xm' color='onSurface'>
-							Usar ubicación actual
-						</StyledText>
-					</Pressable>
+      {menuShown && (
+        <View style={styles.menuContainer}>
+          <Pressable
+            onPress={async () => {
+              const currentLocation = await getCurrentLocation();
+              if (currentLocation) {
+                handleSelect(currentLocation.address, currentLocation.latitude, currentLocation.longitude);
+              }
+            }}>
+            <StyledText size="xm" color="onSurface">
+              Usar ubicación actual
+            </StyledText>
+          </Pressable>
 
-					<FlatList
-						data={searchResults}
-						scrollEnabled={false}
-						keyExtractor={(item) => item.place_id}
-						ListEmptyComponent={EmptySearch}
-						renderItem={({ item }) => (
-							<Pressable style={styles.menuAddressOption} onPress={() => handleSelect(item.display_name, parseFloat(item.lat), parseFloat(item.lon))}>
-								<StyledText size='xm' color='onSurface' numberOfLines={2}>
-									{item.display_name}
-								</StyledText>
-							</Pressable>
-						)}
-					/>
-				</View>
-			)}
-		</View>
-	)
+          <FlatList
+            data={searchResults}
+            scrollEnabled={false}
+            keyExtractor={(item) => item.place_id}
+            ListEmptyComponent={EmptySearch}
+            renderItem={({ item }) => (
+              <Pressable style={styles.menuAddressOption} onPress={() => handleSelect(item.display_name, parseFloat(item.lat), parseFloat(item.lon))}>
+                <StyledText size="xm" color="onSurface" numberOfLines={2}>
+                  {item.display_name}
+                </StyledText>
+              </Pressable>
+            )}
+          />
+        </View>
+      )}
+    </View>
+  );
 }
 
 function getStyles(themes: DefaultTheme) {
-	return StyleSheet.create({
-		locationInputContainer: {
-			backgroundColor: themes.colors.surface,
-			borderRadius: 60,
-			paddingHorizontal: themes.spacing.lg,
-			flexDirection: 'row',
-			alignItems: 'center',
-		},
-		locationInput: {
-			marginLeft: themes.spacing.sm,
-			color: themes.colors.onSurface,
-			flex: 1,
-		},
-		menuContainer: {
-			position: 'absolute',
-			maxHeight: 400,
-			width: '100%',
-			top: 52,
-			zIndex: 1,
-			backgroundColor: themes.colors.surface,
-			padding: themes.spacing.md,
-			borderRadius: 16,
-		},
-		menuAddressOption: {
-			marginTop: themes.spacing.md,
-			paddingTop: themes.spacing.md,
-			borderTopWidth: 1,
-			borderTopColor: themes.colors.outline,
-		},
-	})
+  return StyleSheet.create({
+    locationInputContainer: {
+      backgroundColor: themes.colors.surface,
+      borderRadius: 60,
+      paddingHorizontal: themes.spacing.lg,
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    locationInput: {
+      marginLeft: themes.spacing.sm,
+      color: themes.colors.onSurface,
+      flex: 1,
+    },
+    menuContainer: {
+      position: "absolute",
+      maxHeight: 400,
+      width: "100%",
+      top: 52,
+      zIndex: 1,
+      backgroundColor: themes.colors.surface,
+      padding: themes.spacing.md,
+      borderRadius: 16,
+    },
+    menuAddressOption: {
+      marginTop: themes.spacing.md,
+      paddingTop: themes.spacing.md,
+      borderTopWidth: 1,
+      borderTopColor: themes.colors.outline,
+    },
+  });
 }

@@ -1,48 +1,31 @@
-import { ActivityIndicator, Text } from 'react-native'
-import { Stack, useLocalSearchParams } from 'expo-router'
-import NoteForm from '../../components/NoteForm'
-import { Note } from '../../models/noteModel'
-import { Container, StyledText } from '../../styled-components'
-import { useTheme } from '../../context/ThemeContextProvider'
-// import { initialNotes } from "../../mocks/notes";
-import { useEffect, useState } from 'react'
-import { useNotes } from '../../hooks/useNotes'
+import { useLocalSearchParams } from "expo-router";
+import NoteForm from "../../components/NoteForm";
+import { Note } from "../../models/noteModel";
+import { Container, StyledText } from "../../styled-components";
+import { useEffect } from "react";
+import { useNotes } from "../../hooks/useNotes";
+import Loader from "../../components/Loader";
 
 export default function EditNote() {
-	const { NoteId } = useLocalSearchParams<{ NoteId: string }>()
+  const { NoteId } = useLocalSearchParams<{ NoteId: string }>();
 
-	const { getNoteById, loading, error } = useNotes()
-	const [note, setNote] = useState<Note | null>(null)
+  const { note, getNoteById, updateNote, loading, error } = useNotes();
 
-	async function buscarNota() {
-		const nota = await getNoteById(NoteId)
-		setNote(nota)
-	}
+  useEffect(() => {
+    if (NoteId) getNoteById(NoteId);
+  }, [NoteId]);
 
-	useEffect(() => {
-		buscarNota()
-	}, [NoteId])
+  const handleSubmit = async (updatedNote: Partial<Note>) => {
+    await updateNote(NoteId, updatedNote);
+  };
 
-	const handleSubmit = async (updatedNote: Partial<Note>) => {
-		console.log(updatedNote)
-	}
+  return (
+    <Container>
+      {loading && <Loader visible />}
 
-	if (loading) return <ActivityIndicator size='large' />
-	if (error) return <StyledText>{error}</StyledText>
-	if (!note) return <StyledText>Nota no encontrada</StyledText>
+      {note && <NoteForm initialValues={note} onSubmit={handleSubmit} />}
 
-	return (
-		<Container>
-			{/* <Stack.Screen
-				options={{
-					title: note.title,
-					headerShown: true,
-					headerStyle: { backgroundColor: themes.colors.surface },
-					headerTintColor: themes.colors.onSurface,
-					headerBackButtonDisplayMode: 'default',
-				}}
-			/> */}
-			<NoteForm initialValues={note} onSubmit={handleSubmit} />
-		</Container>
-	)
+      {error && <StyledText color="error">{error}</StyledText>}
+    </Container>
+  );
 }
