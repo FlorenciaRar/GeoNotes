@@ -6,11 +6,13 @@ import { router } from "expo-router";
 import { AUTH_ACTIONS, AuthContext } from "../../context/AuthContext";
 
 export default function Settings() {
-  const { themes } = useTheme();
-  const { dispatch } = useContext(AuthContext);
+  const { themes, clearTheme } = useTheme();
+  const { dispatch, logout } = useContext(AuthContext);
 
-  const handleLogout = () => {
+  const handleLogout = async() => {
     console.log("👋 Cerrando sesión...");
+    await logout()
+    await clearTheme()
     dispatch({ type: AUTH_ACTIONS.LOGOUT });
     router.replace("/(auth)");
   };
