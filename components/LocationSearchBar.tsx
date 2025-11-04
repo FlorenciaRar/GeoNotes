@@ -153,10 +153,7 @@ export default function LocationSearchBar({ value, onChangeValue, onSelectLocati
   const { themes } = useTheme();
   const styles = getStyles(themes);
 
-  const { getCurrentLocation, setSearchText, searchResults, menuShown, setMenuShown, setLocation } = useLocationSearch();
-
-  //   const [inputValue, setInputValue] = useState(initialValue ?? "");
-  const [loading, setLoading] = useState(false);
+  const { getCurrentLocation, setSearchText, searchResults, menuShown, setMenuShown, setLocation, searchText, loading } = useLocationSearch();
 
   const handleSelect = (address: string, lat: number, lon: number) => {
     onChangeValue?.(address);
@@ -170,16 +167,16 @@ export default function LocationSearchBar({ value, onChangeValue, onSelectLocati
       return (
         <View>
           <ActivityIndicator size="small" color={themes.colors.primary} />
-          <Text>Buscando direcciones...</Text>
         </View>
       );
     }
 
-    return (
-      // <View style={styles.emptyContainer}>
-      <Text>No se encontraron resultados</Text>
-      // </View>
-    );
+    if (searchText.trim().length > 0 && searchResults.length === 0)
+      return (
+        <StyledText style={styles.menuAddressOption} color="onSurface" size="sm">
+          No se encontraron resultados
+        </StyledText>
+      );
   };
 
   return (
@@ -196,6 +193,7 @@ export default function LocationSearchBar({ value, onChangeValue, onSelectLocati
             setSearchText(text);
             setMenuShown(true);
           }}
+          onPress={() => setMenuShown(true)}
         />
         {value.trim().length > 0 && (
           <Pressable

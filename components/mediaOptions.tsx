@@ -7,9 +7,10 @@ import { Icon } from "../utils";
 
 interface MediaMenuProps {
   pickImage: () => void;
+  takePhoto: () => void;
 }
 
-export default function MediaOptionsMenu({ pickImage }: MediaMenuProps) {
+export default function MediaOptionsMenu({ pickImage, takePhoto }: MediaMenuProps) {
   const { themes } = useTheme();
   const styles = getStyles(themes);
 
@@ -36,7 +37,7 @@ export default function MediaOptionsMenu({ pickImage }: MediaMenuProps) {
               gap: themes.spacing.sm,
             },
           }}
-          onSelect={() => alert("WIP")}>
+          onSelect={takePhoto}>
           <Icon iconName="camera" size={20} color={themes.colors.onSurface} />
           <StyledText size="xm" color="onSurface">
             Tomar una foto

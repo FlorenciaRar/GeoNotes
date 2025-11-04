@@ -32,29 +32,30 @@ export default function NotesCardContainer({ maxItems }: NotesCardContainerProps
 
   const notesToRender = maxItems ? notes.slice(0, maxItems) : notes;
 
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color={themes.colors.primary} />
-      </View>
-    );
-  }
+  const EmptySearch = () => {
+    if (loading) {
+      return (
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <ActivityIndicator size="large" color={themes.colors.primary} />
+        </View>
+      );
+    }
 
-  if (error) {
-    return (
-      <View style={{ padding: 20 }}>
-        <StyledText>{error}</StyledText>
-      </View>
-    );
-  }
+    if (error) {
+      return (
+        <View style={{ padding: 20 }}>
+          <StyledText color="error">{error}</StyledText>
+        </View>
+      );
+    }
 
-  if (notesToRender.length === 0) {
-    return (
-      <View style={{ padding: 20 }}>
-        <StyledText>No hay notas creadas</StyledText>
-      </View>
-    );
-  }
-
-  return <FlatList data={notesToRender} keyExtractor={(item) => item.id} renderItem={({ item }) => <NoteCardItem data={item} onDelete={handleDelete} />} />;
+    if (notesToRender.length === 0) {
+      return (
+        <View style={{ padding: 20, alignItems: "center" }}>
+          <StyledText>No hay notas creadas</StyledText>
+        </View>
+      );
+    }
+  };
+  return <FlatList data={notesToRender} keyExtractor={(item) => item.id} ListEmptyComponent={EmptySearch} renderItem={({ item }) => <NoteCardItem data={item} onDelete={handleDelete} />} />;
 }

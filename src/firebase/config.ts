@@ -8,12 +8,7 @@
 
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import {
-  initializeAuth,
-  getAuth,
-  getReactNativePersistence,
-  Auth,
-} from "firebase/auth";
+import { initializeAuth, getAuth, getReactNativePersistence, Auth } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Configuración del proyecto (usando las variables de entorno)

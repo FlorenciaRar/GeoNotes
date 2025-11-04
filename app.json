@@ -34,7 +34,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "La aplicación necesita acceder a la galeria para poder colocar imagenes en las notas"
+          "photosPermission": "La aplicación necesita acceder a tus fotos para adjuntarlas a las notas.",
+          "cameraPermission": "La aplicación necesita usar la cámara para tomar fotos para tus notas."
         }
       ]
     ]

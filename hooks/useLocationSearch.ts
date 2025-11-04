@@ -1,72 +1,78 @@
-import { useEffect, useState } from "react";
-import { NoteSchema, NoteFormProps, searchResults, LocationData } from "../models/";
-import * as Location from "expo-location";
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+import { NoteSchema, NoteFormProps, searchResults, LocationData } from '../models/'
+import * as Location from 'expo-location'
 
 export default function useLocationSearch() {
-  const [location, setLocation] = useState<LocationData | null>(null);
+	const [location, setLocation] = useState<LocationData | null>(null)
 
-  const [searchResults, setSearchResults] = useState<searchResults[]>([]);
-  const [menuShown, setMenuShown] = useState<boolean>(false);
-  const [searchText, setSearchText] = useState<string>("");
+	const [searchResults, setSearchResults] = useState<searchResults[]>([])
+	const [menuShown, setMenuShown] = useState<boolean>(false)
+	const [searchText, setSearchText] = useState<string>('')
 
-  const getCurrentLocation: () => Promise<LocationData | void> = async () => {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      alert("Permiso de ubicación denegado");
-      return;
-    }
+	const [loading, setLoading] = useState<boolean>(false)
 
-    let location = await Location.getCurrentPositionAsync({});
-    const { latitude, longitude } = location.coords;
+	const getCurrentLocation: () => Promise<LocationData | void> = async () => {
+		let { status } = await Location.requestForegroundPermissionsAsync()
+		if (status !== 'granted') {
+			alert('Permiso de ubicación denegado')
+			return
+		}
 
-    const [address] = await Location.reverseGeocodeAsync({
-      latitude,
-      longitude,
-    });
-    const addressName: string = `${address.street ?? ""} ${address.name ?? ""}, ${address.city ?? ""}, ${address.region ?? ""}, ${
-      address.country ?? ""
-    }`;
-    const newLocation: LocationData = { address: addressName, latitude, longitude };
-    setLocation(newLocation);
+		let location = await Location.getCurrentPositionAsync({})
+		const { latitude, longitude } = location.coords
 
-    return newLocation;
-  };
+		const [address] = await Location.reverseGeocodeAsync({
+			latitude,
+			longitude,
+		})
+		const addressName: string = `${address.street ?? ''} ${address.name ?? ''}, ${address.city ?? ''}, ${address.region ?? ''}, ${address.country ?? ''}`
+		const newLocation: LocationData = { address: addressName, latitude, longitude }
+		setLocation(newLocation)
 
-  const fetchAddress: () => Promise<void> = async () => {
-    if (!searchText.trim().length) {
-      setLocation(null);
-      return;
-    }
-    const url: string = `https://nominatim.openstreetmap.org/search?q=${searchText}&format=json&addressdetails=1&limit=3&countrycodes=ar`;
+		return newLocation
+	}
 
-    try {
-      const resp: Response = await fetch(url, {
-        headers: {
-          "User-Agent": "tu-app/1.0 (tuemail@dominio.com)", // requerido por OSM
-        },
-      });
-      const json: searchResults[] = await resp.json();
-      setSearchResults(json);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+	const fetchAddress = async (): Promise<void> => {
+		if (!searchText.trim().length) {
+			setLocation(null)
+			return
+		}
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      fetchAddress();
-    }, 1000);
-    return () => clearTimeout(timeout);
-  }, [searchText]);
+		const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchText)}&format=json&addressdetails=1&limit=3&countrycodes=ar`
 
-  return {
-    getCurrentLocation,
-    location,
-    searchText,
-    setSearchText,
-    searchResults,
-    menuShown,
-    setMenuShown,
-    setLocation,
-  };
+		try {
+			setLoading(true)
+			const { data } = await axios.get(url, {
+				headers: {
+					'User-Agent': 'tu-app/1.0 (tuemail@dominio.com)',
+				},
+			})
+
+			setSearchResults(data)
+		} catch (err) {
+			console.error('Error al obtener dirección:', err)
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			fetchAddress()
+		}, 1000)
+		return () => clearTimeout(timeout)
+	}, [searchText])
+
+	return {
+		getCurrentLocation,
+		location,
+		searchText,
+		setSearchText,
+		searchResults,
+		menuShown,
+		setMenuShown,
+		setLocation,
+		loading,
+	}
 }
