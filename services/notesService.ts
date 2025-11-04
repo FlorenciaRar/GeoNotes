@@ -1,4 +1,4 @@
-import { collection, doc, addDoc, getDocs, updateDoc, deleteDoc, query, orderBy, where, onSnapshot, getDoc } from "firebase/firestore";
+import { collection, doc, addDoc, updateDoc, deleteDoc, query, orderBy, where, onSnapshot, getDoc } from "firebase/firestore";
 import { db } from "../src/firebase/config";
 import { Note } from "../models";
 
@@ -15,6 +15,7 @@ function mapDocToNote(doc: any): Note {
     longitude: data.longitude ?? 0,
     creationDate: data.creationDate?.toDate?.()?.toISOString() ?? new Date().toISOString(),
     modificationDate: data.modificationDate?.toDate?.()?.toISOString() ?? new Date().toISOString(),
+    images: data.images || [],
     userId: data.userId,
   };
 }
@@ -67,7 +68,7 @@ export function updateNoteAPI(id: string, data: Partial<Note>): Promise<void> {
   });
 }
 
-// Eliminar
-export function deleteNoteAPI(id: string): Promise<void> {
-  return deleteDoc(doc(db, "notas", id));
+// Borrar
+export async function deleteNoteAPI(id: string): Promise<void> {
+  await deleteDoc(doc(db, "notas", id));
 }

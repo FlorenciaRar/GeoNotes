@@ -9,6 +9,8 @@ export default function useLocationSearch() {
   const [menuShown, setMenuShown] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>("");
 
+  const [loading, setLoading] = useState<boolean>(false);
+
   const getCurrentLocation: () => Promise<LocationData | void> = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
@@ -23,9 +25,7 @@ export default function useLocationSearch() {
       latitude,
       longitude,
     });
-    const addressName: string = `${address.street ?? ""} ${address.name ?? ""}, ${address.city ?? ""}, ${address.region ?? ""}, ${
-      address.country ?? ""
-    }`;
+    const addressName: string = `${address.street ?? ""} ${address.name ?? ""}, ${address.city ?? ""}, ${address.region ?? ""}, ${address.country ?? ""}`;
     const newLocation: LocationData = { address: addressName, latitude, longitude };
     setLocation(newLocation);
 
@@ -40,6 +40,7 @@ export default function useLocationSearch() {
     const url: string = `https://nominatim.openstreetmap.org/search?q=${searchText}&format=json&addressdetails=1&limit=3&countrycodes=ar`;
 
     try {
+      setLoading(true);
       const resp: Response = await fetch(url, {
         headers: {
           "User-Agent": "tu-app/1.0 (tuemail@dominio.com)", // requerido por OSM
@@ -49,6 +50,8 @@ export default function useLocationSearch() {
       setSearchResults(json);
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -68,5 +71,6 @@ export default function useLocationSearch() {
     menuShown,
     setMenuShown,
     setLocation,
+    loading,
   };
 }

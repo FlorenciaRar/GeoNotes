@@ -1,7 +1,5 @@
-import { useState } from "react";
-import { View, TextInput, Text, StyleSheet, Pressable, FlatList, Image, KeyboardAvoidingView, ScrollView, Platform, TouchableWithoutFeedback, Keyboard, ActivityIndicator } from "react-native";
+import { View, TextInput, Text, StyleSheet, Pressable, KeyboardAvoidingView, ScrollView, Platform, TouchableWithoutFeedback, Keyboard, ActivityIndicator, Alert } from "react-native";
 import { Formik } from "formik";
-import * as ImagePicker from "expo-image-picker";
 import { Stack, useNavigation, useRouter } from "expo-router";
 import { NoteSchema, NoteFormProps } from "../models/";
 import { useTheme } from "../context/ThemeContextProvider";
@@ -10,136 +8,139 @@ import { StyledText } from "../styled-components";
 import { Icon } from "../utils";
 import MediaOptionsMenu from "./mediaOptions";
 import LocationSearchBar from "./LocationSearchBar";
-import Loader from "./Loader";
+import useMedia from "../hooks/useMedia";
+import DraggableFlatList from "react-native-draggable-flatlist";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import DraggableImageItem from "./DraggableImageItem";
+import { useEffect } from "react";
 
 export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
   const { themes } = useTheme();
   const styles = getStyles(themes);
 
-  const router = useRouter();
   const navigation = useNavigation();
 
-  // Esto tiene que pasar a hook
-  const [images, setImages] = useState<string[]>([]);
+  const { images, setImages, pickFromGallery, takePhoto } = useMedia();
 
-  const pickImage: () => Promise<void> = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: false,
-      allowsMultipleSelection: true,
-      quality: 0.7,
-    });
-
-    if (!result.canceled) {
-      setImages([...images, result.assets[0].uri]);
+  useEffect(() => {
+    if (initialValues?.images && initialValues.images.length > 0) {
+      setImages(initialValues.images);
     }
-  };
+  }, [initialValues?.images]);
 
   return (
-    <Formik
-      initialValues={{
-        title: initialValues?.title ?? "",
-        content: initialValues?.content ?? "",
-        address: initialValues?.address ?? "",
-        latitude: initialValues?.latitude ?? null,
-        longitude: initialValues?.longitude ?? null,
-      }}
-      validationSchema={NoteSchema}
-      validateOnMount={false}
-      onSubmit={(values, { resetForm }) => {
-        onSubmit({
-          title: values.title,
-          content: values.content,
-          address: values.address,
-          latitude: values.latitude ?? 0,
-          longitude: values.longitude ?? 0,
-        });
-        navigation.goBack();
-        resetForm({ touched: {} });
-      }}>
-      {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue, isSubmitting }) => (
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-          <TouchableWithoutFeedback
-            onPress={() => {
-              Keyboard.dismiss;
-            }}
-            accessible={false}>
-            <ScrollView contentContainerStyle={{ paddingBottom: 50 }} keyboardShouldPersistTaps="handled">
-              <View style={{ gap: 8 }}>
-                <Stack.Screen
-                  options={{
-                    headerRight: () => (
-                      <View style={{ flexDirection: "row", gap: 8, marginRight: 8 }}>
-                        <MediaOptionsMenu pickImage={pickImage} />
-                        <Pressable onPress={() => handleSubmit()} disabled={isSubmitting}>
-                          <Icon iconName="save" color={themes.colors.onSurface} />
-                        </Pressable>
-                      </View>
-                    ),
-                  }}
-                />
+    <GestureHandlerRootView>
+      <Formik
+        initialValues={{
+          title: initialValues?.title ?? "",
+          content: initialValues?.content ?? "",
+          address: initialValues?.address ?? "",
+          latitude: initialValues?.latitude ?? null,
+          longitude: initialValues?.longitude ?? null,
+          images: initialValues?.images ?? [],
+        }}
+        validationSchema={NoteSchema}
+        validateOnMount={false}
+        onSubmit={(values, { resetForm }) => {
+          onSubmit({
+            title: values.title,
+            content: values.content,
+            address: values.address,
+            latitude: values.latitude ?? 0,
+            longitude: values.longitude ?? 0,
+            images: images,
+          });
+          console.log({
+            title: values.title,
+            content: values.content,
+            address: values.address,
+            latitude: values.latitude ?? 0,
+            longitude: values.longitude ?? 0,
+            images: images,
+          });
+          navigation.goBack();
+          resetForm({ touched: {} });
+        }}>
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue, isSubmitting }) => (
+          <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+            <TouchableWithoutFeedback
+              onPress={() => {
+                Keyboard.dismiss;
+              }}
+              accessible={false}>
+              <ScrollView contentContainerStyle={{ paddingBottom: 50 }} keyboardShouldPersistTaps="handled">
+                <View style={{ gap: 8 }}>
+                  <Stack.Screen
+                    options={{
+                      headerRight: () => (
+                        <View style={{ flexDirection: "row", gap: 8, marginRight: 8 }}>
+                          <MediaOptionsMenu pickImage={pickFromGallery} takePhoto={takePhoto} />
+                          <Pressable onPress={() => handleSubmit()} disabled={isSubmitting}>
+                            {isSubmitting ? <ActivityIndicator size="small" color={themes.colors.primary} /> : <Icon iconName="save" color={themes.colors.onSurface} />}
+                          </Pressable>
+                        </View>
+                      ),
+                    }}
+                  />
 
-                <LocationSearchBar
-                  value={values.address || ""}
-                  onChangeValue={(text) => setFieldValue("address", text)}
-                  onSelectLocation={({ address, latitude, longitude }) => {
-                    setFieldValue("address", address);
-                    setFieldValue("latitude", latitude);
-                    setFieldValue("longitude", longitude);
-                  }}
-                />
+                  <LocationSearchBar
+                    value={values.address || ""}
+                    onChangeValue={(text) => setFieldValue("address", text)}
+                    onSelectLocation={({ address, latitude, longitude }) => {
+                      setFieldValue("address", address);
+                      setFieldValue("latitude", latitude);
+                      setFieldValue("longitude", longitude);
+                    }}
+                  />
 
-                <TextInput
-                  placeholder="Título"
-                  placeholderTextColor={themes.colors.onSurfaceVariant}
-                  style={[styles.input, { fontSize: 20 }]}
-                  value={values.title}
-                  onChangeText={handleChange("title")}
-                  onBlur={handleBlur("title")}
-                  editable={!isSubmitting}
-                />
-                {touched.title && errors.title && <Text style={styles.error}>{errors.title}</Text>}
+                  <TextInput
+                    placeholder="Título"
+                    placeholderTextColor={themes.colors.onSurfaceVariant}
+                    style={[styles.input, { fontSize: 20 }]}
+                    value={values.title}
+                    onChangeText={handleChange("title")}
+                    onBlur={handleBlur("title")}
+                    editable={!isSubmitting}
+                  />
+                  {touched.title && errors.title && <Text style={styles.error}>{errors.title}</Text>}
 
-                <TextInput
-                  placeholder="Contenido"
-                  placeholderTextColor={themes.colors.onSurfaceVariant}
-                  style={styles.input}
-                  value={values.content}
-                  onChangeText={handleChange("content")}
-                  onBlur={handleBlur("content")}
-                  editable={!isSubmitting}
-                  multiline
-                />
-                {touched.content && errors.content && <Text style={styles.error}>{errors.content}</Text>}
+                  <TextInput
+                    placeholder="Contenido"
+                    placeholderTextColor={themes.colors.onSurfaceVariant}
+                    style={styles.input}
+                    value={values.content}
+                    onChangeText={handleChange("content")}
+                    onBlur={handleBlur("content")}
+                    editable={!isSubmitting}
+                    multiline
+                  />
+                  {touched.content && errors.content && <Text style={styles.error}>{errors.content}</Text>}
 
-                {images.length > 0 && (
-                  <View>
-                    <StyledText>Imágenes</StyledText>
-                    <FlatList
+                  {images.length > 0 && (
+                    <DraggableFlatList
+                      ListHeaderComponent={<StyledText>Imágenes</StyledText>}
                       data={images}
-                      scrollEnabled={false}
                       horizontal
-                      keyExtractor={(index) => index}
-                      renderItem={({ item }) => (
-                        <Image
-                          source={{ uri: item }}
-                          style={{
-                            width: 100,
-                            height: 100,
-                            borderRadius: 8,
-                            marginRight: 8,
-                          }}
+                      scrollEnabled={false}
+                      keyExtractor={(item, index) => `${item}-${index}`}
+                      onDragEnd={({ data }) => setImages(data)}
+                      renderItem={({ item, drag, isActive }) => (
+                        <DraggableImageItem
+                          item={typeof item === "string" ? item : item.url}
+                          drag={drag}
+                          isActive={isActive}
+                          onDelete={(uri) => setImages((prev) => prev.filter((img) => (typeof img === "string" ? img !== uri : img.url !== uri)))}
                         />
                       )}
                     />
-                  </View>
-                )}
-              </View>
-            </ScrollView>
-          </TouchableWithoutFeedback>
-        </KeyboardAvoidingView>
-      )}
-    </Formik>
+                  )}
+                </View>
+              </ScrollView>
+            </TouchableWithoutFeedback>
+          </KeyboardAvoidingView>
+        )}
+      </Formik>
+    </GestureHandlerRootView>
   );
 }
 
