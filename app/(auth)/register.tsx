@@ -1,11 +1,5 @@
 // app/(auth)/register.tsx
-// --- Registro de usuario con Firebase Auth ---
-//
-// Puntos clave:
-// 1️⃣ Llama a register(email, password) del AuthContext (Firebase).
-// 2️⃣ Muestra errores en alertas (correo duplicado, formato inválido, etc.).
-// 3️⃣ Mantiene toda tu validación con Formik y Yup.
-
+import { useContext, useMemo, useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -14,42 +8,121 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Animated,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import { Feather } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { useContext, useState } from "react";
+
 import AuthContext from "../../context/AuthContext/auth-context";
 import { setDoc, doc } from "firebase/firestore";
 import { db } from "../../src/firebase/config";
+import { useTheme } from "../../context/ThemeContextProvider";
+import { DefaultTheme } from "styled-components/native";
+
+/* ────────── Utilidades de color ────────── */
+function hexWithAlpha(hex: string, alpha: number) {
+  const a = Math.round(alpha * 255)
+    .toString(16)
+    .padStart(2, "0");
+  return hex.length === 7 ? `${hex}${a}` : hex;
+}
+
+/* ────────── Fondo decorativo ────────── */
+function BackgroundDecor({ theme }: { theme: DefaultTheme }) {
+  const bg = theme.colors.background;
+  const surf = theme.colors.surface;
+
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      <LinearGradient
+        colors={[bg, surf]}
+        start={{ x: 0.2, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+      <LinearGradient
+        colors={[
+          hexWithAlpha(theme.colors.primary, 0.18),
+          hexWithAlpha(theme.colors.primary, 0.0),
+        ]}
+        start={{ x: 0.3, y: 0.3 }}
+        end={{ x: 1, y: 1 }}
+        style={{
+          position: "absolute",
+          width: 280,
+          height: 280,
+          borderRadius: 280,
+          right: -80,
+          top: -40,
+        }}
+      />
+      <LinearGradient
+        colors={[
+          hexWithAlpha(theme.colors.secondary, 0.14),
+          hexWithAlpha(theme.colors.secondary, 0.0),
+        ]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{
+          position: "absolute",
+          width: 320,
+          height: 320,
+          borderRadius: 320,
+          left: -90,
+          bottom: -60,
+        }}
+      />
+    </View>
+  );
+}
+
+/* ────────── Schema de validación ────────── */
+const RegisterSchema = Yup.object().shape({
+  name: Yup.string().required("El nombre es obligatorio"),
+  surname: Yup.string().required("El apellido es obligatorio"),
+  birthdate: Yup.string()
+    .matches(/^\d{2}\/\d{2}\/\d{4}$/, "Formato DD/MM/YYYY")
+    .required("La fecha de nacimiento es obligatoria"),
+  email: Yup.string()
+    .email("Email inválido")
+    .required("El email es obligatorio"),
+  password: Yup.string()
+    .min(6, "Mínimo 6 caracteres")
+    .required("La contraseña es obligatoria"),
+});
+
+/* ────────── Helper para máscara de fecha ────────── */
+function maskDate(input: string) {
+  const digits = input.replace(/\D/g, "").slice(0, 8);
+  const p1 = digits.slice(0, 2);
+  const p2 = digits.slice(2, 4);
+  const p3 = digits.slice(4, 8);
+  let out = p1;
+  if (p2) out += "/" + p2;
+  if (p3) out += "/" + p3;
+  return out;
+}
 
 export default function Register() {
-  const { register } = useContext(AuthContext); // 👈 función del contexto (Firebase)
-  const [loading, setLoading] = useState(false);
+  const { register } = useContext(AuthContext);
+  const { themes } = useTheme();
+  const styles = useMemo(() => getStyles(themes), [themes]);
+  const [showPass, setShowPass] = useState(false);
 
-  const RegisterSchema = Yup.object().shape({
-    name: Yup.string().required("El nombre es obligatorio"),
-    surname: Yup.string().required("El apellido es obligatorio"),
-    birthdate: Yup.string()
-      .matches(/^\d{2}\/\d{2}\/\d{4}$/, "Formato DD/MM/YYYY")
-      .required("La fecha de nacimiento es obligatoria"),
-    email: Yup.string()
-      .email("Debe ser un email válido")
-      .required("El email es obligatorio"),
-    password: Yup.string()
-      .min(4, "La contraseña debe tener al menos 4 caracteres")
-      .required("La contraseña es obligatoria"),
-  });
-
-  const handleRegister = async (values: any) => {
+  const handleRegister = async (
+    values: any,
+    setSubmitting: (b: boolean) => void
+  ) => {
     try {
-      setLoading(true);
-
-      // 🔹 1. Crea el usuario en Firebase Authentication
       const userCredential = await register(values.email, values.password);
       const user = userCredential.user;
 
-      // 🔹 2. Guarda los datos adicionales en Firestore
       await setDoc(doc(db, "users", user.uid), {
         name: values.name,
         surname: values.surname,
@@ -63,184 +136,420 @@ export default function Register() {
         `Bienvenido ${values.name} ${values.surname}`,
         [{ text: "OK", onPress: () => router.replace("/(tabs)") }]
       );
-    } catch (error: any) {
-      console.error("Error en registro:", error);
-      // ... mismo manejo de errores que ya tenés
+    } catch (e) {
+      console.error("Error en registro:", e);
+      Alert.alert("Registro fallido", "Revisá los datos o intenta más tarde.");
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
+
   return (
-    <Formik
-      initialValues={{
-        name: "",
-        surname: "",
-        birthdate: "",
-        email: "",
-        password: "",
-      }}
-      validationSchema={RegisterSchema}
-      onSubmit={handleRegister}
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: themes.colors.background }}
     >
-      {({
-        handleChange,
-        handleBlur,
-        handleSubmit,
-        values,
-        errors,
-        touched,
-      }) => (
-        <View style={styles.container}>
-          <Text style={styles.title}>Crear Cuenta</Text>
+      <BackgroundDecor theme={themes} />
 
-          <TextInput
-            style={styles.input}
-            placeholder="Nombre"
-            value={values.name}
-            onChangeText={handleChange("name")}
-            onBlur={handleBlur("name")}
-          />
-          {errors.name && touched.name && (
-            <Text style={styles.error}>{errors.name}</Text>
-          )}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <View style={styles.screen}>
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.title}>Crear cuenta</Text>
+            <Text style={styles.subtitle}>
+              Completá tus datos para registrarte
+            </Text>
+          </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Apellido"
-            value={values.surname}
-            onChangeText={handleChange("surname")}
-            onBlur={handleBlur("surname")}
-          />
-          {errors.surname && touched.surname && (
-            <Text style={styles.error}>{errors.surname}</Text>
-          )}
-
-          <TextInput
-            style={styles.input}
-            placeholder="Fecha de nacimiento (DD/MM/YYYY)"
-            value={values.birthdate}
-            onChangeText={handleChange("birthdate")}
-            onBlur={handleBlur("birthdate")}
-            keyboardType="numbers-and-punctuation"
-            maxLength={10}
-          />
-          {errors.birthdate && touched.birthdate && (
-            <Text style={styles.error}>{errors.birthdate}</Text>
-          )}
-
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={values.email}
-            onChangeText={handleChange("email")}
-            onBlur={handleBlur("email")}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-          {errors.email && touched.email && (
-            <Text style={styles.error}>{errors.email}</Text>
-          )}
-
-          <TextInput
-            style={styles.input}
-            placeholder="Contraseña"
-            secureTextEntry
-            value={values.password}
-            onChangeText={handleChange("password")}
-            onBlur={handleBlur("password")}
-            keyboardType="default"
-          />
-          {errors.password && touched.password && (
-            <Text style={styles.error}>{errors.password}</Text>
-          )}
-
-          <Pressable
-            style={[
-              styles.btn,
-              (!values.name ||
-                !values.surname ||
-                !values.birthdate ||
-                !values.email ||
-                !values.password) &&
-                styles.btnDisabled,
-            ]}
-            onPress={() => handleSubmit()}
-            disabled={
-              !values.name ||
-              !values.surname ||
-              !values.birthdate ||
-              !values.email ||
-              !values.password ||
-              loading
+          <Formik
+            initialValues={{
+              name: "",
+              surname: "",
+              birthdate: "",
+              email: "",
+              password: "",
+            }}
+            validationSchema={RegisterSchema}
+            onSubmit={(vals, { setSubmitting }) =>
+              handleRegister(vals, setSubmitting)
             }
           >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text
-                style={[
-                  styles.btnText,
-                  (!values.name ||
-                    !values.surname ||
-                    !values.birthdate ||
-                    !values.email ||
-                    !values.password) &&
-                    styles.btnTextDisabled,
-                ]}
-              >
-                Crear cuenta
-              </Text>
-            )}
-          </Pressable>
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              setFieldValue,
+              values,
+              errors,
+              touched,
+              isSubmitting,
+            }) => {
+              const allFilled =
+                values.name &&
+                values.surname &&
+                values.birthdate &&
+                values.email &&
+                values.password;
+              const canSubmit = !!allFilled && !isSubmitting;
 
-          <Text style={{ marginTop: 20 }}>
+              /* ───── Botón animado: crossfade de colores según canSubmit ───── */
+              const activeAnim = useRef(
+                new Animated.Value(canSubmit ? 1 : 0)
+              ).current;
+              useEffect(() => {
+                Animated.timing(activeAnim, {
+                  toValue: canSubmit ? 1 : 0,
+                  duration: 220,
+                  useNativeDriver: true,
+                }).start();
+              }, [canSubmit]);
+
+              return (
+                <View style={styles.card}>
+                  {/* Nombre */}
+                  <InputField
+                    theme={themes}
+                    icon="user"
+                    placeholder="Nombre"
+                    value={values.name}
+                    onChangeText={handleChange("name")}
+                    onBlur={handleBlur("name")}
+                    error={touched.name ? (errors.name as string) : undefined}
+                    returnKeyType="next"
+                  />
+
+                  {/* Apellido */}
+                  <InputField
+                    theme={themes}
+                    icon="user-check"
+                    placeholder="Apellido"
+                    value={values.surname}
+                    onChangeText={handleChange("surname")}
+                    onBlur={handleBlur("surname")}
+                    error={
+                      touched.surname ? (errors.surname as string) : undefined
+                    }
+                    returnKeyType="next"
+                  />
+
+                  {/* Fecha nacimiento */}
+                  <InputField
+                    theme={themes}
+                    icon="calendar"
+                    placeholder="(DD/MM/YYYY)"
+                    value={values.birthdate}
+                    onChangeText={(t) =>
+                      setFieldValue("birthdate", maskDate(t))
+                    }
+                    onBlur={handleBlur("birthdate")}
+                    error={
+                      touched.birthdate
+                        ? (errors.birthdate as string)
+                        : undefined
+                    }
+                    keyboardType="number-pad"
+                    maxLength={10}
+                    returnKeyType="next"
+                  />
+
+                  {/* Email */}
+                  <InputField
+                    theme={themes}
+                    icon="mail"
+                    placeholder="Email"
+                    value={values.email}
+                    onChangeText={handleChange("email")}
+                    onBlur={handleBlur("email")}
+                    error={touched.email ? (errors.email as string) : undefined}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    textContentType="emailAddress"
+                    autoComplete="email"
+                    returnKeyType="next"
+                  />
+
+                  {/* Contraseña */}
+                  <InputField
+                    theme={themes}
+                    icon="lock"
+                    placeholder="Contraseña"
+                    value={values.password}
+                    onChangeText={handleChange("password")}
+                    onBlur={handleBlur("password")}
+                    error={
+                      touched.password ? (errors.password as string) : undefined
+                    }
+                    secureTextEntry={!showPass}
+                    rightSlot={
+                      <Pressable
+                        onPress={() => setShowPass((s) => !s)}
+                        hitSlop={8}
+                        style={styles.trailingBtn}
+                      >
+                        <Feather
+                          name={showPass ? "eye-off" : "eye"}
+                          size={20}
+                          color={themes.colors.onSurfaceVariant}
+                        />
+                      </Pressable>
+                    }
+                  />
+
+                  {/* Botón (mismo efecto que Login: sin cambios de tamaño + crossfade colores) */}
+                  <Pressable
+                    onPress={() => handleSubmit()}
+                    disabled={!canSubmit}
+                    style={({ pressed }) => [
+                      styles.btnWrapper,
+                      pressed && canSubmit && styles.btnWrapperPressed, // sin scale
+                    ]}
+                  >
+                    <View style={styles.btn}>
+                      {/* Gradiente inactivo (base) */}
+                      <LinearGradient
+                        colors={[
+                          themes.colors.outline,
+                          themes.colors.surfaceVariant,
+                        ]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={StyleSheet.absoluteFill}
+                      />
+                      {/* Gradiente activo (encima) con opacidad animada */}
+                      <Animated.View
+                        style={[
+                          StyleSheet.absoluteFill,
+                          { opacity: activeAnim },
+                        ]}
+                      >
+                        <LinearGradient
+                          colors={[
+                            themes.colors.primary,
+                            themes.colors.secondary,
+                          ]}
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 1, y: 1 }}
+                          style={StyleSheet.absoluteFill}
+                        />
+                      </Animated.View>
+
+                      {isSubmitting ? (
+                        <ActivityIndicator color={themes.colors.onPrimary} />
+                      ) : (
+                        <View style={styles.btnContent}>
+                          <Text
+                            style={[
+                              styles.btnText,
+                              !canSubmit && {
+                                color: themes.colors.onSurfaceVariant,
+                              },
+                            ]}
+                          >
+                            Crear cuenta
+                          </Text>
+
+                          {/* Ícono SIEMPRE presente para no modificar layout */}
+                          <View
+                            style={[
+                              styles.iconPill,
+                              !canSubmit && { opacity: 0 },
+                            ]}
+                          >
+                            <Feather
+                              name="arrow-right"
+                              size={16}
+                              color={themes.colors.onPrimary}
+                            />
+                          </View>
+                        </View>
+                      )}
+                    </View>
+                  </Pressable>
+
+                  <Text style={styles.helperBelow}>
+                    Al continuar aceptás nuestros términos y políticas.
+                  </Text>
+                </View>
+              );
+            }}
+          </Formik>
+
+          <Text style={styles.footerText}>
             ¿Ya tenés una cuenta?{" "}
             <Text
               onPress={() => router.replace("/")}
               accessibilityRole="link"
-              style={{
-                color: "#007AFF",
-                fontWeight: "bold",
-                textDecorationLine: "none",
-              }}
+              style={styles.footerLink}
             >
               Iniciá sesión
             </Text>
           </Text>
         </View>
-      )}
-    </Formik>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-    backgroundColor: "#f5f5f5",
-  },
-  title: { fontSize: 26, fontWeight: "bold", marginBottom: 30 },
-  input: {
-    width: "100%",
-    height: 50,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    marginBottom: 15,
-    paddingHorizontal: 10,
-    backgroundColor: "#fff",
-  },
-  error: { color: "red", alignSelf: "flex-start" },
-  btn: {
-    backgroundColor: "#007AFF",
-    paddingVertical: 15,
-    borderRadius: 8,
-    width: "100%",
-    alignItems: "center",
-  },
-  btnDisabled: { backgroundColor: "#bdbdbd" },
-  btnText: { color: "#fff", fontWeight: "bold" },
-  btnTextDisabled: { color: "#f0f0f0" },
-});
+/* ────────── Input simple ────────── */
+function InputField({
+  theme,
+  icon,
+  rightSlot,
+  error,
+  style,
+  ...props
+}: {
+  theme: DefaultTheme;
+  icon: React.ComponentProps<typeof Feather>["name"];
+  rightSlot?: React.ReactNode;
+  error?: string;
+} & React.ComponentProps<typeof TextInput>) {
+  const styles = useMemo(() => getStyles(theme), [theme]);
+  return (
+    <View>
+      <View
+        style={[
+          styles.inputWrapper,
+          error && { borderColor: theme.colors.error },
+        ]}
+      >
+        <Feather
+          name={icon}
+          size={18}
+          color={error ? theme.colors.error : theme.colors.onSurfaceVariant}
+          style={{ marginHorizontal: theme.spacing.sm }}
+        />
+        <TextInput
+          style={[styles.input, style]}
+          placeholderTextColor={theme.colors.onSurfaceVariant}
+          {...props}
+        />
+        {rightSlot ? <View style={styles.trailing}>{rightSlot}</View> : null}
+      </View>
+      {!!error && <Text style={styles.helperError}>{error}</Text>}
+    </View>
+  );
+}
+
+/* ────────── Estilos ────────── */
+function getStyles(theme: DefaultTheme) {
+  return StyleSheet.create({
+    screen: {
+      flex: 1,
+      paddingHorizontal: theme.spacing.lg,
+      justifyContent: "center",
+      gap: theme.spacing.md,
+    },
+    header: {
+      alignItems: "center",
+      gap: theme.spacing.xm,
+      marginBottom: theme.spacing.xm,
+    },
+    title: {
+      fontSize: theme.fontSizes.lg,
+      fontWeight: "700",
+      color: theme.colors.onBackground,
+      textAlign: "center",
+    },
+    subtitle: {
+      fontSize: theme.fontSizes.sm,
+      color: theme.colors.onSurfaceVariant,
+      textAlign: "center",
+      marginHorizontal: theme.spacing.md,
+    },
+    card: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: 16,
+      padding: theme.spacing.lg,
+      gap: theme.spacing.sm,
+      borderWidth: 1,
+      borderColor: theme.colors.outline,
+      shadowColor: "#000",
+      shadowOpacity: 0.06,
+      shadowRadius: 12,
+      shadowOffset: { width: 0, height: 6 },
+      elevation: 4,
+    },
+    inputWrapper: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: theme.colors.surface,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: theme.colors.outline,
+      height: 54,
+      marginBottom: theme.spacing.xm,
+    },
+    input: {
+      flex: 1,
+      color: theme.colors.onSurface,
+      fontSize: theme.fontSizes.sm,
+      letterSpacing: 0.15,
+      paddingHorizontal: 8,
+      height: "100%",
+    },
+    trailing: {
+      paddingHorizontal: theme.spacing.sm,
+      justifyContent: "center",
+    },
+    trailingBtn: { padding: 6, borderRadius: 999 },
+
+    /* Botón (igual que Login) */
+    btnWrapper: {
+      borderRadius: 999,
+      overflow: "hidden",
+      marginTop: theme.spacing.sm,
+    },
+    btnWrapperPressed: { opacity: 0.95 }, // sin transform
+    btn: {
+      position: "relative", // necesario para superponer gradientes
+      paddingVertical: 14,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: 999,
+      overflow: "hidden",
+    },
+    btnContent: {
+      flexDirection: "row",
+      gap: 10,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    btnText: {
+      color: theme.colors.onPrimary,
+      fontWeight: "700",
+      fontSize: theme.fontSizes.sm,
+    },
+    iconPill: {
+      width: 26,
+      height: 26,
+      borderRadius: 13,
+      borderWidth: 1,
+      borderColor: theme.colors.onPrimary + "44",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+
+    helperError: {
+      color: theme.colors.error,
+      fontSize: theme.fontSizes.xm,
+      marginBottom: -theme.spacing.xm,
+      marginLeft: theme.spacing.sm,
+    },
+    helperBelow: {
+      color: theme.colors.onSurfaceVariant,
+      fontSize: theme.fontSizes.xm,
+      textAlign: "center",
+      marginTop: theme.spacing.xm,
+    },
+    footerText: {
+      textAlign: "center",
+      color: theme.colors.onBackground,
+      marginTop: theme.spacing.sm,
+      fontSize: theme.fontSizes.xm,
+    },
+    footerLink: { color: theme.colors.primary, fontWeight: "700" },
+  });
+}
