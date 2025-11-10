@@ -12,6 +12,53 @@ import useMedia from '../hooks/useMedia'
 import { FlatList, GestureHandlerRootView } from 'react-native-gesture-handler'
 import { useEffect } from 'react'
 import ImageItem from './ImageItem'
+import { LinearGradient } from 'expo-linear-gradient'
+
+/* ───────── util transparencia ───────── */
+function hexWithAlpha(hex: string, alpha: number) {
+	const a = Math.round(alpha * 255)
+		.toString(16)
+		.padStart(2, '0')
+	return hex.length === 7 ? `${hex}${a}` : hex
+}
+
+/* ───────── fondo decorativo  ───────── */
+function BackgroundDecor({ theme }: { theme: DefaultTheme }) {
+	const bg = theme.colors.background
+	const surf = theme.colors.surface
+
+	return (
+		<View style={StyleSheet.absoluteFill}>
+			<LinearGradient colors={[bg, surf]} start={{ x: 0.15, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+			<LinearGradient
+				colors={[hexWithAlpha(theme.colors.primary, 0.16), hexWithAlpha(theme.colors.primary, 0)]}
+				start={{ x: 0.35, y: 0.2 }}
+				end={{ x: 1, y: 1 }}
+				style={{
+					position: 'absolute',
+					width: 260,
+					height: 260,
+					borderRadius: 260,
+					right: -70,
+					top: -30,
+				}}
+			/>
+			<LinearGradient
+				colors={[hexWithAlpha(theme.colors.secondary, 0.12), hexWithAlpha(theme.colors.secondary, 0)]}
+				start={{ x: 0, y: 0 }}
+				end={{ x: 1, y: 1 }}
+				style={{
+					position: 'absolute',
+					width: 320,
+					height: 320,
+					borderRadius: 320,
+					left: -90,
+					bottom: -60,
+				}}
+			/>
+		</View>
+	)
+}
 
 export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
 	const { themes } = useTheme()
@@ -32,7 +79,10 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
 	}, [initialValues?.images])
 
 	return (
-		<GestureHandlerRootView>
+		<GestureHandlerRootView style={{ flex: 1 }}>
+			{/* Fondo decorativo detrás de todo */}
+			<BackgroundDecor theme={themes} />
+
 			<Formik
 				initialValues={{
 					title: initialValues?.title ?? '',
@@ -70,7 +120,13 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
 									<Stack.Screen
 										options={{
 											headerRight: () => (
-												<View style={{ flexDirection: 'row', gap: 8, marginRight: 8 }}>
+												<View
+													style={{
+														flexDirection: 'row',
+														gap: 8,
+														marginRight: 8,
+													}}
+												>
 													<MediaOptionsMenu pickImage={pickFromGallery} takePhoto={takePhoto} />
 													<Pressable onPress={() => handleSubmit()} disabled={isSubmitting}>
 														{isSubmitting ? <ActivityIndicator size='small' color={themes.colors.primary} /> : <Icon iconName='save' color={themes.colors.onSurface} />}

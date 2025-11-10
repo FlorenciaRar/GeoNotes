@@ -1,84 +1,64 @@
-import { useContext, useEffect, useState } from "react";
-import { Stack, useRouter, useSegments } from "expo-router";
-import { ThemeProvider } from "styled-components/native";
-import { MenuProvider } from "react-native-popup-menu";
-import {
-  ThemeContextProvider,
-  useTheme,
-} from "../context/ThemeContextProvider";
-import {
-  AUTH_ACTIONS,
-  AuthContext,
-  AuthProvider,
-} from "../context/AuthContext";
-import { getUser } from "../utils/secure-store";
+// app/_layout.tsx
+// --- Layout principal actualizado para usar Firebase Auth persistente ---
+//
+// Cambios clave:
+// 1️⃣ Se elimina el uso de getUser() (ya no se necesita secure-store).
+// 2️⃣ Se usa onAuthStateChanged a través del AuthProvider.
+// 3️⃣ Mantiene tu sistema de temas, router y estructura (tabs / auth).
+// 4️⃣ El estado de carga inicial lo toma del AuthProvider, no del layout.
+
+import { useContext, useEffect } from 'react'
+import { Stack, useRouter, useSegments } from 'expo-router'
+import { ThemeProvider } from 'styled-components/native'
+import { MenuProvider } from 'react-native-popup-menu'
+import { ThemeContextProvider, useTheme } from '../context/ThemeContextProvider'
+import { AuthContext, AuthProvider } from '../context/AuthContext'
+import Loader from '../components/Loader'
 
 function InnerLayout() {
-  const { themes } = useTheme();
-  const { dispatch, state } = useContext(AuthContext);
-  const router = useRouter();
-  const segments = useSegments();
+	const { themes } = useTheme()
+	const { state } = useContext(AuthContext) // ✅ Solo leemos state del AuthProvider
+	const router = useRouter()
+	const segments = useSegments()
 
-  const [isLoading, setIsLoading] = useState(true);
+	// ✅ Redirige automáticamente según el estado de sesión
+	useEffect(() => {
+		const currentRoot = segments && segments.length > 0 ? segments[0] : null
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const user = await getUser();
+		if (!state.isLoading) {
+			if (state.user) {
+				// Usuario logueado
+				if (currentRoot !== '(tabs)') router.replace('/(tabs)')
+			} else {
+				// Usuario no logueado
+				if (currentRoot !== '(auth)') router.replace('/(auth)')
+			}
+		}
+	}, [state.user, state.isLoading])
 
-      if (user) {
-        dispatch({ type: AUTH_ACTIONS.LOGIN, payload: { user } });
-      }
+	// 🔄 Mientras Firebase verifica si hay sesión persistente
+	if (state.isLoading && !state.user) return <Loader visible transparent={true} />
 
-      setIsLoading(false);
-
-      try {
-        const currentRoot =
-          segments && segments.length > 0 ? segments[0] : null;
-        if (user) {
-          if (currentRoot !== "(tabs)") {
-            router.replace("/(tabs)");
-          } else {
-          }
-        } else {
-          if (currentRoot !== "(auth)") {
-            router.replace("/(auth)");
-          } else {
-          }
-        }
-      } catch (err) {}
-    };
-
-    loadUser();
-  }, []);
-
-  if (isLoading) return null;
-
-  return (
-    <ThemeProvider theme={themes}>
-      <MenuProvider>
-        <Stack screenOptions={{ headerShown: false }}>
-          {state.user ? (
-            <Stack.Screen name="(tabs)" />
-          ) : (
-            <Stack.Screen name="(auth)" />
-          )}
-          <Stack.Screen name="notes/[NoteId]" options={{ headerShown: true }} />
-
-          {/* Se agrega para evitar el WARN de "Route 'select-theme' is extraneous"*/}
-          {/* Como estamos usando Stack con childrens (modo explicito) deberiamos definir las rutas aca y settings no estaba */}
-          <Stack.Screen name="settings" />
-        </Stack>
-      </MenuProvider>
-    </ThemeProvider>
-  );
+	return (
+		<ThemeProvider theme={themes}>
+			<MenuProvider>
+				<Stack screenOptions={{ headerShown: false }}>
+					{state.user ? <Stack.Screen name='(tabs)' /> : <Stack.Screen name='(auth)' />}
+					{/* <Stack.Screen name="notes/[NoteId]" options={{ headerShown: true }} /> */}
+					<Stack.Screen name='settings' />
+				</Stack>
+			</MenuProvider>
+		</ThemeProvider>
+	)
 }
 
 export default function Layout() {
-  return (
-    <ThemeContextProvider>
-      <AuthProvider>
-        <InnerLayout />
-      </AuthProvider>
-    </ThemeContextProvider>
-  );
+	return (
+		<ThemeContextProvider>
+			{/* ✅ AuthProvider ahora controla toda la sesión (Firebase persistente) */}
+			<AuthProvider>
+				<InnerLayout />
+			</AuthProvider>
+		</ThemeContextProvider>
+	)
 }

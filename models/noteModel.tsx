@@ -3,8 +3,10 @@ export interface Note {
   creationDate: string;
   modificationDate: string;
   title: string;
-  adress: string;
+  address: string;
   latitude: number;
   longitude: number;
   content: string;
+  userId: string;
+  images: { url: string; deleteUrl: string }[];
 }

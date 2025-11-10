@@ -33,11 +33,13 @@ export default function Map() {
 			id: doc.id,
 			title: data.title,
 			content: data.content,
-			adress: data.adress,
+			address: data.adress,
 			latitude: parseFloat(data.latitude),
 			longitude: parseFloat(data.longitude),
 			creationDate: creation.toISOString(),
 			modificationDate: modification.toISOString(),
+			userId: data.userId,
+			images: data.images,
 		}
 	}
 

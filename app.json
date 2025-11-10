@@ -1,44 +1,45 @@
 {
-  "expo": {
-    "name": "GeoNotes",
-    "slug": "GeoNotes",
-    "scheme": "geonotes",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/ico.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,    
-    "deeplinks": true,
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },   
-    
-    "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive.png",
-        "backgroundColor": "#ffffff"
-      },
-      "edgeToEdgeEnabled": true,
-      "permissions": ["android.permission.RECORD_AUDIO", "android.permission.RECORD_AUDIO"],
-      "package": "com.anonymous.GeoNotes"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
-    "plugins": [
-      "expo-router",
-      "expo-secure-store",
-      [
-        "expo-image-picker",
-        {
-          "photosPermission": "La aplicación necesita acceder a la galeria para poder colocar imagenes en las notas"
-        }
-      ]
-    ]
-  }
+	"expo": {
+		"name": "GeoNotes",
+		"slug": "GeoNotes",
+		"scheme": "geonotes",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"icon": "./assets/ico.png",
+		"newArchEnabled": true,
+		"deeplinks": true,
+		"userInterfaceStyle": "automatic",
+		"splash": {
+			"image": "./assets/splash.png",
+			"resizeMode": "contain",
+			"backgroundColor": "#ffffff"
+		},
+
+		"ios": {
+			"supportsTablet": true
+		},
+		"android": {
+			"adaptiveIcon": {
+				"foregroundImage": "./assets/adaptive.png",
+				"backgroundColor": "#ffffff"
+			},
+			"edgeToEdgeEnabled": true,
+			"permissions": ["android.permission.RECORD_AUDIO", "android.permission.RECORD_AUDIO"],
+			"package": "com.anonymous.GeoNotes"
+		},
+		"web": {
+			"favicon": "./assets/favicon.png"
+		},
+		"plugins": [
+			"expo-router",
+			"expo-secure-store",
+			[
+				"expo-image-picker",
+				{
+					"photosPermission": "La aplicación necesita acceder a tus fotos para adjuntarlas a las notas.",
+					"cameraPermission": "La aplicación necesita usar la cámara para tomar fotos para tus notas."
+				}
+			]
+		]
+	}
 }
