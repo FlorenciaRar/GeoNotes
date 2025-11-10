@@ -21,10 +21,8 @@ export default function NotesCardContainer({ maxItems }: NotesCardContainerProps
     console.log("Borrar nota:", id);
   };
 
-  function mapearDocANota(doc: any): Note {    
-    
+  function mapearDocANota(doc: any): Note {
     const data = doc.data();
-    
     const creation = data.creationDate?.toDate
       ? data.creationDate.toDate()
       : new Date(data.creationDate);
@@ -53,7 +51,6 @@ export default function NotesCardContainer({ maxItems }: NotesCardContainerProps
         );
         const snap = await getDocs(q);
         const resultado = snap.docs.map((d) => mapearDocANota(d));
-        console.log("Notas cargadas:", resultado);
         setNotes(resultado);
       } catch (e) {
         console.error("Error al obtener notas:", e);

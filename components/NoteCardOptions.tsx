@@ -1,11 +1,5 @@
-import { StyleSheet, Share } from "react-native";
-import {
-  Menu,
-  MenuOptions,
-  MenuOption,
-  MenuTrigger,
-} from "react-native-popup-menu";
-import * as Linking from "expo-linking";
+import { StyleSheet } from "react-native";
+import { Menu, MenuOptions, MenuOption, MenuTrigger } from "react-native-popup-menu";
 import { useTheme } from "../context/ThemeContextProvider";
 import { DefaultTheme } from "styled-components/native";
 import { StyledText } from "../styled-components";
@@ -81,6 +75,13 @@ export default function NoteCardOptionsMenu({ onDelete, noteId }: MenuProps) {
 
 function getStyles(themes: DefaultTheme) {
   return StyleSheet.create({
+    noteCardContainer: {
+      backgroundColor: themes.colors.surface,
+      padding: themes.spacing.md,
+      borderRadius: themes.spacing.md,
+      marginBottom: themes.spacing.md,
+      position: "relative",
+    },
     optionsButton: {
       position: "absolute",
       right: themes.spacing.md,
