@@ -8,26 +8,32 @@ interface NotesCardContainerProps {
   maxItems?: number;
 }
 
-export default function NotesCardContainer({ maxItems }: NotesCardContainerProps) {
+export default function NotesCardContainer({
+  maxItems,
+}: NotesCardContainerProps) {
   const { themes } = useTheme();
   const { notes, loading, error, deleteNote } = useNotes();
 
   const handleDelete = (id: string) => {
-    Alert.alert("Borrar nota", "¿Estás seguro de que querés borrar esta nota?", [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Borrar",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await deleteNote(id);
-          } catch (err) {
-            console.error("Error al borrar nota:", err);
-            Alert.alert("Error", "No se pudo borrar la nota");
-          }
+    Alert.alert(
+      "Borrar nota",
+      "¿Estás seguro de que querés borrar esta nota?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Borrar",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteNote(id);
+            } catch (err) {
+              console.error("Error al borrar nota:", err);
+              Alert.alert("Error", "No se pudo borrar la nota");
+            }
+          },
         },
-      },
-    ]);
+      ]
+    );
   };
 
   const notesToRender = maxItems ? notes.slice(0, maxItems) : notes;
@@ -35,7 +41,9 @@ export default function NotesCardContainer({ maxItems }: NotesCardContainerProps
   const EmptySearch = () => {
     if (loading) {
       return (
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
           <ActivityIndicator size="large" color={themes.colors.primary} />
         </View>
       );
@@ -57,5 +65,14 @@ export default function NotesCardContainer({ maxItems }: NotesCardContainerProps
       );
     }
   };
-  return <FlatList data={notesToRender} keyExtractor={(item) => item.id} ListEmptyComponent={EmptySearch} renderItem={({ item }) => <NoteCardItem data={item} onDelete={handleDelete} />} />;
+  return (
+    <FlatList
+      data={notesToRender}
+      keyExtractor={(item) => item.id}
+      ListEmptyComponent={EmptySearch}
+      renderItem={({ item }) => (
+        <NoteCardItem data={item} onDelete={handleDelete} />
+      )}
+    />
+  );
 }

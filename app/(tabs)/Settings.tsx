@@ -7,6 +7,62 @@ import { AUTH_ACTIONS, AuthContext } from "../../context/AuthContext";
 import { LinearGradient } from "expo-linear-gradient";
 import { DefaultTheme } from "styled-components/native";
 
+/* ───────── util transparencia ───────── */
+function hexWithAlpha(hex: string, alpha: number) {
+  const a = Math.round(alpha * 255)
+    .toString(16)
+    .padStart(2, "0");
+  return hex.length === 7 ? `${hex}${a}` : hex;
+}
+
+/* ───────── fondo decorativo ───────── */
+function BackgroundDecor({ theme }: { theme: DefaultTheme }) {
+  const bg = theme.colors.background;
+  const surf = theme.colors.surface;
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      <LinearGradient
+        colors={[bg, surf]}
+        start={{ x: 0.15, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+      <LinearGradient
+        colors={[
+          hexWithAlpha(theme.colors.primary, 0.16),
+          hexWithAlpha(theme.colors.primary, 0),
+        ]}
+        start={{ x: 0.4, y: 0.2 }}
+        end={{ x: 1, y: 1 }}
+        style={{
+          position: "absolute",
+          width: 260,
+          height: 260,
+          borderRadius: 260,
+          right: -70,
+          top: -30,
+        }}
+      />
+      <LinearGradient
+        colors={[
+          hexWithAlpha(theme.colors.secondary, 0.12),
+          hexWithAlpha(theme.colors.secondary, 0),
+        ]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{
+          position: "absolute",
+          width: 300,
+          height: 300,
+          borderRadius: 300,
+          left: -80,
+          bottom: -60,
+        }}
+      />
+    </View>
+  );
+}
+
 export default function Settings() {
   const { themes, clearTheme } = useTheme();
   const { dispatch, logout } = useContext(AuthContext);
@@ -14,7 +70,6 @@ export default function Settings() {
 
   const handleLogout = async () => {
     try {
-      console.log("👋 Cerrando sesión...");
       await logout();
       await clearTheme();
       dispatch({ type: AUTH_ACTIONS.LOGOUT });
@@ -28,12 +83,15 @@ export default function Settings() {
     <SafeAreaView
       style={[styles.container, { backgroundColor: themes.colors.background }]}
     >
+      {/* Fondo decorativo */}
+      <BackgroundDecor theme={themes} />
+
+      {/* Contenido */}
       <View style={styles.content}>
         <Text style={styles.subtitle}>
           Personalizá tu experiencia o cerrá sesión
         </Text>
 
-        {/* Botón principal (gradiente como en index) */}
         <Pressable
           style={({ pressed }) => [
             styles.btnWrapper,
@@ -51,7 +109,6 @@ export default function Settings() {
           </LinearGradient>
         </Pressable>
 
-        {/* Botón logout (pill color error, tipografía igual) */}
         <Pressable
           style={({ pressed }) => [
             styles.logoutButton,
@@ -66,12 +123,13 @@ export default function Settings() {
   );
 }
 
-/* ───────── Estilos alineados al index ───────── */
+/* ───────── estilos ───────── */
 function getStyles(theme: DefaultTheme) {
   return StyleSheet.create({
     container: {
       flex: 1,
       padding: theme.spacing.lg,
+      position: "relative", // importante para que el fondo absoluto funcione
     },
     content: {
       gap: theme.spacing.md,
@@ -95,7 +153,6 @@ function getStyles(theme: DefaultTheme) {
       marginHorizontal: theme.spacing.md,
     },
 
-    /* Botón primario estilo index (gradiente + pill) */
     btnWrapper: {
       borderRadius: 999,
       overflow: "hidden",
@@ -115,7 +172,6 @@ function getStyles(theme: DefaultTheme) {
       fontSize: theme.fontSizes.sm,
     },
 
-    /* Botón logout estilo pill y tipografía consistente */
     logoutButton: {
       borderRadius: 999,
       paddingVertical: 14,
