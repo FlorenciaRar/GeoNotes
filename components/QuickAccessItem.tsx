@@ -14,7 +14,11 @@ interface QuickAccessItemProps {
   name: string;
 }
 
-export default function QuickAccessItem({ link, iconName, name }: QuickAccessItemProps) {
+export default function QuickAccessItem({
+  link,
+  iconName,
+  name,
+}: QuickAccessItemProps) {
   const { themes } = useTheme();
   const styles = getStyles(themes);
   return (
@@ -39,6 +43,14 @@ function getStyles(themes: DefaultTheme) {
       padding: 16,
       justifyContent: "center",
       rowGap: 16,
+      gap: themes.spacing.sm,
+      borderWidth: 1,
+      borderColor: themes.colors.outline,
+      shadowColor: "#000",
+      shadowOpacity: 0.06,
+      shadowRadius: 12,
+      shadowOffset: { width: 0, height: 6 },
+      elevation: 4,
     },
   });
 }
