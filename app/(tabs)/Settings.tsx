@@ -4,64 +4,9 @@ import { useTheme } from "../../context/ThemeContextProvider";
 import { useContext, useMemo } from "react";
 import { router } from "expo-router";
 import { AUTH_ACTIONS, AuthContext } from "../../context/AuthContext";
-import { LinearGradient } from "expo-linear-gradient";
 import { DefaultTheme } from "styled-components/native";
-
-/* ───────── util transparencia ───────── */
-function hexWithAlpha(hex: string, alpha: number) {
-  const a = Math.round(alpha * 255)
-    .toString(16)
-    .padStart(2, "0");
-  return hex.length === 7 ? `${hex}${a}` : hex;
-}
-
-/* ───────── fondo decorativo ───────── */
-function BackgroundDecor({ theme }: { theme: DefaultTheme }) {
-  const bg = theme.colors.background;
-  const surf = theme.colors.surface;
-  return (
-    <View style={StyleSheet.absoluteFill}>
-      <LinearGradient
-        colors={[bg, surf]}
-        start={{ x: 0.15, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
-      <LinearGradient
-        colors={[
-          hexWithAlpha(theme.colors.primary, 0.16),
-          hexWithAlpha(theme.colors.primary, 0),
-        ]}
-        start={{ x: 0.4, y: 0.2 }}
-        end={{ x: 1, y: 1 }}
-        style={{
-          position: "absolute",
-          width: 260,
-          height: 260,
-          borderRadius: 260,
-          right: -70,
-          top: -30,
-        }}
-      />
-      <LinearGradient
-        colors={[
-          hexWithAlpha(theme.colors.secondary, 0.12),
-          hexWithAlpha(theme.colors.secondary, 0),
-        ]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{
-          position: "absolute",
-          width: 300,
-          height: 300,
-          borderRadius: 300,
-          left: -80,
-          bottom: -60,
-        }}
-      />
-    </View>
-  );
-}
+import { BackgroundDecor } from "../../components/ui/BackgroundDecor";
+import {GradientButton} from "../../components/ui/GradientButton"
 
 export default function Settings() {
   const { themes, clearTheme } = useTheme();
@@ -92,22 +37,12 @@ export default function Settings() {
           Personalizá tu experiencia o cerrá sesión
         </Text>
 
-        <Pressable
-          style={({ pressed }) => [
-            styles.btnWrapper,
-            pressed && styles.btnWrapperPressed,
-          ]}
+        {/* implemento boton reutilizable: fullwidth para el ancho de pantalla */}
+        <GradientButton
+          title="Personalización"
           onPress={() => router.push("/settings/select-theme")}
-        >
-          <LinearGradient
-            colors={[themes.colors.primary, themes.colors.secondary]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.btn}
-          >
-            <Text style={styles.btnText}>Personalización</Text>
-          </LinearGradient>
-        </Pressable>
+          fullWidth
+        />
 
         <Pressable
           style={({ pressed }) => [

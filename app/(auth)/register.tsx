@@ -24,63 +24,8 @@ import { setDoc, doc } from "firebase/firestore";
 import { db } from "../../src/firebase/config";
 import { useTheme } from "../../context/ThemeContextProvider";
 import { DefaultTheme } from "styled-components/native";
-
-/* ────────── Utilidades de color ────────── */
-function hexWithAlpha(hex: string, alpha: number) {
-  const a = Math.round(alpha * 255)
-    .toString(16)
-    .padStart(2, "0");
-  return hex.length === 7 ? `${hex}${a}` : hex;
-}
-
-/* ────────── Fondo decorativo ────────── */
-function BackgroundDecor({ theme }: { theme: DefaultTheme }) {
-  const bg = theme.colors.background;
-  const surf = theme.colors.surface;
-
-  return (
-    <View style={StyleSheet.absoluteFill}>
-      <LinearGradient
-        colors={[bg, surf]}
-        start={{ x: 0.2, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
-      <LinearGradient
-        colors={[
-          hexWithAlpha(theme.colors.primary, 0.18),
-          hexWithAlpha(theme.colors.primary, 0.0),
-        ]}
-        start={{ x: 0.3, y: 0.3 }}
-        end={{ x: 1, y: 1 }}
-        style={{
-          position: "absolute",
-          width: 280,
-          height: 280,
-          borderRadius: 280,
-          right: -80,
-          top: -40,
-        }}
-      />
-      <LinearGradient
-        colors={[
-          hexWithAlpha(theme.colors.secondary, 0.14),
-          hexWithAlpha(theme.colors.secondary, 0.0),
-        ]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{
-          position: "absolute",
-          width: 320,
-          height: 320,
-          borderRadius: 320,
-          left: -90,
-          bottom: -60,
-        }}
-      />
-    </View>
-  );
-}
+import { BackgroundDecor } from "../../components/ui/BackgroundDecor";
+import { AnimatedGradientButton } from "../../components/ui/AnimatedGradientButton";
 
 /* ────────── Schema de validación ────────── */
 const RegisterSchema = Yup.object().shape({
@@ -297,76 +242,13 @@ export default function Register() {
                     }
                   />
 
-                  {/* Botón (mismo efecto que Login: sin cambios de tamaño + crossfade colores) */}
-                  <Pressable
+                  <AnimatedGradientButton
+                    title="Crear cuenta"
                     onPress={() => handleSubmit()}
-                    disabled={!canSubmit}
-                    style={({ pressed }) => [
-                      styles.btnWrapper,
-                      pressed && canSubmit && styles.btnWrapperPressed, // sin scale
-                    ]}
-                  >
-                    <View style={styles.btn}>
-                      {/* Gradiente inactivo (base) */}
-                      <LinearGradient
-                        colors={[
-                          themes.colors.outline,
-                          themes.colors.surfaceVariant,
-                        ]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        style={StyleSheet.absoluteFill}
-                      />
-                      {/* Gradiente activo (encima) con opacidad animada */}
-                      <Animated.View
-                        style={[
-                          StyleSheet.absoluteFill,
-                          { opacity: activeAnim },
-                        ]}
-                      >
-                        <LinearGradient
-                          colors={[
-                            themes.colors.primary,
-                            themes.colors.secondary,
-                          ]}
-                          start={{ x: 0, y: 0 }}
-                          end={{ x: 1, y: 1 }}
-                          style={StyleSheet.absoluteFill}
-                        />
-                      </Animated.View>
+                    active={canSubmit}
+                    loading={isSubmitting}
+/>
 
-                      {isSubmitting ? (
-                        <ActivityIndicator color={themes.colors.onPrimary} />
-                      ) : (
-                        <View style={styles.btnContent}>
-                          <Text
-                            style={[
-                              styles.btnText,
-                              !canSubmit && {
-                                color: themes.colors.onSurfaceVariant,
-                              },
-                            ]}
-                          >
-                            Crear cuenta
-                          </Text>
-
-                          {/* Ícono SIEMPRE presente para no modificar layout */}
-                          <View
-                            style={[
-                              styles.iconPill,
-                              !canSubmit && { opacity: 0 },
-                            ]}
-                          >
-                            <Feather
-                              name="arrow-right"
-                              size={16}
-                              color={themes.colors.onPrimary}
-                            />
-                          </View>
-                        </View>
-                      )}
-                    </View>
-                  </Pressable>
 
                   <Text style={styles.helperBelow}>
                     Al continuar aceptás nuestros términos y políticas.
@@ -495,42 +377,6 @@ function getStyles(theme: DefaultTheme) {
       justifyContent: "center",
     },
     trailingBtn: { padding: 6, borderRadius: 999 },
-
-    /* Botón (igual que Login) */
-    btnWrapper: {
-      borderRadius: 999,
-      overflow: "hidden",
-      marginTop: theme.spacing.sm,
-    },
-    btnWrapperPressed: { opacity: 0.95 }, // sin transform
-    btn: {
-      position: "relative", // necesario para superponer gradientes
-      paddingVertical: 14,
-      alignItems: "center",
-      justifyContent: "center",
-      borderRadius: 999,
-      overflow: "hidden",
-    },
-    btnContent: {
-      flexDirection: "row",
-      gap: 10,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    btnText: {
-      color: theme.colors.onPrimary,
-      fontWeight: "700",
-      fontSize: theme.fontSizes.sm,
-    },
-    iconPill: {
-      width: 26,
-      height: 26,
-      borderRadius: 13,
-      borderWidth: 1,
-      borderColor: theme.colors.onPrimary + "44",
-      alignItems: "center",
-      justifyContent: "center",
-    },
 
     helperError: {
       color: theme.colors.error,

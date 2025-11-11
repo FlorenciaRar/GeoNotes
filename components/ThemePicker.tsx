@@ -1,6 +1,14 @@
-import { FlatList, Pressable, View, Text, StyleSheet, useWindowDimensions } from "react-native";
+import {
+  FlatList,
+  Pressable,
+  View,
+  Text,
+  StyleSheet,
+  useWindowDimensions,
+} from "react-native";
 import { appThemes } from "../utils";
 import { useTheme } from "../context/ThemeContextProvider";
+import { BackgroundDecor } from "./ui/BackgroundDecor";
 
 export default function ThemePicker() {
   const { themeIndex, setThemeIndex, themes } = useTheme();
@@ -34,10 +42,23 @@ export default function ThemePicker() {
               {
                 width: CARD_WIDTH,
                 backgroundColor: themes.colors.surface, // todas iguales
-                borderColor: active ? themes.colors.primary : themes.colors.outline,
+                borderColor: active
+                  ? themes.colors.primary
+                  : themes.colors.outline,
               },
-            ]}>
-            <Text style={[styles.name, { color: themes.colors.onSurface, fontWeight: active ? "700" : "500" }]}>{item.name}</Text>
+            ]}
+          >
+            <Text
+              style={[
+                styles.name,
+                {
+                  color: themes.colors.onSurface,
+                  fontWeight: active ? "700" : "500",
+                },
+              ]}
+            >
+              {item.name}
+            </Text>
             <View style={styles.swatches}>
               <View
                 style={[
