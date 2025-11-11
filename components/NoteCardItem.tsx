@@ -30,8 +30,7 @@ export default function NoteCardItem({ data, onDelete }: NoteItemProps) {
       <NoteCardOptionsMenu
         onDelete={() => {
           onDelete(data.id);
-        }}
-      />
+        } } noteId={data.id}      />
     </View>
   );
 }
