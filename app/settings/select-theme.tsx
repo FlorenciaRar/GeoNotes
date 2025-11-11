@@ -3,6 +3,7 @@ import { StyleSheet, Text } from "react-native";
 import { useTheme } from "../../context/ThemeContextProvider";
 import ThemePicker from "../../components/ThemePicker";
 import ThemePreview from "../../components/ThemePreview";
+import { BackgroundDecor } from "../../components/ui/BackgroundDecor";
 
 export default function Personalizacion() {
   const { themes } = useTheme();
@@ -11,6 +12,7 @@ export default function Personalizacion() {
     <SafeAreaView
       style={[styles.container, { backgroundColor: themes.colors.background }]}
     >
+      <BackgroundDecor theme={themes} />
       <Text style={[styles.title, { color: themes.colors.onBackground }]}>
         Pantalla de Configuración
       </Text>

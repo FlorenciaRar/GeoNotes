@@ -19,68 +19,8 @@ import { useTheme } from "../../context/ThemeContextProvider";
 import { DefaultTheme } from "styled-components/native";
 import AuthContext from "../../context/AuthContext/auth-context";
 import Loader from "../../components/Loader";
-
-/* ────────── Utilidad: agrega transparencia a un color HEX ────────── */
-function hexWithAlpha(hex: string, alpha: number) {
-  const a = Math.round(alpha * 255)
-    .toString(16)
-    .padStart(2, "0");
-  return hex.length === 7 ? `${hex}${a}` : hex;
-}
-
-/* ────────── Fondo decorativo con gradientes ────────── */
-function BackgroundDecor({ theme }: { theme: DefaultTheme }) {
-  const bg = theme.colors.background;
-  const surf = theme.colors.surface;
-
-  return (
-    <View style={StyleSheet.absoluteFill}>
-      {/* Fondo base: gradiente del background al surface */}
-      <LinearGradient
-        colors={[bg, surf]}
-        start={{ x: 0.2, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
-
-      {/* Blob decorativo primario (arriba derecha) */}
-      <LinearGradient
-        colors={[
-          hexWithAlpha(theme.colors.primary, 0.18),
-          hexWithAlpha(theme.colors.primary, 0.0),
-        ]}
-        start={{ x: 0.3, y: 0.3 }}
-        end={{ x: 1, y: 1 }}
-        style={{
-          position: "absolute",
-          width: 280,
-          height: 280,
-          borderRadius: 280,
-          right: -80,
-          top: -40,
-        }}
-      />
-
-      {/* Blob decorativo secundario (abajo izquierda) */}
-      <LinearGradient
-        colors={[
-          hexWithAlpha(theme.colors.secondary, 0.14),
-          hexWithAlpha(theme.colors.secondary, 0.0),
-        ]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{
-          position: "absolute",
-          width: 320,
-          height: 320,
-          borderRadius: 320,
-          left: -90,
-          bottom: -60,
-        }}
-      />
-    </View>
-  );
-}
+import { BackgroundDecor } from "../../components/ui/BackgroundDecor";
+import { AnimatedGradientButton } from "../../components/ui/AnimatedGradientButton";
 
 /* ────────── Pantalla principal de Login ────────── */
 export default function Login() {
@@ -229,70 +169,13 @@ export default function Login() {
               <Text style={styles.helperError}>{errors.pass}</Text>
             )}
 
-            {/* ───────── Botón con animación de color ───────── */}
-            <Pressable
+           <AnimatedGradientButton
+              title="Ingresar"
               onPress={handleLogin}
-              disabled={!canSubmit || loading}
-              style={({ pressed }) => [
-                styles.btnWrapper,
-                pressed && canSubmit && styles.btnWrapperPressed,
-              ]}
-            >
-              <View style={styles.btn}>
-                {/* Gradiente inactivo (base) */}
-                <LinearGradient
-                  colors={[themes.colors.outline, themes.colors.surfaceVariant]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={StyleSheet.absoluteFill}
-                />
-                {/* Gradiente activo con transición (animado por activeAnim) */}
-                <Animated.View
-                  style={[
-                    StyleSheet.absoluteFill,
-                    { opacity: activeAnim }, // 👈 crossfade entre inactivo ↔ activo
-                  ]}
-                >
-                  <LinearGradient
-                    colors={[themes.colors.primary, themes.colors.secondary]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={StyleSheet.absoluteFill}
-                  />
-                </Animated.View>
+              active={canSubmit}
+              loading={loading}
+            />
 
-                {/* Contenido del botón */}
-                {loading ? (
-                  <ActivityIndicator color={themes.colors.onPrimary} />
-                ) : (
-                  <View style={styles.btnContent}>
-                    <Text
-                      style={[
-                        styles.btnText,
-                        (!canSubmit || loading) && {
-                          color: themes.colors.onSurfaceVariant,
-                        },
-                      ]}
-                    >
-                      Ingresar
-                    </Text>
-                    {/* El icono siempre ocupa espacio, pero cambia opacidad */}
-                    <View
-                      style={[
-                        styles.iconPill,
-                        (!canSubmit || loading) && { opacity: 0 },
-                      ]}
-                    >
-                      <Feather
-                        name="arrow-right"
-                        size={16}
-                        color={themes.colors.onPrimary}
-                      />
-                    </View>
-                  </View>
-                )}
-              </View>
-            </Pressable>
 
             {/* Enlace de ayuda */}
             <Pressable
@@ -382,44 +265,6 @@ function getStyles(theme: DefaultTheme) {
       paddingHorizontal: 8,
     },
     trailingBtn: { padding: 6, borderRadius: 999, marginRight: 8 },
-
-    /* Botón */
-    btnWrapper: {
-      borderRadius: 999,
-      overflow: "hidden",
-      marginTop: theme.spacing.sm,
-    },
-    btnWrapperPressed: {
-      opacity: 0.95, // sin escala, solo leve transparencia
-    },
-    btn: {
-      position: "relative",
-      paddingVertical: 14,
-      alignItems: "center",
-      justifyContent: "center",
-      borderRadius: 999,
-      overflow: "hidden",
-    },
-    btnContent: {
-      flexDirection: "row",
-      gap: 10,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    btnText: {
-      color: theme.colors.onPrimary,
-      fontWeight: "700",
-      fontSize: theme.fontSizes.sm,
-    },
-    iconPill: {
-      width: 26,
-      height: 26,
-      borderRadius: 13,
-      borderWidth: 1,
-      borderColor: theme.colors.onPrimary + "44",
-      alignItems: "center",
-      justifyContent: "center",
-    },
 
     /* Textos auxiliares */
     helperLink: {
