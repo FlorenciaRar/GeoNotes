@@ -1,25 +1,20 @@
-import { Linking, Share, StyleSheet } from 'react-native'
+import { Share, StyleSheet } from 'react-native'
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu'
 import { useTheme } from '../context/ThemeContextProvider'
 import { DefaultTheme } from 'styled-components/native'
 import { StyledText } from '../styled-components'
-import { Icon } from '../utils'
+import { Icon, shortLink } from '../utils'
+import * as Linking from 'expo-linking'
+import { Note } from '../models'
 
 interface MenuProps {
 	onDelete: () => void
-	noteId: string
+	onShare: () => void
 }
 
-export default function NoteCardOptionsMenu({ onDelete, noteId }: MenuProps) {
+export default function NoteCardOptionsMenu({ onDelete, onShare }: MenuProps) {
 	const { themes } = useTheme()
 	const styles = getStyles(themes)
-
-	async function handleShare() {
-		const deepLink = Linking.createURL(`/notes/${noteId}`)
-		await Share.share({
-			message: `Abrir esta nota: ${deepLink}`,
-		})
-	}
 
 	return (
 		<Menu style={styles.optionsButton}>
@@ -45,7 +40,7 @@ export default function NoteCardOptionsMenu({ onDelete, noteId }: MenuProps) {
 							gap: themes.spacing.sm,
 						},
 					}}
-					onSelect={handleShare}
+					onSelect={onShare}
 				>
 					<Icon iconName='share' size={20} color={themes.colors.onSurface} />
 					<StyledText size='xm' color='onSurface'>

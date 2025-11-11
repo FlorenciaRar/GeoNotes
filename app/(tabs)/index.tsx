@@ -69,14 +69,14 @@ export default function HomeScreen() {
 
 			{/* Contenido */}
 			<View style={styles.content}>
-				<View>
+				<>
 					<StyledText variant='bold' size='lg' style={{ color: themes.colors.onBackground }}>
 						{`Hola ${userName || 'Usuario'}`}
 					</StyledText>
 					<StyledText size='md' style={{ color: themes.colors.onBackground }}>
 						Que haremos hoy?
 					</StyledText>
-				</View>
+				</>
 
 				<View style={styles.quickGrid}>
 					<View style={styles.tileWrap}>
@@ -119,7 +119,7 @@ function getStyles(themes: DefaultTheme) {
 		},
 		content: {
 			flex: 1,
-			paddingRight: themes.spacing.lg,
+
 			paddingBottom: themes.spacing.lg,
 			gap: themes.spacing.md,
 		},
@@ -129,6 +129,7 @@ function getStyles(themes: DefaultTheme) {
 			flexWrap: 'wrap',
 			justifyContent: 'space-between',
 			rowGap: themes.spacing.md,
+			paddingRight: themes.spacing.lg,
 		},
 		tileWrap: {
 			width: '45%',

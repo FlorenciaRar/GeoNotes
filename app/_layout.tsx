@@ -14,14 +14,14 @@ import { MenuProvider } from 'react-native-popup-menu'
 import { ThemeContextProvider, useTheme } from '../context/ThemeContextProvider'
 import { AuthContext, AuthProvider } from '../context/AuthContext'
 import Loader from '../components/Loader'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 function InnerLayout() {
 	const { themes } = useTheme()
-	const { state } = useContext(AuthContext) // ✅ Solo leemos state del AuthProvider
+	const { state } = useContext(AuthContext)
 	const router = useRouter()
 	const segments = useSegments()
 
-	// ✅ Redirige automáticamente según el estado de sesión
 	useEffect(() => {
 		const currentRoot = segments && segments.length > 0 ? segments[0] : null
 
@@ -36,26 +36,25 @@ function InnerLayout() {
 		}
 	}, [state.user, state.isLoading])
 
-	// 🔄 Mientras Firebase verifica si hay sesión persistente
 	if (state.isLoading && !state.user) return <Loader visible transparent={true} />
 
 	return (
-		<ThemeProvider theme={themes}>
-			<MenuProvider>
-				<Stack screenOptions={{ headerShown: false }}>
-					{state.user ? <Stack.Screen name='(tabs)' /> : <Stack.Screen name='(auth)' />}
-					{/* <Stack.Screen name="notes/[NoteId]" options={{ headerShown: true }} /> */}
-					<Stack.Screen name='settings' />
-				</Stack>
-			</MenuProvider>
-		</ThemeProvider>
+		<GestureHandlerRootView>
+			<ThemeProvider theme={themes}>
+				<MenuProvider>
+					<Stack screenOptions={{ headerShown: false }}>
+						{state.user ? <Stack.Screen name='(tabs)' /> : <Stack.Screen name='(auth)' />}
+						<Stack.Screen name='settings' />
+					</Stack>
+				</MenuProvider>
+			</ThemeProvider>
+		</GestureHandlerRootView>
 	)
 }
 
 export default function Layout() {
 	return (
 		<ThemeContextProvider>
-			{/* ✅ AuthProvider ahora controla toda la sesión (Firebase persistente) */}
 			<AuthProvider>
 				<InnerLayout />
 			</AuthProvider>

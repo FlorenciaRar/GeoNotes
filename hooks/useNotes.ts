@@ -1,148 +1,151 @@
-import { useEffect, useState } from "react";
-import { getAuth } from "firebase/auth";
-import { addNoteAPI, updateNoteAPI, deleteNoteAPI, getNoteByIdAPI, getNotesAPI } from "../services/notesService";
-import { ImageModel, Note } from "../models";
-import { deleteImages, uploadImages } from "../services/imagesService";
+import { useEffect, useState } from 'react'
+import { getAuth } from 'firebase/auth'
+import { addNoteAPI, updateNoteAPI, deleteNoteAPI, getNoteByIdAPI, getNotesAPI } from '../services/notesService'
+import { ImageModel, Note } from '../models'
+import { deleteImages, uploadImages } from '../services/imagesService'
 
 export function useNotes() {
-  const user = getAuth().currentUser;
+	const user = getAuth().currentUser
 
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [note, setNote] = useState<Note>();
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<any>(null);
+	const [notes, setNotes] = useState<Note[]>([])
+	const [note, setNote] = useState<Note>()
+	const [loading, setLoading] = useState<boolean>(true)
+	const [error, setError] = useState<any>(null)
 
-  useEffect(() => {
-    if (!user) {
-      return;
-    }
-    const unsubscribe = getNotesAPI(
-      user.uid,
-      // onSuccess
-      (nuevasNotas: Note[]) => {
-        setNotes(nuevasNotas);
-        setLoading(false);
-        setError(null);
-      },
-      // onError
-      () => {
-        setError("Error al obtener notas");
-        setLoading(false);
-      }
-    );
-    return () => unsubscribe();
-  }, []);
+	useEffect(() => {
+		if (!user) {
+			return
+		}
+		const unsubscribe = getNotesAPI(
+			user.uid,
+			// onSuccess
+			(nuevasNotas: Note[]) => {
+				setNotes(nuevasNotas)
+				setLoading(false)
+				setError(null)
+			},
+			// onError
+			() => {
+				setError('Error al obtener notas')
+				setLoading(false)
+			}
+		)
+		return () => unsubscribe()
+	}, [])
 
-  async function getNoteById(id: string): Promise<void> {
-    try {
-      setLoading(true);
-      const nota = await getNoteByIdAPI(id);
-      if (nota) {
-        setNote(nota);
-      }
-    } catch (error) {
-      console.error(error);
-      setError("Error al obtener la nota");
-    } finally {
-      setLoading(false);
-    }
-  }
+	async function getNoteById(id: string): Promise<void> {
+		try {
+			setLoading(true)
+			const nota = await getNoteByIdAPI(id)
+			if (nota && nota !== undefined) {
+				setNote(nota)
+			}
+			if (nota == undefined) {
+				setError('No se encontro la nota')
+			}
+		} catch (error) {
+			console.error(error)
+			setError('Error al obtener la nota')
+		} finally {
+			setLoading(false)
+		}
+	}
 
-  async function addNote(data: Omit<Note, "id" | "creationDate" | "modificationDate" | "userId">) {
-    if (!user) {
-      setError("Usuario no autenticado");
-      return;
-    }
+	async function addNote(data: Omit<Note, 'id' | 'creationDate' | 'modificationDate' | 'userId'>) {
+		if (!user) {
+			setError('Usuario no autenticado')
+			return
+		}
 
-    try {
-      setLoading(true);
-      const noteId = await addNoteAPI(user.uid, { ...data, images: [] });
+		try {
+			setLoading(true)
+			const noteId = await addNoteAPI(user.uid, { ...data, images: [] })
 
-      if (data.images && data.images.length > 0) {
-        const uploadedImages = await uploadImages(data.images);
-        await updateNoteAPI(noteId, { images: uploadedImages });
-      }
-    } catch (error) {
-      console.error(error);
-      setError("Error subiendo la nota");
-    } finally {
-      setLoading(false);
-    }
-  }
+			if (data.images && data.images.length > 0) {
+				const uploadedImages = await uploadImages(data.images)
+				await updateNoteAPI(noteId, { images: uploadedImages })
+			}
+		} catch (error) {
+			console.error(error)
+			setError('Error subiendo la nota')
+		} finally {
+			setLoading(false)
+		}
+	}
 
-  async function updateNote(id: string, data: Partial<Note>) {
-    if (!user) {
-      setError("Usuario no autenticado");
-      return;
-    }
+	async function updateNote(id: string, data: Partial<Note>) {
+		if (!user) {
+			setError('Usuario no autenticado')
+			return
+		}
 
-    try {
-      setLoading(true);
+		try {
+			setLoading(true)
 
-      const note = await getNoteByIdAPI(id);
+			const note = await getNoteByIdAPI(id)
 
-      const oldImages = note?.images || [];
+			const oldImages = note?.images || []
 
-      let updatedImages = data.images || [];
+			let updatedImages = data.images || []
 
-      const deletedImages = oldImages.filter((oldImg) => !updatedImages.some((img) => img.url === oldImg.url));
+			const deletedImages = oldImages.filter((oldImg) => !updatedImages.some((img) => img.url === oldImg.url))
 
-      if (deletedImages.length > 0) {
-        await Promise.all(
-          deletedImages.map(async (img) => {
-            try {
-              await deleteImages(img.deleteUrl);
-            } catch (err) {
-              console.log("Error:", err);
-            }
-          })
-        );
-      }
+			if (deletedImages.length > 0) {
+				await Promise.all(
+					deletedImages.map(async (img) => {
+						try {
+							await deleteImages(img.deleteUrl)
+						} catch (err) {
+							console.log('Error:', err)
+						}
+					})
+				)
+			}
 
-      const localImages = updatedImages.filter((img: any) => typeof img === "string" && img.startsWith("file://"));
+			const localImages = updatedImages.filter((img: any) => typeof img === 'string' && img.startsWith('file://'))
 
-      const existingImages = updatedImages.filter((img: any) => typeof img === "object" && img.url);
+			const existingImages = updatedImages.filter((img: any) => typeof img === 'object' && img.url)
 
-      let uploadedImages: ImageModel[] = [];
-      if (localImages.length > 0) {
-        uploadedImages = await uploadImages(localImages);
-      }
+			let uploadedImages: ImageModel[] = []
+			if (localImages.length > 0) {
+				uploadedImages = await uploadImages(localImages)
+			}
 
-      updatedImages = [...existingImages, ...uploadedImages];
+			updatedImages = [...existingImages, ...uploadedImages]
 
-      await updateNoteAPI(id, { ...data, images: updatedImages });
-    } catch (error) {
-      console.error("Error actualizando nota:", error);
-      setError("Error al actualizar nota");
-    } finally {
-      setLoading(false);
-    }
-  }
+			await updateNoteAPI(id, { ...data, images: updatedImages })
+		} catch (error) {
+			console.error('Error actualizando nota:', error)
+			setError('Error al actualizar nota')
+		} finally {
+			setLoading(false)
+		}
+	}
 
-  const deleteNote = async (noteId: string) => {
-    try {
-      setLoading(true);
-      setError(null);
+	const deleteNote = async (noteId: string) => {
+		try {
+			setLoading(true)
+			setError(null)
 
-      await deleteNoteAPI(noteId);
+			await deleteNoteAPI(noteId)
 
-      setNotes((prev) => prev.filter((n) => n.id !== noteId));
-    } catch (err) {
-      console.error("Error:", err);
-      setError("Error al borrar la nota");
-    } finally {
-      setLoading(false);
-    }
-  };
+			setNotes((prev) => prev.filter((n) => n.id !== noteId))
+		} catch (err) {
+			console.error('Error:', err)
+			setError('Error al borrar la nota')
+		} finally {
+			setLoading(false)
+		}
+	}
 
-  return {
-    notes,
-    note,
-    loading,
-    error,
-    getNoteById,
-    addNote,
-    updateNote,
-    deleteNote,
-  };
+	return {
+		notes,
+		note,
+		loading,
+		error,
+		getNoteById,
+		addNote,
+		updateNote,
+		deleteNote,
+	}
 }
