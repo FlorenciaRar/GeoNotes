@@ -9,7 +9,7 @@ import { Icon } from '../utils'
 import MediaOptionsMenu from './mediaOptions'
 import LocationSearchBar from './LocationSearchBar'
 import useMedia from '../hooks/useMedia'
-import { FlatList, GestureHandlerRootView } from 'react-native-gesture-handler'
+import { FlatList } from 'react-native-gesture-handler'
 import { useEffect } from 'react'
 import ImageItem from './ImageItem'
 import { LinearGradient } from 'expo-linear-gradient'
@@ -79,7 +79,7 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
 	}, [initialValues?.images])
 
 	return (
-		<GestureHandlerRootView style={{ flex: 1 }}>
+		<View style={{ flex: 1 }}>
 			{/* Fondo decorativo detrás de todo */}
 			<BackgroundDecor theme={themes} />
 
@@ -189,7 +189,7 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
 					</KeyboardAvoidingView>
 				)}
 			</Formik>
-		</GestureHandlerRootView>
+		</View>
 	)
 }
 

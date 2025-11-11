@@ -22,20 +22,16 @@ export default function HomeScreen() {
       {/* Fondo */}
       <BackgroundDecor theme={themes} />
 
-      {/* Contenido */}
-      <View style={styles.content}>
-        <View>
-          <StyledText
-            variant="bold"
-            size="lg"
-            style={{ color: themes.colors.onBackground }}
-          >
-            {`Hola ${userName || "Usuario"}`}
-          </StyledText>
-          <StyledText size="md" style={{ color: themes.colors.onBackground }}>
-            Que haremos hoy?
-          </StyledText>
-        </View>
+			{/* Contenido */}
+			<View style={styles.content}>
+				<>
+					<StyledText variant='bold' size='lg' style={{ color: themes.colors.onBackground }}>
+						{`Hola ${userName || 'Usuario'}`}
+					</StyledText>
+					<StyledText size='md' style={{ color: themes.colors.onBackground }}>
+						Que haremos hoy?
+					</StyledText>
+				</>
 
         <View style={styles.quickGrid}>
           <View style={styles.tileWrap}>
@@ -86,28 +82,29 @@ export default function HomeScreen() {
 }
 
 function getStyles(themes: DefaultTheme) {
-  return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: themes.colors.background,
-      position: "relative",
-    },
-    content: {
-      flex: 1,
-      paddingRight: themes.spacing.lg,
-      paddingBottom: themes.spacing.lg,
-      gap: themes.spacing.md,
-    },
+	return StyleSheet.create({
+		container: {
+			flex: 1,
+			backgroundColor: themes.colors.background,
+			position: 'relative',
+		},
+		content: {
+			flex: 1,
 
-    quickGrid: {
-      flexDirection: "row",
-      flexWrap: "wrap",
-      justifyContent: "space-between",
-      rowGap: themes.spacing.md,
-    },
-    tileWrap: {
-      width: "45%",
-    },
+			paddingBottom: themes.spacing.lg,
+			gap: themes.spacing.md,
+		},
+
+		quickGrid: {
+			flexDirection: 'row',
+			flexWrap: 'wrap',
+			justifyContent: 'space-between',
+			rowGap: themes.spacing.md,
+			paddingRight: themes.spacing.lg,
+		},
+		tileWrap: {
+			width: '45%',
+		},
 
     lastNotesTextContainer: {
       flexDirection: "row",
