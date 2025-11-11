@@ -7,6 +7,7 @@ import Loader from '../../../components/Loader'
 import { FlatList } from 'react-native-gesture-handler'
 import { useTheme } from '../../../context/ThemeContextProvider'
 import { DefaultTheme } from 'styled-components/native'
+import { BackgroundDecor } from '../../../components/ui/BackgroundDecor'
 
 export default function SharedNote() {
 	const { themes } = useTheme()
@@ -25,6 +26,8 @@ export default function SharedNote() {
 	return (
 		<>
 			<Container>
+				<BackgroundDecor theme={themes}/>
+				
 				{loading && <Loader visible />}
 
 				{note && (
