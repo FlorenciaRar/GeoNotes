@@ -20,7 +20,7 @@ export async function shortLink(longUrl: string): Promise<string> {
 
 		return response.data?.data?.tiny_url || longUrl
 	} catch (error) {
-		console.error('Error al acortar enlace con TinyURL API:', error)
+		console.log('Error al acortar enlace con TinyURL API:', error)
 		return longUrl
 	}
 }

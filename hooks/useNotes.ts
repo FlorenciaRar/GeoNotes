@@ -51,7 +51,7 @@ export function useNotes() {
 			setLastDoc(lastVisible)
 			setHasMore(!!lastVisible)
 		} catch (err) {
-			console.error('Error al cargar más notas:', err)
+			console.log('Error al cargar más notas:', err)
 			setError('Error al cargar más notas')
 		} finally {
 			setLoadingMore(false)
@@ -69,7 +69,7 @@ export function useNotes() {
 				setError('No se encontro la nota')
 			}
 		} catch (error) {
-			console.error(error)
+			console.log(error)
 			setError('Error al obtener la nota')
 		} finally {
 			setLoading(false)
@@ -91,7 +91,7 @@ export function useNotes() {
 				await updateNoteAPI(noteId, { images: uploadedImages })
 			}
 		} catch (error) {
-			console.error(error)
+			console.log(error)
 			setError('Error subiendo la nota')
 		} finally {
 			setLoading(false)
@@ -140,7 +140,7 @@ export function useNotes() {
 
 			await updateNoteAPI(id, { ...data, images: updatedImages })
 		} catch (error) {
-			console.error('Error actualizando nota:', error)
+			console.log('Error actualizando nota:', error)
 			setError('Error al actualizar nota')
 		} finally {
 			setLoading(false)
@@ -156,7 +156,7 @@ export function useNotes() {
 
 			setNotes((prev) => prev.filter((n) => n.id !== noteId))
 		} catch (err) {
-			console.error('Error:', err)
+			console.log('Error:', err)
 			setError('Error al borrar la nota')
 		} finally {
 			setLoading(false)

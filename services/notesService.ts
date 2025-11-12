@@ -31,7 +31,7 @@ export function getNotesAPI(userId: string, limitCount: number, onSuccess: (nota
 			onSuccess(notas, lastVisible)
 		},
 		(err) => {
-			console.error('Error al escuchar notas:', err)
+			console.log('Error al escuchar notas:', err)
 			if (onError) onError(err)
 		}
 	)
@@ -55,7 +55,7 @@ export async function getNoteByIdAPI(id: string): Promise<Note | null> {
 		if (!nota.exists()) return null
 		return mapDocToNote(nota)
 	} catch (err) {
-		console.error('Error:', err)
+		console.log('Error:', err)
 		return null
 	}
 }

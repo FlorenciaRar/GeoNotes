@@ -25,7 +25,7 @@ export default function NotesCardContainer({ maxItems }: NotesCardContainerProps
 					try {
 						await deleteNote(id)
 					} catch (err) {
-						console.error('Error al borrar nota:', err)
+						console.log('Error al borrar nota:', err)
 						Alert.alert('Error', 'No se pudo borrar la nota')
 					}
 				},
@@ -52,7 +52,7 @@ export default function NotesCardContainer({ maxItems }: NotesCardContainerProps
 
 			await Share.share({ message })
 		} catch (error) {
-			console.error('Error al compartir nota:', error)
+			console.log('Error al compartir nota:', error)
 		}
 	}
 
