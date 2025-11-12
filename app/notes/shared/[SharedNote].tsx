@@ -8,6 +8,7 @@ import { FlatList } from 'react-native-gesture-handler'
 import { useTheme } from '../../../context/ThemeContextProvider'
 import { DefaultTheme } from 'styled-components/native'
 import { BackgroundDecor } from '../../../components/ui/BackgroundDecor'
+import ImageItem from '../../../components/ImageItem'
 
 export default function SharedNote() {
 	const { themes } = useTheme()
@@ -26,8 +27,8 @@ export default function SharedNote() {
 	return (
 		<>
 			<Container>
-				<BackgroundDecor theme={themes}/>
-				
+				<BackgroundDecor theme={themes} />
+
 				{loading && <Loader visible />}
 
 				{note && (
@@ -64,16 +65,17 @@ export default function SharedNote() {
 									scrollEnabled={false}
 									keyExtractor={(item, index) => `${item}-${index}`}
 									renderItem={({ item }) => (
-										<Image
-											source={{ uri: item.url }}
-											style={{
-												width: itemSize,
-												height: itemSize,
-												marginBottom: 10,
-												borderRadius: 8,
-												marginRight: 10,
-											}}
-										/>
+										// <Image
+										// 	source={{ uri: item.url }}
+										// 	style={{
+										// 		width: itemSize,
+										// 		height: itemSize,
+										// 		marginBottom: 10,
+										// 		borderRadius: 8,
+										// 		marginRight: 10,
+										// 	}}
+										// />
+										<ImageItem item={typeof item === 'string' ? item : item.url} itemSize={itemSize} showDelete={false} />
 									)}
 								/>
 							</View>

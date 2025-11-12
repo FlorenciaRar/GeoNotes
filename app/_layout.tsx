@@ -39,16 +39,16 @@ function InnerLayout() {
 	if (state.isLoading && !state.user) return <Loader visible transparent={true} />
 
 	return (
-		<GestureHandlerRootView>
-			<ThemeProvider theme={themes}>
-				<MenuProvider>
+		<ThemeProvider theme={themes}>
+			<MenuProvider>
+				<GestureHandlerRootView style={{ flex: 1 }}>
 					<Stack screenOptions={{ headerShown: false }}>
 						{state.user ? <Stack.Screen name='(tabs)' /> : <Stack.Screen name='(auth)' />}
 						<Stack.Screen name='settings' />
 					</Stack>
-				</MenuProvider>
-			</ThemeProvider>
-		</GestureHandlerRootView>
+				</GestureHandlerRootView>
+			</MenuProvider>
+		</ThemeProvider>
 	)
 }
 

@@ -51,7 +51,7 @@ export default function useLocationSearch() {
 
 			setSearchResults(data)
 		} catch (err) {
-			console.error('Error al obtener dirección:', err)
+			console.log('Error al obtener dirección:', err)
 		} finally {
 			setLoading(false)
 		}
