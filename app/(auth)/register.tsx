@@ -1,4 +1,3 @@
-// app/(auth)/register.tsx
 import { useContext, useMemo, useState, useEffect, useRef } from "react";
 import {
   View,
@@ -7,7 +6,6 @@ import {
   Pressable,
   StyleSheet,
   Alert,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Animated,
@@ -15,9 +13,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Feather } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { Formik } from "formik";
-import * as Yup from "yup";
+import { RegisterSchema } from "../../models/registerSchema";
+import { maskDate } from "../../utils/maskDate";
 
 import AuthContext from "../../context/AuthContext/auth-context";
 import { setDoc, doc } from "firebase/firestore";
@@ -26,33 +24,6 @@ import { useTheme } from "../../context/ThemeContextProvider";
 import { DefaultTheme } from "styled-components/native";
 import { BackgroundDecor } from "../../components/ui/BackgroundDecor";
 import { AnimatedGradientButton } from "../../components/ui/AnimatedGradientButton";
-
-/* ────────── Schema de validación ────────── */
-const RegisterSchema = Yup.object().shape({
-  name: Yup.string().required("El nombre es obligatorio"),
-  surname: Yup.string().required("El apellido es obligatorio"),
-  birthdate: Yup.string()
-    .matches(/^\d{2}\/\d{2}\/\d{4}$/, "Formato DD/MM/YYYY")
-    .required("La fecha de nacimiento es obligatoria"),
-  email: Yup.string()
-    .email("Email inválido")
-    .required("El email es obligatorio"),
-  password: Yup.string()
-    .min(6, "Mínimo 6 caracteres")
-    .required("La contraseña es obligatoria"),
-});
-
-/* ────────── Helper para máscara de fecha ────────── */
-function maskDate(input: string) {
-  const digits = input.replace(/\D/g, "").slice(0, 8);
-  const p1 = digits.slice(0, 2);
-  const p2 = digits.slice(2, 4);
-  const p3 = digits.slice(4, 8);
-  let out = p1;
-  if (p2) out += "/" + p2;
-  if (p3) out += "/" + p3;
-  return out;
-}
 
 export default function Register() {
   const { register } = useContext(AuthContext);
@@ -248,8 +219,6 @@ export default function Register() {
                     active={canSubmit}
                     loading={isSubmitting}
 />
-
-
                   <Text style={styles.helperBelow}>
                     Al continuar aceptás nuestros términos y políticas.
                   </Text>
