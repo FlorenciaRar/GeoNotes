@@ -36,7 +36,7 @@ function InnerLayout() {
 		}
 	}, [state.user, state.isLoading])
 
-	if (state.isLoading && !state.user) return <Loader visible transparent={true} />
+	if (state.isLoading && !state.user) return <Loader visible/>
 
 	return (
 		<ThemeProvider theme={themes}>
