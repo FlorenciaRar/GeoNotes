@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { getAuth } from 'firebase/auth'
-import { addNoteAPI, updateNoteAPI, deleteNoteAPI, getNoteByIdAPI, getNotesAPI } from '../services/notesService'
+import { addNoteAPI, updateNoteAPI, deleteNoteAPI, getNoteByIdAPI, getNotesAPI, getMoreNotesAPI } from '../services/notesService'
 import { ImageModel, Note } from '../models'
 import { deleteImages, uploadImages } from '../services/imagesService'
 
@@ -10,28 +10,53 @@ export function useNotes() {
 	const [notes, setNotes] = useState<Note[]>([])
 	const [note, setNote] = useState<Note>()
 	const [loading, setLoading] = useState<boolean>(true)
-	const [error, setError] = useState<any>(null)
+	const [loadingMore, setLoadingMore] = useState<boolean>(false)
+	const [error, setError] = useState<string | null>(null)
+	const [lastDoc, setLastDoc] = useState<any>(null)
+	const [hasMore, setHasMore] = useState<boolean>(true)
 
 	useEffect(() => {
-		if (!user) {
-			return
-		}
+		if (!user) return
+
+		setLoading(true)
 		const unsubscribe = getNotesAPI(
 			user.uid,
-			// onSuccess
-			(nuevasNotas: Note[]) => {
+			10,
+			(nuevasNotas: Note[], lastVisible: any) => {
 				setNotes(nuevasNotas)
+				setLastDoc(lastVisible)
+				setHasMore(!!lastVisible)
 				setLoading(false)
 				setError(null)
 			},
-			// onError
 			() => {
 				setError('Error al obtener notas')
 				setLoading(false)
 			}
 		)
+
 		return () => unsubscribe()
-	}, [])
+	}, [user])
+
+	const loadMoreNotes = useCallback(async () => {
+		if (!user || !lastDoc || loadingMore || !hasMore) return
+		try {
+			setLoadingMore(true)
+			const { notas, lastVisible } = await getMoreNotesAPI(user.uid, lastDoc, 10)
+			if (notas.length === 0) {
+				setHasMore(false)
+				return
+			}
+			setNotes((prev) => [...prev, ...notas])
+			setLastDoc(lastVisible)
+			setHasMore(!!lastVisible)
+		} catch (err) {
+			console.error('Error al cargar más notas:', err)
+			setError('Error al cargar más notas')
+		} finally {
+			setLoadingMore(false)
+		}
+	}, [user, lastDoc, hasMore, loadingMore])
 
 	async function getNoteById(id: string): Promise<void> {
 		try {
@@ -147,5 +172,8 @@ export function useNotes() {
 		addNote,
 		updateNote,
 		deleteNote,
+		loadingMore,
+		hasMore,
+		loadMoreNotes,
 	}
 }

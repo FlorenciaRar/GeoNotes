@@ -13,7 +13,7 @@ interface NotesCardContainerProps {
 
 export default function NotesCardContainer({ maxItems }: NotesCardContainerProps) {
 	const { themes } = useTheme()
-	const { notes, loading, error, deleteNote } = useNotes()
+	const { notes, loading, error, deleteNote, loadingMore, hasMore, loadMoreNotes } = useNotes()
 
 	const handleDelete = (id: string) => {
 		Alert.alert('Borrar nota', '¿Estás seguro de que querés borrar esta nota?', [
@@ -83,5 +83,15 @@ export default function NotesCardContainer({ maxItems }: NotesCardContainerProps
 			)
 		}
 	}
-	return <FlatList data={notesToRender} keyExtractor={(item) => item.id} ListEmptyComponent={EmptySearch} renderItem={({ item }) => <NoteCardItem data={item} onDelete={handleDelete} onShare={handleShare} />} />
+	return (
+		<FlatList
+			data={notesToRender}
+			keyExtractor={(item) => item.id}
+			ListEmptyComponent={EmptySearch}
+			onEndReachedThreshold={0.2}
+			onEndReached={hasMore ? loadMoreNotes : null}
+			ListFooterComponent={loadingMore ? <ActivityIndicator size='small' color={themes.colors.primary} /> : null}
+			renderItem={({ item }) => <NoteCardItem data={item} onDelete={handleDelete} onShare={handleShare} />}
+		/>
+	)
 }
