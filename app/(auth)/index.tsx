@@ -206,7 +206,7 @@ export default function Login() {
             </Text>
           </Text>
 
-          <Loader visible={state.isLoading} transparent />
+          <Loader visible={state.isLoading} />
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
