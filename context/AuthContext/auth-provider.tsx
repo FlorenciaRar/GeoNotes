@@ -7,7 +7,7 @@
 // ✅ Se agregaron comentarios detallados en cada punto importante.
 //
 
-import React, { useEffect, useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import AuthContext from "./auth-context";
 import { IUser } from "../../src/shared/models/user";
 import { AUTH_ACTIONS } from "./enums";
@@ -125,8 +125,12 @@ const AuthProvider = (props: any) => {
       );
       return userCredential;
     } catch (error: any) {
-      console.error("Error en login:", error.code);
-      throw error;
+      console.log("Error en login:", error.code);
+      if (error.code === "auth/invalid-credential" || error.code === "auth/wrong-password") {
+      return Promise.reject("Credenciales inválidas");
+    }
+
+    return Promise.reject(error);
     } finally {
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false }); // 🔚 oculta loader
     }
