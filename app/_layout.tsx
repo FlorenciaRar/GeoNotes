@@ -15,6 +15,12 @@ import { ThemeContextProvider, useTheme } from '../context/ThemeContextProvider'
 import { AuthContext, AuthProvider } from '../context/AuthContext'
 import Loader from '../components/Loader'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import { NotificationProvider } from '../context/NotificationProvider'
+
+import { LogBox } from 'react-native'
+
+// Ignorar warnings específicos
+LogBox.ignoreLogs(['expo-notifications: Android Push notifications (remote notifications)'])
 
 function InnerLayout() {
 	const { themes } = useTheme()
@@ -36,19 +42,21 @@ function InnerLayout() {
 		}
 	}, [state.user, state.isLoading])
 
-	if (state.isLoading && !state.user) return <Loader visible transparent={true} />
+	if (state.isLoading && !state.user) return <Loader visible />
 
 	return (
-		<GestureHandlerRootView>
+		<NotificationProvider>
 			<ThemeProvider theme={themes}>
 				<MenuProvider>
-					<Stack screenOptions={{ headerShown: false }}>
-						{state.user ? <Stack.Screen name='(tabs)' /> : <Stack.Screen name='(auth)' />}
-						<Stack.Screen name='settings' />
-					</Stack>
+					<GestureHandlerRootView style={{ flex: 1 }}>
+						<Stack screenOptions={{ headerShown: false }}>
+							{state.user ? <Stack.Screen name='(tabs)' /> : <Stack.Screen name='(auth)' />}
+							<Stack.Screen name='settings' />
+						</Stack>
+					</GestureHandlerRootView>
 				</MenuProvider>
 			</ThemeProvider>
-		</GestureHandlerRootView>
+		</NotificationProvider>
 	)
 }
 

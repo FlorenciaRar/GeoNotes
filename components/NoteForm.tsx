@@ -1,4 +1,4 @@
-import { View, TextInput, Text, StyleSheet, Pressable, KeyboardAvoidingView, ScrollView, Platform, TouchableWithoutFeedback, Keyboard, ActivityIndicator, Dimensions } from 'react-native'
+import { View, TextInput, Text, StyleSheet, Pressable, KeyboardAvoidingView, ScrollView, Platform, TouchableWithoutFeedback, Keyboard, ActivityIndicator, Dimensions, TouchableOpacity } from 'react-native'
 import { Formik } from 'formik'
 import { Stack, useNavigation } from 'expo-router'
 import { NoteSchema, NoteFormProps } from '../models/'
@@ -13,10 +13,13 @@ import { FlatList } from 'react-native-gesture-handler'
 import { useEffect } from 'react'
 import ImageItem from './ImageItem'
 import { BackgroundDecor } from './ui/BackgroundDecor'
+import { KeyboardAwareScrollView, KeyboardProvider } from 'react-native-keyboard-controller'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
 	const { themes } = useTheme()
 	const styles = getStyles(themes)
+	const insets = useSafeAreaInsets()
 
 	const navigation = useNavigation()
 
@@ -29,6 +32,8 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
 	useEffect(() => {
 		if (initialValues?.images && initialValues.images.length > 0) {
 			setImages(initialValues.images)
+		} else {
+			setImages([])
 		}
 	}, [initialValues?.images])
 
@@ -62,85 +67,78 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
 				}}
 			>
 				{({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue, isSubmitting }) => (
-					<KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-						<TouchableWithoutFeedback
-							onPress={() => {
-								Keyboard.dismiss
-							}}
-							accessible={false}
-						>
-							<ScrollView contentContainerStyle={{ paddingBottom: 50 }} keyboardShouldPersistTaps='handled'>
-								<View style={{ gap: 8 }}>
-									<Stack.Screen
-										options={{
-											headerRight: () => (
-												<View
-													style={{
-														flexDirection: 'row',
-														gap: 8,
-														marginRight: 8,
-													}}
-												>
-													<MediaOptionsMenu pickImage={pickFromGallery} takePhoto={takePhoto} />
-													<Pressable onPress={() => handleSubmit()} disabled={isSubmitting}>
-														{isSubmitting ? <ActivityIndicator size='small' color={themes.colors.primary} /> : <Icon iconName='save' color={themes.colors.onSurface} />}
-													</Pressable>
-												</View>
-											),
-										}}
-									/>
+					<KeyboardProvider>
+						<KeyboardAwareScrollView bottomOffset={insets.top + 10} keyboardShouldPersistTaps={'never'} overScrollMode={'auto'}>
+							<View style={{ gap: 8 }}>
+								<Stack.Screen
+									options={{
+										headerRight: () => (
+											<View
+												style={{
+													flexDirection: 'row',
+													gap: 8,
+													marginRight: 8,
+												}}
+											>
+												<MediaOptionsMenu pickImage={pickFromGallery} takePhoto={takePhoto} />
+												<Pressable onPress={() => handleSubmit()} disabled={isSubmitting}>
+													{isSubmitting ? <ActivityIndicator size='small' color={themes.colors.primary} /> : <Icon iconName='save' color={themes.colors.onSurface} />}
+												</Pressable>
+											</View>
+										),
+									}}
+								/>
 
-									<LocationSearchBar
-										value={values.address || ''}
-										onChangeValue={(text) => setFieldValue('address', text)}
-										onSelectLocation={({ address, latitude, longitude }) => {
-											setFieldValue('address', address)
-											setFieldValue('latitude', latitude)
-											setFieldValue('longitude', longitude)
-										}}
-									/>
+								<LocationSearchBar
+									value={values.address || ''}
+									onChangeValue={(text) => setFieldValue('address', text)}
+									onSelectLocation={({ address, latitude, longitude }) => {
+										setFieldValue('address', address)
+										setFieldValue('latitude', latitude)
+										setFieldValue('longitude', longitude)
+									}}
+								/>
 
-									<TextInput
-										placeholder='Título'
-										placeholderTextColor={themes.colors.onSurfaceVariant}
-										style={[styles.input, { fontSize: 20 }]}
-										value={values.title}
-										onChangeText={handleChange('title')}
-										onBlur={handleBlur('title')}
-										editable={!isSubmitting}
-									/>
-									{touched.title && errors.title && <Text style={styles.error}>{errors.title}</Text>}
+								<TextInput
+									placeholder='Título'
+									placeholderTextColor={themes.colors.onSurfaceVariant}
+									style={[styles.input, { fontSize: 20 }]}
+									value={values.title}
+									onChangeText={handleChange('title')}
+									onBlur={handleBlur('title')}
+									editable={!isSubmitting}
+								/>
+								{touched.title && errors.title && <Text style={styles.error}>{errors.title}</Text>}
 
-									<TextInput
-										placeholder='Contenido'
-										placeholderTextColor={themes.colors.onSurfaceVariant}
-										style={styles.input}
-										value={values.content}
-										onChangeText={handleChange('content')}
-										onBlur={handleBlur('content')}
-										editable={!isSubmitting}
-										multiline
-									/>
-									{touched.content && errors.content && <Text style={styles.error}>{errors.content}</Text>}
+								<TextInput
+									placeholder='Contenido'
+									placeholderTextColor={themes.colors.onSurfaceVariant}
+									style={styles.input}
+									value={values.content}
+									onChangeText={handleChange('content')}
+									onBlur={handleBlur('content')}
+									editable={!isSubmitting}
+									multiline
+								/>
+								{touched.content && errors.content && <Text style={styles.error}>{errors.content}</Text>}
 
-									{images.length > 0 && (
-										<>
-											<StyledText>Imágenes</StyledText>
-											<FlatList
-												data={images}
-												numColumns={numColumns}
-												scrollEnabled={false}
-												keyExtractor={(item, index) => `${item}-${index}`}
-												renderItem={({ item }) => (
-													<ImageItem item={typeof item === 'string' ? item : item.url} itemSize={itemSize} onDelete={(uri) => setImages((prev) => prev.filter((img) => (typeof img === 'string' ? img !== uri : img.url !== uri)))} />
-												)}
-											/>
-										</>
-									)}
-								</View>
-							</ScrollView>
-						</TouchableWithoutFeedback>
-					</KeyboardAvoidingView>
+								{images.length > 0 && (
+									<>
+										<StyledText>Imágenes</StyledText>
+										<FlatList
+											data={images}
+											numColumns={numColumns}
+											scrollEnabled={false}
+											keyExtractor={(item, index) => `${item}-${index}`}
+											renderItem={({ item }) => (
+												<ImageItem item={typeof item === 'string' ? item : item.url} itemSize={itemSize} onDelete={(uri) => setImages((prev) => prev.filter((img) => (typeof img === 'string' ? img !== uri : img.url !== uri)))} />
+											)}
+										/>
+									</>
+								)}
+							</View>
+						</KeyboardAwareScrollView>
+					</KeyboardProvider>
 				)}
 			</Formik>
 		</View>

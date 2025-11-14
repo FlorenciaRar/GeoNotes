@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from 'expo-router'
-import { Dimensions, Image, StyleSheet, View } from 'react-native'
+import { Dimensions, StyleSheet, View } from 'react-native'
 import { useNotes } from '../../../hooks/useNotes'
 import { useEffect } from 'react'
 import { Container, StyledText } from '../../../styled-components'
@@ -7,6 +7,8 @@ import Loader from '../../../components/Loader'
 import { FlatList } from 'react-native-gesture-handler'
 import { useTheme } from '../../../context/ThemeContextProvider'
 import { DefaultTheme } from 'styled-components/native'
+import { BackgroundDecor } from '../../../components/ui/BackgroundDecor'
+import ImageItem from '../../../components/ImageItem'
 
 export default function SharedNote() {
 	const { themes } = useTheme()
@@ -25,6 +27,8 @@ export default function SharedNote() {
 	return (
 		<>
 			<Container>
+				<BackgroundDecor theme={themes} />
+
 				{loading && <Loader visible />}
 
 				{note && (
@@ -60,18 +64,7 @@ export default function SharedNote() {
 									numColumns={3}
 									scrollEnabled={false}
 									keyExtractor={(item, index) => `${item}-${index}`}
-									renderItem={({ item }) => (
-										<Image
-											source={{ uri: item.url }}
-											style={{
-												width: itemSize,
-												height: itemSize,
-												marginBottom: 10,
-												borderRadius: 8,
-												marginRight: 10,
-											}}
-										/>
-									)}
+									renderItem={({ item }) => <ImageItem item={typeof item === 'string' ? item : item.url} itemSize={itemSize} showDelete={false} />}
 								/>
 							</View>
 						)}

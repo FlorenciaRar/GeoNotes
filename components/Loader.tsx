@@ -8,7 +8,7 @@ interface LoaderProps {
   transparent?: boolean; // 👈 nuevo prop opcional
 }
 
-const Loader: React.FC<LoaderProps> = ({ visible, transparent = false }) => {
+const Loader: React.FC<LoaderProps> = ({ visible }) => {
   const { themes } = useTheme();
   if (!visible) return null; // Evita render innecesario
 
@@ -16,7 +16,7 @@ const Loader: React.FC<LoaderProps> = ({ visible, transparent = false }) => {
     <View style={styles.container}>
       <AnimatedLoader
         visible={visible}
-        overlayColor={transparent ? "rgba(0,0,0,0)" : themes.colors.background} // 👈 usa transparente si se indica
+        overlayColor={themes.colors.background}
         source={require("../assets/animations/loading.json")}
         animationStyle={styles.animation}
         speed={1}
