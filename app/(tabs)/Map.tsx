@@ -10,10 +10,11 @@ import { useTheme } from '../../context/ThemeContextProvider'
 import { StyledText } from '../../styled-components'
 import { Icon } from '../../utils'
 import useLocationSearch from '../../hooks/useLocationSearch'
+import { useNotes } from '../../hooks/useNotes'
 
 export default function Map() {
-	const [notes, setNotes] = useState<Note[]>([])
-	const [loading, setLoading] = useState<boolean>(true)
+	// const [notes, setNotes] = useState<Note[]>([])
+	// const [loading, setLoading] = useState<boolean>(true)
 	const mapRef = useRef<MapView>(null)
 	const { themes } = useTheme()
 	const { getCurrentLocation, setSearchText, searchResults, menuShown, setMenuShown, setLocation } = useLocationSearch()
@@ -24,52 +25,54 @@ export default function Map() {
 		address: string
 	} | null>(null)
 
-	function mapearDocANota(doc: any): Note {
-		const data = doc.data()
-		const creation = data.creationDate?.toDate ? data.creationDate.toDate() : new Date(data.creationDate)
-		const modification = data.modificationDate?.toDate ? data.modificationDate.toDate() : new Date(data.modificationDate)
+	const { notes, loading, error } = useNotes()
 
-		return {
-			id: doc.id,
-			title: data.title,
-			content: data.content,
-			address: data.adress,
-			latitude: parseFloat(data.latitude),
-			longitude: parseFloat(data.longitude),
-			creationDate: creation.toISOString(),
-			modificationDate: modification.toISOString(),
-			userId: data.userId,
-			images: data.images,
-		}
-	}
+	// function mapearDocANota(doc: any): Note {
+	// 	const data = doc.data()
+	// 	const creation = data.creationDate?.toDate ? data.creationDate.toDate() : new Date(data.creationDate)
+	// 	const modification = data.modificationDate?.toDate ? data.modificationDate.toDate() : new Date(data.modificationDate)
 
-	useEffect(() => {
-		async function cargarNotas() {
-			try {
-				const q = query(collection(db, 'notas'), orderBy('modificationDate', 'desc'))
-				const snap = await getDocs(q)
-				const resultado = snap.docs.map((d) => mapearDocANota(d))
-				setNotes(resultado)
-			} catch (e) {
-				console.error('Error al obtener notas:', e)
-			} finally {
-				setLoading(false)
-			}
-		}
-		cargarNotas()
-	}, [])
+	// 	return {
+	// 		id: doc.id,
+	// 		title: data.title,
+	// 		content: data.content,
+	// 		address: data.adress,
+	// 		latitude: parseFloat(data.latitude),
+	// 		longitude: parseFloat(data.longitude),
+	// 		creationDate: creation.toISOString(),
+	// 		modificationDate: modification.toISOString(),
+	// 		userId: data.userId,
+	// 		images: data.images,
+	// 	}
+	// }
 
-	useEffect(() => {
-		;(async () => {
-			const { status } = await Location.requestForegroundPermissionsAsync()
-			if (status !== 'granted') return
-			const loc = await Location.getCurrentPositionAsync({})
-			notes.forEach((note) => {
-				const dist = Math.sqrt(Math.pow(note.latitude - loc.coords.latitude, 2) + Math.pow(note.longitude - loc.coords.longitude, 2))
-				if (dist < 0.0005) console.log('Cerca de la nota:', note.title)
-			})
-		})()
-	}, [notes])
+	// useEffect(() => {
+	// 	async function cargarNotas() {
+	// 		try {
+	// 			const q = query(collection(db, 'notas'), orderBy('modificationDate', 'desc'))
+	// 			const snap = await getDocs(q)
+	// 			const resultado = snap.docs.map((d) => mapearDocANota(d))
+	// 			setNotes(resultado)
+	// 		} catch (e) {
+	// 			console.error('Error al obtener notas:', e)
+	// 		} finally {
+	// 			setLoading(false)
+	// 		}
+	// 	}
+	// 	cargarNotas()
+	// }, [])
+
+	// useEffect(() => {
+	// 	;(async () => {
+	// 		const { status } = await Location.requestForegroundPermissionsAsync()
+	// 		if (status !== 'granted') return
+	// 		const loc = await Location.getCurrentPositionAsync({})
+	// 		notes.forEach((note) => {
+	// 			const dist = Math.sqrt(Math.pow(note.latitude - loc.coords.latitude, 2) + Math.pow(note.longitude - loc.coords.longitude, 2))
+	// 			if (dist < 0.0005) console.log('Cerca de la nota:', note.title)
+	// 		})
+	// 	})()
+	// }, [notes])
 
 	if (loading || notes.length === 0) return null
 	const first = notes[0]

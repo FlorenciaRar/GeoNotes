@@ -37,8 +37,30 @@
 			[
 				"expo-image-picker",
 				{
-					"photosPermission": "La aplicación necesita acceder a tus fotos para adjuntarlas a las notas.",
-					"cameraPermission": "La aplicación necesita usar la cámara para tomar fotos para tus notas."
+					"photosPermission": "La aplicación necesita acceder a tus fotos para adjuntarlas a las notas."
+				}
+			],
+			[
+				"expo-camera",
+				{
+					"cameraPermission": "La aplicación necesita usar la cámara para tomar fotos para tus notas.",
+					"recordAudioAndroid": false
+				}
+			],
+			[
+				"expo-location",
+				{
+					"locationAlwaysAndWhenInUsePermission": "La aplicación necesita conocer tu ubicacion para tus notas."
+				}
+			],
+			[
+				"expo-notifications",
+				{
+					"icon": "./local/assets/notification_icon.png",
+					"color": "#ffffff",
+					"defaultChannel": "default",
+					"sounds": ["./local/assets/notification_sound.wav", "./local/assets/notification_sound_other.wav"],
+					"enableBackgroundRemoteNotifications": false
 				}
 			]
 		]
