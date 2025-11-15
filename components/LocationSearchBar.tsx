@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, TextInput, View } from 'react-native'
-=======
 import { useState } from 'react'
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
->>>>>>> 051e5af94f34aef23b2ac762d6e6f746f9d8f8d6
 import { Icon } from '../utils'
 import { StyledText } from '../styled-components'
 import useLocationSearch from '../hooks/useLocationSearch'

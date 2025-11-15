@@ -107,6 +107,7 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
 									onChangeText={handleChange('title')}
 									onBlur={handleBlur('title')}
 									editable={!isSubmitting}
+									textAlignVertical="top"
 								/>
 								{touched.title && errors.title && <Text style={styles.error}>{errors.title}</Text>}
 

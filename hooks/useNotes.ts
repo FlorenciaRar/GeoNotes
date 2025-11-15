@@ -76,76 +76,107 @@ export function useNotes() {
 		}
 	}
 
-	async function addNote(data: Omit<Note, 'id' | 'creationDate' | 'modificationDate' | 'userId'>) {
-		if (!user) {
-			setError('Usuario no autenticado')
-			return
-		}
+	async function addNote(
+  data: Omit<Note, 'id' | 'creationDate' | 'modificationDate' | 'userId'>
+) {
+  if (!user) {
+    setError('Usuario no autenticado')
+    return
+  }
 
-		try {
-			setLoading(true)
-			const noteId = await addNoteAPI(user.uid, { ...data, images: [] })
+  try {
+    setLoading(true)
 
-			if (data.images && data.images.length > 0) {
-				const uploadedImages = await uploadImages(data.images)
-				await updateNoteAPI(noteId, { images: uploadedImages })
-			}
-		} catch (error) {
-			console.log(error)
-			setError('Error subiendo la nota')
-		} finally {
-			setLoading(false)
-		}
-	}
+    const now = new Date().toISOString()
+
+    const noteId = await addNoteAPI(user.uid, {
+      ...data,
+      images: [],
+      creationDate: now,
+      modificationDate: now,
+    })
+
+    if (data.images && data.images.length > 0) {
+      const uploadedImages = await uploadImages(data.images)
+      await updateNoteAPI(noteId, {
+        images: uploadedImages,
+        modificationDate: new Date().toISOString(),
+      })
+    }
+  } catch (error) {
+    console.log(error)
+    setError('Error subiendo la nota')
+  } finally {
+    setLoading(false)
+  }
+}
+
 
 	async function updateNote(id: string, data: Partial<Note>) {
-		if (!user) {
-			setError('Usuario no autenticado')
-			return
-		}
+  if (!user) {
+    setError('Usuario no autenticado')
+    return
+  }
 
-		try {
-			setLoading(true)
+  try {
+    setLoading(true)
 
-			const note = await getNoteByIdAPI(id)
+    const note = await getNoteByIdAPI(id)
+    const oldImages = note?.images || []
 
-			const oldImages = note?.images || []
+    let updatedImages = data.images || []
 
-			let updatedImages = data.images || []
+    const deletedImages = oldImages.filter(
+      oldImg => !updatedImages.some(img => img.url === oldImg.url)
+    )
 
-			const deletedImages = oldImages.filter((oldImg) => !updatedImages.some((img) => img.url === oldImg.url))
+    if (deletedImages.length > 0) {
+      await Promise.all(
+        deletedImages.map(async img => {
+          try {
+            await deleteImages(img.deleteUrl)
+          } catch (err) {
+            console.log('Error:', err)
+          }
+        })
+      )
+    }
 
-			if (deletedImages.length > 0) {
-				await Promise.all(
-					deletedImages.map(async (img) => {
-						try {
-							await deleteImages(img.deleteUrl)
-						} catch (err) {
-							console.log('Error:', err)
-						}
-					})
-				)
-			}
+    const localImages = updatedImages.filter(
+      (img: any) => typeof img === 'string' && img.startsWith('file://')
+    )
 
-			const localImages = updatedImages.filter((img: any) => typeof img === 'string' && img.startsWith('file://'))
+    const existingImages = updatedImages.filter(
+      (img: any) => typeof img === 'object' && img.url
+    )
 
-			const existingImages = updatedImages.filter((img: any) => typeof img === 'object' && img.url)
+    let uploadedImages: ImageModel[] = []
+    if (localImages.length > 0) {
+      uploadedImages = await uploadImages(localImages)
+    }
 
-			let uploadedImages: ImageModel[] = []
-			if (localImages.length > 0) {
-				uploadedImages = await uploadImages(localImages)
-			}
+    updatedImages = [...existingImages, ...uploadedImages]
 
-			updatedImages = [...existingImages, ...uploadedImages]
+    const payload: any = {
+      images: updatedImages,
+      modificationDate: new Date().toISOString(),
+    }
 
-			await updateNoteAPI(id, { ...data, images: updatedImages })
-		} catch (error) {
-			console.log('Error actualizando nota:', error)
-			setError('Error al actualizar nota')
-		} finally {
-			setLoading(false)
-		}
-	}
+    if (data.title !== undefined) payload.title = data.title
+    if (data.address !== undefined) payload.address = data.address
+    if (data.latitude !== undefined) payload.latitude = data.latitude
+    if (data.longitude !== undefined) payload.longitude = data.longitude
+    if (data.content !== undefined) payload.content = data.content
+
+    await updateNoteAPI(id, payload)
+  } catch (error) {
+    console.log('Error actualizando nota:', error)
+    setError('Error al actualizar nota')
+  } finally {
+    setLoading(false)
+  }
+}
+
 
 	const deleteNote = async (noteId: string) => {
 		try {
