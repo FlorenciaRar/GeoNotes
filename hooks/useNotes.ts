@@ -15,7 +15,7 @@ export function useNotes() {
 	const [lastDoc, setLastDoc] = useState<any>(null)
 	const [hasMore, setHasMore] = useState<boolean>(true)
 
-	useEffect(() => {
+	async function getNotes() {
 		if (!user) return
 
 		setLoading(true)
@@ -36,12 +36,16 @@ export function useNotes() {
 		)
 
 		return () => unsubscribe()
-	}, [user])
+	}
+
+	useEffect(() => {
+		getNotes()
+	}, [lastDoc])
 
 	const loadMoreNotes = useCallback(async () => {
 		if (!user || !lastDoc || loadingMore || !hasMore) return
+		setLoadingMore(true)
 		try {
-			setLoadingMore(true)
 			const { notas, lastVisible } = await getMoreNotesAPI(user.uid, lastDoc, 10)
 			if (notas.length === 0) {
 				setHasMore(false)
@@ -76,7 +80,7 @@ export function useNotes() {
 		}
 	}
 
-	async function addNote(data: Omit<Note, 'id' | 'creationDate' | 'modificationDate' | 'userId'>) {
+	async function addNote(data: Omit<Note, 'id' | 'creationDate' | 'modificationDate' | 'userId'>): Promise<void> {
 		if (!user) {
 			setError('Usuario no autenticado')
 			return
@@ -98,7 +102,7 @@ export function useNotes() {
 		}
 	}
 
-	async function updateNote(id: string, data: Partial<Note>) {
+	async function updateNote(id: string, data: Partial<Note>): Promise<void> {
 		if (!user) {
 			setError('Usuario no autenticado')
 			return
@@ -147,7 +151,7 @@ export function useNotes() {
 		}
 	}
 
-	const deleteNote = async (noteId: string) => {
+	const deleteNote = async (noteId: string): Promise<void> => {
 		try {
 			setLoading(true)
 			setError(null)
