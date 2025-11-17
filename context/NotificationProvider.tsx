@@ -1,9 +1,10 @@
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
+import React, { createContext, useContext, useEffect, useRef } from 'react'
 import * as Notifications from 'expo-notifications'
 import * as Location from 'expo-location'
 import * as TaskManager from 'expo-task-manager'
 import { Note } from '../models/noteModel'
 import { useNotes } from '../hooks/useNotes'
+import { getNotificationPermission } from '../utils/getNotificationPermission'
 
 const NotificationContext = createContext({
 	initialize: async () => {},
@@ -11,17 +12,16 @@ const NotificationContext = createContext({
 
 const LOCATION_TASK = 'background-location-task'
 
-// Estado global real
-let notifCount = 0
-let pausedUntil: number | null = null
+// Estado por nota
+// noteId: { count: number, pausedUntil: number | null }
+const perNoteState: Record<string, { count: number; pausedUntil: number | null }> = {}
 
-// Task de ubicación en background
 TaskManager.defineTask(LOCATION_TASK, async ({ data, error }) => {
-	if (error) return;
-	const loc = (data as any)?.locations?.[0]?.coords;
-	if (!loc) return;
-	globalThis.__checkNotesBackground?.(loc);
-});
+	if (error) return
+	const loc = (data as any)?.locations?.[0]?.coords
+	if (!loc) return
+	(globalThis as any).__checkNotesBackground?.(loc)
+})
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
 	const { notes } = useNotes()
@@ -31,27 +31,27 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 		notesRef.current = notes
 	}, [notes])
 
-	// Inicialización
 	const initialize = async () => {
-		await Notifications.requestPermissionsAsync()
+		//await Notifications.requestPermissionsAsync()
+		await getNotificationPermission()
 		await Location.requestForegroundPermissionsAsync()
 		await Location.requestBackgroundPermissionsAsync()
 
 		Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+			handleNotification: async () => ({
+				shouldShowAlert: true,
+				shouldPlaySound: true,
+				shouldSetBadge: false,
+				shouldShowBanner: true,
+				shouldShowList: true,
+			}),
+		})
 
 		const running = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK)
 		if (!running) {
 			await Location.startLocationUpdatesAsync(LOCATION_TASK, {
 				accuracy: Location.Accuracy.Balanced,
-				timeInterval: 30_000,
+				timeInterval: 30000,
 				distanceInterval: 0,
 				foregroundService: {
 					notificationTitle: 'Notas',
@@ -62,10 +62,8 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 		}
 	}
 
-	// Lógica de notificaciones cercanas
 	async function checkNearbyNotesInternal(coords: Location.LocationObjectCoords) {
 		const now = Date.now()
-		if (pausedUntil && now < pausedUntil) return
 
 		for (const note of notesRef.current) {
 			const dist = Math.sqrt(
@@ -74,9 +72,19 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 			)
 
 			if (dist < 0.001) {
-				notifCount++
+				// Crear estado para la nota si no existe
+				if (!perNoteState[note.id]) {
+					perNoteState[note.id] = { count: 0, pausedUntil: null }
+				}
 
-				if (notifCount <= 3) {
+				const state = perNoteState[note.id]
+
+				// Pausa activa para esta nota
+				if (state.pausedUntil && now < state.pausedUntil) continue
+
+				state.count++
+
+				if (state.count <= 3) {
 					await Notifications.scheduleNotificationAsync({
 						content: {
 							title: 'Cerca de nota',
@@ -86,14 +94,14 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 					})
 				}
 
-				if (notifCount === 4) {
-					pausedUntil = now + 3600 * 1000
-					notifCount = 0
+				if (state.count === 4) {
+					state.pausedUntil = now + 3600 * 1000
+					state.count = 0
 
 					await Notifications.scheduleNotificationAsync({
 						content: {
 							title: 'Pausa activada',
-							body: 'Notificaciones pausadas por 1 hora',
+							body: `"${note.title}" pausada por 1 hora`,
 						},
 						trigger: null,
 					})
@@ -102,9 +110,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 		}
 	}
 
-	// Registrar función global
-;(globalThis as any).__checkNotesBackground = checkNearbyNotesInternal;
-
+(globalThis as any).__checkNotesBackground = checkNearbyNotesInternal;
 
 	useEffect(() => {
 		initialize()
@@ -118,6 +124,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 }
 
 export const useNotifications = () => useContext(NotificationContext)
+
 
 
 

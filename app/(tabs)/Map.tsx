@@ -347,8 +347,9 @@ const handleSelectNote = async (note:Note) => {
 														onPress={() => router.push(`/notes/${selectedNote.id}`)}
 														style={{
 															position: 'absolute',
-															left: calloutPos.x - 70,
-      												top: calloutPos.y - 135,
+															top: 95,     
+															left: '50%',
+															transform: [{ translateX: -90 }],
 															justifyContent: 'center',
 															alignItems: 'center',
 															zIndex: 20,
