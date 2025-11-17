@@ -295,7 +295,7 @@ const handleSelectNote = async (note:Note) => {
   >
     <View
       style={{
-        backgroundColor: '#fff',
+        backgroundColor: 'onSurface',
         borderRadius: 12,
         paddingVertical: 10,
         paddingHorizontal: 14,
@@ -340,7 +340,7 @@ const handleSelectNote = async (note:Note) => {
     position: 'absolute',
     bottom: 40,
     right: 20,
-    backgroundColor: 'white',
+    backgroundColor: 'onSurface',
     padding: 14,
     borderRadius: 50,
     elevation: 6,
@@ -389,7 +389,7 @@ const handleSelectNote = async (note:Note) => {
 		>
 			<View
 				style={{
-					backgroundColor: '#fff',
+					backgroundColor: 'onSurface',
 					borderRadius: 12,
 					paddingVertical: 12,
 					paddingHorizontal: 12,
