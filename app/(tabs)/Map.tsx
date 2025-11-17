@@ -270,12 +270,15 @@ const handleSelectNote = async (note:Note) => {
         },
       })
     }
-    style={{
-      position: 'absolute',
-      left: calloutPos.x - 90,
-      top: calloutPos.y - 192,
-      zIndex: 50,
-    }}
+				style={{
+							position: 'absolute',
+							top: 95,     
+				  		left: '50%',
+							transform: [{ translateX: -90 }],
+					  	justifyContent: 'center',
+							alignItems: 'center',
+						  zIndex: 20,
+						}}
   >
     <View
       style={{
