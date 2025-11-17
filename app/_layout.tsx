@@ -15,8 +15,6 @@ import { ThemeContextProvider, useTheme } from '../context/ThemeContextProvider'
 import { AuthContext, AuthProvider } from '../context/AuthContext'
 import Loader from '../components/Loader'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
-//import { NotificationProvider } from '../context/NotificationProvider'
-
 import { LogBox } from 'react-native'
 import { NotificationManager } from '../utils/NotificationManager'
 import { useNotificationInit } from '../hooks/useNotificationInit'
@@ -46,8 +44,7 @@ function InnerLayout() {
 
 	if (state.isLoading && !state.user) return <Loader visible />
 
-	return (
-		//<NotificationProvider>
+	return (		
 		<NotificationManager>
 			<ThemeProvider theme={themes}>
 				<MenuProvider>
@@ -59,8 +56,7 @@ function InnerLayout() {
 					</GestureHandlerRootView>
 				</MenuProvider>
 			</ThemeProvider>
-			</NotificationManager>
-		//</NotificationProvider>
+			</NotificationManager>		
 	)
 }
 

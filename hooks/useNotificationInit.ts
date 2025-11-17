@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { AppState } from "react-native";
-import { initializeNotifications } from "../utils/NotificationManager"; // o donde esté
+import { initializeNotifications } from "../utils/NotificationManager";
 
 export function useNotificationInit() {
   useEffect(() => {
