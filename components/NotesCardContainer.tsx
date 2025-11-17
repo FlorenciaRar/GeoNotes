@@ -88,7 +88,7 @@ export default function NotesCardContainer({ maxItems }: NotesCardContainerProps
 			data={notesToRender}
 			keyExtractor={(item) => item.id}
 			ListEmptyComponent={EmptySearch}
-			onEndReachedThreshold={0.2}
+			onEndReachedThreshold={0.9}
 			onEndReached={hasMore ? loadMoreNotes : null}
 			ListFooterComponent={loadingMore ? <ActivityIndicator size='small' color={themes.colors.primary} /> : null}
 			renderItem={({ item }) => <NoteCardItem data={item} onDelete={handleDelete} onShare={handleShare} />}

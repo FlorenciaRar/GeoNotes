@@ -50,8 +50,9 @@ export default function useLocationSearch() {
 			const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchText)}&format=json&addressdetails=1&limit=3&countrycodes=ar`
 
 			try {
-				const { data } = await axios.get(url, {
+				const { data } = await axios.get<searchResults[]>(url, {
 					headers: {
+						'Content-Type': 'application/json',
 						'User-Agent': 'tu-app/1.0 (tuemail@dominio.com)',
 					},
 				})
