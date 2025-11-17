@@ -11,12 +11,15 @@ import { StyledText } from '../../styled-components'
 import { Icon } from '../../utils'
 import useLocationSearch from '../../hooks/useLocationSearch'
 import { useNotes } from '../../hooks/useNotes'
+import { DefaultTheme } from 'styled-components/native'
 
 export default function Map() {
 
 	const mapRef = useRef<MapView>(null)
 	
 	const { themes } = useTheme()
+	const styles = getStyles(themes)
+
 	const { getCurrentLocation, setSearchText, searchResults, menuShown, setMenuShown, setLocation } = useLocationSearch()
 	const [searchTextValue, setSearchTextValue] = useState('')
 	const [searchedMarker, setSearchedMarker] = useState<{
@@ -295,7 +298,7 @@ const handleSelectNote = async (note:Note) => {
   >
     <View
       style={{
-        backgroundColor: 'onSurface',
+        backgroundColor: themes.colors.surface,
         borderRadius: 12,
         paddingVertical: 10,
         paddingHorizontal: 14,
@@ -340,7 +343,7 @@ const handleSelectNote = async (note:Note) => {
     position: 'absolute',
     bottom: 40,
     right: 20,
-    backgroundColor: 'onSurface',
+    backgroundColor:  themes.colors.surface,
     padding: 14,
     borderRadius: 50,
     elevation: 6,
@@ -355,7 +358,7 @@ const handleSelectNote = async (note:Note) => {
    <Icon
     iconName={isFixed  ? "gpsFixed" : "gps"}
     size={24}
-    color="#000"
+    color={themes.colors.onSurface}
   />
 </Pressable>
 
@@ -389,7 +392,7 @@ const handleSelectNote = async (note:Note) => {
 		>
 			<View
 				style={{
-					backgroundColor: 'onSurface',
+					backgroundColor:  themes.colors.surface,
 					borderRadius: 12,
 					paddingVertical: 12,
 					paddingHorizontal: 12,
@@ -417,7 +420,8 @@ const handleSelectNote = async (note:Note) => {
 	)
 }
 
-const styles = StyleSheet.create({
+function getStyles(themes: DefaultTheme) {
+return StyleSheet.create({
 	map: { flex: 1, width: '100%', height: '100%' },
 	callout: { width: 150, height: 300, alignItems: 'center' },
 	title: { fontWeight: 'bold', marginBottom: 4 },
@@ -429,7 +433,7 @@ const styles = StyleSheet.create({
 		zIndex: 10,
 		flexDirection: 'row',
 		alignItems: 'center',
-		backgroundColor: 'white',
+		backgroundColor:  themes.colors.surface,
 		borderRadius: 50,
 		paddingHorizontal: 16,
 		marginHorizontal: 16,
@@ -443,7 +447,7 @@ const styles = StyleSheet.create({
 		top: 100,
 		left: 16,
 		right: 16,
-		backgroundColor: 'white',
+		backgroundColor:  themes.colors.surface,
 		borderRadius: 12,
 		padding: 12,
 		zIndex: 11,
@@ -455,3 +459,4 @@ const styles = StyleSheet.create({
 		borderTopColor: '#ccc',
 	},
 })
+}
