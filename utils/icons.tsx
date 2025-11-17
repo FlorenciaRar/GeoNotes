@@ -20,6 +20,8 @@ const icons = {
   close: "close",
   galery: "image-outline",
   camera: "camera-outline",
+  gps: "crosshairs",
+  gpsFixed: "crosshairs-gps",
 } as const;
 
 export type IconName = keyof typeof icons;
