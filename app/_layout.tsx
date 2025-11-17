@@ -19,6 +19,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import { LogBox } from 'react-native'
 import { NotificationManager } from '../utils/NotificationManager'
+import { useNotificationInit } from '../hooks/useNotificationInit'
 
 // Ignorar warnings específicos
 LogBox.ignoreLogs(['expo-notifications: Android Push notifications (remote notifications)'])
@@ -64,6 +65,7 @@ function InnerLayout() {
 }
 
 export default function Layout() {
+	useNotificationInit();
 	return (
 		<ThemeContextProvider>
 			<AuthProvider>

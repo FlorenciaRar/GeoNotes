@@ -259,6 +259,19 @@ const handleSelectNote = async (note:Note) => {
 			</MapView>
 
 			{searchedMarker && calloutPos && (
+				<>
+		{/* Capa tap-para-cerrar */}
+		<Pressable
+			onPress={() => setSearchedMarker(null)}
+			style={{
+				position: 'absolute',
+				top: 0,
+				left: 0,
+				right: 0,
+				bottom: 0,
+				zIndex: 10,
+			}}
+		/>
   <Pressable
     onPress={() =>
       router.push({
@@ -294,15 +307,16 @@ const handleSelectNote = async (note:Note) => {
 				height: 150,
       }}
     >
-      <Text numberOfLines={4} style={{ fontWeight: '600', marginBottom: 10 }}>
+      <StyledText color='onSurface' numberOfLines={4} style={{ fontWeight: '600', marginBottom: 10 }}>
         {searchedMarker.address}
-      </Text>
+      </StyledText>
 
-      <Text style={{ color: '#007AFF', fontSize: 15 }}>
+      <StyledText  color='onSurface'style={{fontSize: 15 }}>
         ＋ Crear nota
-      </Text>
+      </StyledText>
     </View>
   </Pressable>
+	</>
 )}
 
 
@@ -346,41 +360,56 @@ const handleSelectNote = async (note:Note) => {
 </Pressable>
 
 			{selectedNote && calloutPos && (
-															<Pressable
-														onPress={() => router.push(`/notes/${selectedNote.id}`)}
-														style={{
-															position: 'absolute',
-															top: 95,     
-															left: '50%',
-															transform: [{ translateX: -90 }],
-															justifyContent: 'center',
-															alignItems: 'center',
-															zIndex: 20,
-														}}
-													>
-														<View
-															style={{
-																backgroundColor: '#fff',
-																borderRadius: 12,
-																paddingVertical: 12,
-																paddingHorizontal: 12,
-																//alignItems: 'center',
-																shadowColor: '#000',
-																shadowOpacity: 0.3,
-																shadowRadius: 3,
-																elevation: 4,																
-																minWidth: 180,      // fuerza espacio para "Ver nota"
-      													maxWidth: 240,      // evita estirarse demasiado
-															}}
-														>
-															<Text style={{ fontWeight: '600', marginBottom: 4 }}>
-																{selectedNote.title}
-															</Text>
-															<Text style={{ color: '#007AFF' }}>
-																Ver <Icon iconName='note'/>
-															</Text>
-														</View>
-													</Pressable>
+		<>
+		{/* Capa tap-para-cerrar */}
+		<Pressable
+			onPress={() => setSelectedNote(null)}
+			style={{
+				position: 'absolute',
+				top: 0,
+				left: 0,
+				right: 0,
+				bottom: 0,
+				zIndex: 10,
+			}}
+		/>
+
+		{/* Callout */}
+		<Pressable
+			onPress={() => router.push(`/notes/${selectedNote.id}`)}
+			style={{
+				position: 'absolute',
+				top: 95,
+				left: '50%',
+				transform: [{ translateX: -90 }],
+				justifyContent: 'center',
+				alignItems: 'center',
+				zIndex: 20,
+			}}
+		>
+			<View
+				style={{
+					backgroundColor: '#fff',
+					borderRadius: 12,
+					paddingVertical: 12,
+					paddingHorizontal: 12,
+					shadowColor: '#000',
+					shadowOpacity: 0.3,
+					shadowRadius: 3,
+					elevation: 4,
+					minWidth: 180,
+					maxWidth: 240,
+				}}
+			>
+				<StyledText color='onSurface' style={{ fontWeight: '600', marginBottom: 4 }}>
+					{selectedNote.title}
+				</StyledText>
+				<StyledText  color='onSurface'>
+					Ver <Icon iconName='note'  color={themes.colors.onSurface}/>
+				</StyledText>
+			</View>
+		</Pressable>
+	</>
 															
 														)}
 														
