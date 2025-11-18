@@ -15,53 +15,53 @@ const perNoteState: Record<string, { count: number; pausedUntil: number | null }
 // GLOBAL INITIALIZE
 // -------------------------------------------
 export async function initializeNotifications() {
-	const permission = await getNotificationPermission()
+  const permission = await getNotificationPermission()
 
-	if (!permission) {
-		Alert.alert(
-			'Permisos requeridos',
-			'Debes habilitar las notificaciones.',
-			[
-				{ text: 'Cancelar', style: 'cancel' },
-				{ text: 'Abrir configuración', onPress: () => Linking.openSettings() },
-			],
-			{ cancelable: true }
-		)
-		return false
-	}
+  if (!permission) {
+    Alert.alert(
+      'Permisos requeridos',
+      'Debes habilitar las notificaciones.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Abrir configuración', onPress: () => Linking.openSettings() },
+      ],
+      { cancelable: true }
+    )
+    return false
+  }
 
-	// Config de notificaciones
-	await Notifications.setNotificationHandler({
-		handleNotification: async () => ({
-			shouldShowAlert: true,
-			shouldPlaySound: true,
-			shouldSetBadge: false,
-			shouldShowBanner: true,
-			shouldShowList: true,
-		}),
-	})
+  // Config de notificaciones
+  await Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  })
 
-	// Pedir permisos de ubicación
-	await Location.requestForegroundPermissionsAsync()
-	await Location.requestBackgroundPermissionsAsync()
+  // Pedir permisos de ubicación
+  await Location.requestForegroundPermissionsAsync()
+  await Location.requestBackgroundPermissionsAsync()
 
-	// IMPORTANTE:
-	// NO volver a iniciar el servicio si ya está corriendo
-	const running = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK)
-	if (!running) {
-		await Location.startLocationUpdatesAsync(LOCATION_TASK, {
-			accuracy: Location.Accuracy.Balanced,
-			timeInterval: 30000,
-			distanceInterval: 0,
-			foregroundService: {
-				notificationTitle: 'Notas',
-				notificationBody: 'Buscando notas cercanas',
-			},
-			pausesUpdatesAutomatically: false,
-		})
-	}
+  // IMPORTANTE:
+  // NO volver a iniciar el servicio si ya está corriendo
+  const running = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK)
+  if (!running) {
+    await Location.startLocationUpdatesAsync(LOCATION_TASK, {
+      accuracy: Location.Accuracy.Balanced,
+      timeInterval: 30000,
+      distanceInterval: 0,
+      foregroundService: {
+        notificationTitle: 'Notas',
+        notificationBody: 'Buscando notas cercanas',
+      },
+      pausesUpdatesAutomatically: false,
+    })
+  }
 
-	return true
+  return true
 }
 
 // -------------------------------------------
@@ -78,78 +78,81 @@ TaskManager.defineTask(LOCATION_TASK, async ({ data, error }) => {
 // COMPONENTE
 // -------------------------------------------
 export function NotificationManager({ children }: { children: React.ReactNode }) {
-	const { notes } = useNotes()
+  const { notes } = useNotes()
 
-	const notesRef = useRef<Note[]>([])
-	useEffect(() => {
-		notesRef.current = notes
-	}, [notes])
+  const notesRef = useRef<Note[]>([])
+  useEffect(() => {
+    notesRef.current = notes
+  }, [notes])
 
-	async function checkNearbyNotesInternal(coords: Location.LocationObjectCoords) {
-		const now = Date.now()
+  async function checkNearbyNotesInternal(coords: Location.LocationObjectCoords) {
+    const now = Date.now()
 
-		for (const note of notesRef.current) {
-			const dist = Math.sqrt(Math.pow(note.latitude - coords.latitude, 2) + Math.pow(note.longitude - coords.longitude, 2))
+    for (const note of notesRef.current) {
+      const dist = Math.sqrt(
+        Math.pow(note.latitude - coords.latitude, 2) +
+        Math.pow(note.longitude - coords.longitude, 2)
+      )
 
-			if (dist < 0.001) {
-				if (!perNoteState[note.id]) {
-					perNoteState[note.id] = { count: 0, pausedUntil: null }
-				}
+      if (dist < 0.001) {
+        if (!perNoteState[note.id]) {
+          perNoteState[note.id] = { count: 0, pausedUntil: null }
+        }
 
-				const state = perNoteState[note.id]
+        const state = perNoteState[note.id]
 
-				if (state.pausedUntil && now < state.pausedUntil) continue
+        if (state.pausedUntil && now < state.pausedUntil) continue
 
-				state.count++
+        state.count++
 
-				if (state.count <= 3) {
-					await Notifications.scheduleNotificationAsync({
-						content: {
-							title: 'Cerca de nota',
-							body: `"${note.title}"`,
-						},
-						trigger: null,
-					})
-				}
+        if (state.count <= 3) {
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              title: 'Cerca de nota',
+              body: `"${note.title}"`,
+            },
+            trigger: null,
+          })
+        }
 
-				if (state.count === 4) {
-					state.pausedUntil = now + 3600 * 1000
-					state.count = 0
+        if (state.count === 4) {
+          state.pausedUntil = now + 3600 * 1000
+          state.count = 0
 
-					await Notifications.scheduleNotificationAsync({
-						content: {
-							title: 'Pausa activada',
-							body: `"${note.title}" pausada por 1 hora`,
-						},
-						trigger: null,
-					})
-				}
-			}
-		}
-	}
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              title: 'Pausa activada',
+              body: `"${note.title}" pausada por 1 hora`,
+            },
+            trigger: null,
+          })
+        }
+      }
+    }
+  }
 
-	;(globalThis as any).__checkNotesBackground = checkNearbyNotesInternal
+  ;(globalThis as any).__checkNotesBackground = checkNearbyNotesInternal
 
-	// Primer init — se ejecuta UNA vez
-	useEffect(() => {
-		initializeNotifications()
-	}, [])
+  // Primer init — se ejecuta UNA vez
+  useEffect(() => {
+    initializeNotifications()
+  }, [])
 
-	// Al volver de background: SOLO renovar permisos, NO reiniciar servicio
-	useEffect(() => {
-		let current = AppState.currentState
+  // Al volver de background: SOLO renovar permisos, NO reiniciar servicio
+  useEffect(() => {
+    let current = AppState.currentState
 
-		const sub = AppState.addEventListener('change', async (next) => {
-			if (current.match(/inactive|background/) && next === 'active') {
-				// Antes: initializeNotifications()
-				// Ahora: solo pedir permisos sin reiniciar servicio
-				await getNotificationPermission()
-			}
-			current = next
-		})
+    const sub = AppState.addEventListener('change', async next => {
+      if (current.match(/inactive|background/) && next === 'active') {
+        // Antes: initializeNotifications()
+        // Ahora: solo pedir permisos sin reiniciar servicio
+        await getNotificationPermission()
+      }
+      current = next
+    })
 
-		return () => sub.remove()
-	}, [])
+    return () => sub.remove()
+  }, [])
 
-	return children
+  return children
 }
