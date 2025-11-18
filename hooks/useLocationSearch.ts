@@ -3,10 +3,9 @@ import axios from 'axios'
 import { searchResults, LocationData } from '../models/'
 import * as Location from 'expo-location'
 import { getLocationPermission } from '../utils'
+import { Alert } from 'react-native'
 
 export default function useLocationSearch() {
-	const [hasPermission, setHasPermission] = useState<boolean | null>(null)
-
 	const [location, setLocation] = useState<LocationData | null>(null)
 
 	const [searchResults, setSearchResults] = useState<searchResults[]>([])
@@ -15,13 +14,9 @@ export default function useLocationSearch() {
 
 	const [loading, setLoading] = useState<boolean>(false)
 
-	const askPermission = async () => {
-		const permission = await getLocationPermission()
-		setHasPermission(permission)
-	}
-
 	const getCurrentLocation: () => Promise<LocationData | void> = async () => {
-		if (hasPermission) {
+		const permission = await getLocationPermission()
+		if (permission) {
 			setLoading(true)
 			let location = await Location.getCurrentPositionAsync({})
 
@@ -40,6 +35,8 @@ export default function useLocationSearch() {
 			}
 
 			return newLocation
+		} else {
+			return
 		}
 	}
 
@@ -72,10 +69,6 @@ export default function useLocationSearch() {
 		}, 1000)
 		return () => clearTimeout(timeout)
 	}, [searchText])
-
-	useEffect(() => {
-		askPermission()
-	}, [])
 
 	return {
 		getCurrentLocation,

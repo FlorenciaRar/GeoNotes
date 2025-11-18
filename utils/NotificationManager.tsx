@@ -68,10 +68,10 @@ export async function initializeNotifications() {
 // BACKGROUND TASK
 // -------------------------------------------
 TaskManager.defineTask(LOCATION_TASK, async ({ data, error }) => {
-  if (error) return
-  const loc = (data as any)?.locations?.[0]?.coords
-  if (!loc) return
-  ;(globalThis as any).__checkNotesBackground?.(loc)
+	if (error) return
+	const loc = (data as any)?.locations?.[0]?.coords
+	if (!loc) return
+	;(globalThis as any).__checkNotesBackground?.(loc)
 })
 
 // -------------------------------------------
