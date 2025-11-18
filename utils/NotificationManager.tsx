@@ -1,35 +1,47 @@
-import { useEffect, useRef } from 'react'
-import * as Notifications from 'expo-notifications'
-import * as Location from 'expo-location'
-import * as TaskManager from 'expo-task-manager'
-import { useNotes } from '../hooks/useNotes'
-import { Note } from '../models/noteModel'
-import { Alert, Linking, AppState } from 'react-native'
-import { getNotificationPermission } from '../utils/getNotificationPermission'
+import { useEffect, useRef } from "react"
+import * as Notifications from "expo-notifications"
+import * as Location from "expo-location"
+import * as TaskManager from "expo-task-manager"
+import { Alert, Linking, AppState } from "react-native"
+import { useNotes } from "../hooks/useNotes"
+import { Note } from "../models/noteModel"
+import { getNotificationPermission } from "../utils/getNotificationPermission"
+import { getLocationPermission } from "./getLocationPermission"
 
-const LOCATION_TASK = 'background-location-task'
+const LOCATION_TASK = "background-location-task"
 
-const perNoteState: Record<string, { count: number; pausedUntil: number | null }> = {}
+const perNoteState: Record<
+  string,
+  { count: number; pausedUntil: number | null }
+> = {}
 
 // -------------------------------------------
-// GLOBAL INITIALIZE
+// PEDIR PERMISOS (centralizado)
 // -------------------------------------------
-export async function initializeNotifications() {
-  const permission = await getNotificationPermission()
-
-  if (!permission) {
+async function requestAllPermissionsOnce() {
+  const notifOk = await getNotificationPermission()
+  if (!notifOk) {
     Alert.alert(
-      'Permisos requeridos',
-      'Debes habilitar las notificaciones.',
+      "Permisos requeridos",
+      "Debes habilitar las notificaciones.",
       [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Abrir configuración', onPress: () => Linking.openSettings() },
-      ],
-      { cancelable: true }
+        { text: "Cancelar", style: "cancel" },
+        { text: "Abrir configuración", onPress: () => Linking.openSettings() },
+      ]
     )
     return false
   }
 
+  const locOk = await getLocationPermission()
+  if (!locOk) return false
+
+  return true
+}
+
+// -------------------------------------------
+// INICIALIZAR UBICACIÓN + NOTIFICACIONES
+// -------------------------------------------
+export async function initializeNotifications() {
   await Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowAlert: true,
@@ -40,18 +52,24 @@ export async function initializeNotifications() {
     }),
   })
 
-  await Location.requestForegroundPermissionsAsync()
-  await Location.requestBackgroundPermissionsAsync()
+  const fg = await Location.getForegroundPermissionsAsync();
+
+  if (!fg.granted) return false;
+
+  const isActive = AppState.currentState === "active"
+  if (!isActive) return false
 
   const running = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK)
+
   if (!running) {
     await Location.startLocationUpdatesAsync(LOCATION_TASK, {
       accuracy: Location.Accuracy.Balanced,
       timeInterval: 30000,
       distanceInterval: 0,
       foregroundService: {
-        notificationTitle: 'Notas',
-        notificationBody: 'Buscando notas cercanas',
+        notificationTitle: "Notas",
+        notificationBody: "Buscando notas cercanas",
+        killServiceOnDestroy: true,
       },
       pausesUpdatesAutomatically: false,
     })
@@ -67,28 +85,36 @@ TaskManager.defineTask(LOCATION_TASK, async ({ data, error }) => {
   if (error) return
   const loc = (data as any)?.locations?.[0]?.coords
   if (!loc) return
+
   ;(globalThis as any).__checkNotesBackground?.(loc)
 })
 
 // -------------------------------------------
 // COMPONENTE
 // -------------------------------------------
-export function NotificationManager({ children }: { children: React.ReactNode }) {
+export function NotificationManager({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   const { notes } = useNotes()
-
   const notesRef = useRef<Note[]>([])
+
   useEffect(() => {
     notesRef.current = notes
   }, [notes])
 
-  async function checkNearbyNotesInternal(coords: Location.LocationObjectCoords) {
+  async function checkNearbyNotesInternal(
+    coords: Location.LocationObjectCoords
+  ) {
     const now = Date.now()
 
     for (const note of notesRef.current) {
-      const dist = Math.sqrt(
-        Math.pow(note.latitude - coords.latitude, 2) +
-          Math.pow(note.longitude - coords.longitude, 2)
-      )
+      const dist =
+        Math.sqrt(
+          Math.pow(note.latitude - coords.latitude, 2) +
+            Math.pow(note.longitude - coords.longitude, 2)
+        )
 
       if (dist < 0.001) {
         if (!perNoteState[note.id]) {
@@ -104,7 +130,7 @@ export function NotificationManager({ children }: { children: React.ReactNode })
         if (state.count <= 3) {
           await Notifications.scheduleNotificationAsync({
             content: {
-              title: 'Cerca de nota',
+              title: "Cerca de nota",
               body: `"${note.title}"`,
             },
             trigger: null,
@@ -117,7 +143,7 @@ export function NotificationManager({ children }: { children: React.ReactNode })
 
           await Notifications.scheduleNotificationAsync({
             content: {
-              title: 'Pausa activada',
+              title: "Pausa activada",
               body: `"${note.title}" pausada por 1 hora`,
             },
             trigger: null,
@@ -129,18 +155,22 @@ export function NotificationManager({ children }: { children: React.ReactNode })
 
   ;(globalThis as any).__checkNotesBackground = checkNearbyNotesInternal
 
-  // primer init
+  // Primer run
   useEffect(() => {
-    initializeNotifications()
+    requestAllPermissionsOnce().then(async ok => {
+      if (ok) await initializeNotifications()
+    })
   }, [])
 
-  // re-init al volver desde Settings
+  // Re-init al volver desde Settings
   useEffect(() => {
     let current = AppState.currentState
 
-    const sub = AppState.addEventListener('change', async next => {
-      if (current.match(/inactive|background/) && next === 'active') {
-        await initializeNotifications()
+    const sub = AppState.addEventListener("change", async next => {
+      if (current.match(/inactive|background/) && next === "active") {
+        const notif = await getNotificationPermission()
+        const loc = await getLocationPermission()
+        if (notif && loc) await initializeNotifications()
       }
       current = next
     })
