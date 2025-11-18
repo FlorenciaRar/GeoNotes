@@ -30,6 +30,7 @@ export async function initializeNotifications() {
     return false
   }
 
+  // Config de notificaciones
   await Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowAlert: true,
@@ -40,9 +41,12 @@ export async function initializeNotifications() {
     }),
   })
 
+  // Pedir permisos de ubicación
   await Location.requestForegroundPermissionsAsync()
   await Location.requestBackgroundPermissionsAsync()
 
+  // IMPORTANTE:
+  // NO volver a iniciar el servicio si ya está corriendo
   const running = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK)
   if (!running) {
     await Location.startLocationUpdatesAsync(LOCATION_TASK, {
@@ -87,7 +91,7 @@ export function NotificationManager({ children }: { children: React.ReactNode })
     for (const note of notesRef.current) {
       const dist = Math.sqrt(
         Math.pow(note.latitude - coords.latitude, 2) +
-          Math.pow(note.longitude - coords.longitude, 2)
+        Math.pow(note.longitude - coords.longitude, 2)
       )
 
       if (dist < 0.001) {
@@ -129,18 +133,20 @@ export function NotificationManager({ children }: { children: React.ReactNode })
 
   ;(globalThis as any).__checkNotesBackground = checkNearbyNotesInternal
 
-  // primer init
+  // Primer init — se ejecuta UNA vez
   useEffect(() => {
     initializeNotifications()
   }, [])
 
-  // re-init al volver desde Settings
+  // Al volver de background: SOLO renovar permisos, NO reiniciar servicio
   useEffect(() => {
     let current = AppState.currentState
 
     const sub = AppState.addEventListener('change', async next => {
       if (current.match(/inactive|background/) && next === 'active') {
-        await initializeNotifications()
+        // Antes: initializeNotifications()
+        // Ahora: solo pedir permisos sin reiniciar servicio
+        await getNotificationPermission()
       }
       current = next
     })
