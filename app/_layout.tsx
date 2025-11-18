@@ -17,7 +17,7 @@ import Loader from '../components/Loader'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { LogBox } from 'react-native'
 import { NotificationManager } from '../utils/NotificationManager'
-import { useNotificationInit } from '../hooks/useNotificationInit'
+// import { useNotificationInit } from '../hooks/useNotificationInit'
 
 // Ignorar warnings específicos
 LogBox.ignoreLogs(['expo-notifications: Android Push notifications (remote notifications)'])
@@ -44,7 +44,7 @@ function InnerLayout() {
 
 	if (state.isLoading && !state.user) return <Loader visible />
 
-	return (		
+	return (
 		<NotificationManager>
 			<ThemeProvider theme={themes}>
 				<MenuProvider>
@@ -56,12 +56,12 @@ function InnerLayout() {
 					</GestureHandlerRootView>
 				</MenuProvider>
 			</ThemeProvider>
-			</NotificationManager>		
+		</NotificationManager>
 	)
 }
 
 export default function Layout() {
-	useNotificationInit();
+	// useNotificationInit();
 	return (
 		<ThemeContextProvider>
 			<AuthProvider>
