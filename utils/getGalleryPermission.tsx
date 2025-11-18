@@ -6,16 +6,16 @@ export const getGalleryPermission = async (): Promise<boolean> => {
 
 	if (status !== 'granted') {
 		if (!canAskAgain) {
+			Alert.alert('Permiso denegado', 'Necesitamos permiso para acceder a la galeria', [
+				{ text: 'Cancelar', style: 'cancel' },
+				{
+					text: 'Reintentar',
+					onPress: () => getGalleryPermission(),
+				},
+			])
+		} else {
 			Alert.alert('Permiso denegado', 'Habilitalo en configuración', [{ text: 'Cancelar', style: 'cancel' }, { text: 'OK' }])
 		}
-
-		Alert.alert('Permiso denegado', 'Necesitamos permiso para acceder a la galeria', [
-			{ text: 'Cancelar', style: 'cancel' },
-			{
-				text: 'Reintentar',
-				onPress: () => getGalleryPermission(),
-			},
-		])
 	}
 
 	return granted
