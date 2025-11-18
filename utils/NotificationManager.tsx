@@ -2,39 +2,35 @@ import { useEffect, useRef } from 'react'
 import * as Notifications from 'expo-notifications'
 import * as Location from 'expo-location'
 import * as TaskManager from 'expo-task-manager'
-import { Alert, Linking, AppState } from 'react-native'
 import { useNotes } from '../hooks/useNotes'
 import { Note } from '../models/noteModel'
+import { Alert, Linking, AppState } from 'react-native'
 import { getNotificationPermission } from '../utils/getNotificationPermission'
-import { getLocationPermission } from './getLocationPermission'
 
 const LOCATION_TASK = 'background-location-task'
 
 const perNoteState: Record<string, { count: number; pausedUntil: number | null }> = {}
 
 // -------------------------------------------
-// PEDIR PERMISOS (centralizado)
+// GLOBAL INITIALIZE
 // -------------------------------------------
-async function requestAllPermissionsOnce() {
-	const notifOk = await getNotificationPermission()
-	if (!notifOk) {
-		Alert.alert('Permisos requeridos', 'Debes habilitar las notificaciones.', [
-			{ text: 'Cancelar', style: 'cancel' },
-			{ text: 'Abrir configuración', onPress: () => Linking.openSettings() },
-		])
+export async function initializeNotifications() {
+	const permission = await getNotificationPermission()
+
+	if (!permission) {
+		Alert.alert(
+			'Permisos requeridos',
+			'Debes habilitar las notificaciones.',
+			[
+				{ text: 'Cancelar', style: 'cancel' },
+				{ text: 'Abrir configuración', onPress: () => Linking.openSettings() },
+			],
+			{ cancelable: true }
+		)
 		return false
 	}
 
-	const locOk = await getLocationPermission()
-	if (!locOk) return false
-
-	return true
-}
-
-// -------------------------------------------
-// INICIALIZAR UBICACIÓN + NOTIFICACIONES
-// -------------------------------------------
-export async function initializeNotifications() {
+	// Config de notificaciones
 	await Notifications.setNotificationHandler({
 		handleNotification: async () => ({
 			shouldShowAlert: true,
@@ -45,15 +41,13 @@ export async function initializeNotifications() {
 		}),
 	})
 
-	const fg = await Location.getForegroundPermissionsAsync()
+	// Pedir permisos de ubicación
+	await Location.requestForegroundPermissionsAsync()
+	await Location.requestBackgroundPermissionsAsync()
 
-	if (!fg.granted) return false
-
-	const isActive = AppState.currentState === 'active'
-	if (!isActive) return false
-
+	// IMPORTANTE:
+	// NO volver a iniciar el servicio si ya está corriendo
 	const running = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK)
-
 	if (!running) {
 		await Location.startLocationUpdatesAsync(LOCATION_TASK, {
 			accuracy: Location.Accuracy.Balanced,
@@ -62,7 +56,6 @@ export async function initializeNotifications() {
 			foregroundService: {
 				notificationTitle: 'Notas',
 				notificationBody: 'Buscando notas cercanas',
-				killServiceOnDestroy: true,
 			},
 			pausesUpdatesAutomatically: false,
 		})
@@ -86,8 +79,8 @@ TaskManager.defineTask(LOCATION_TASK, async ({ data, error }) => {
 // -------------------------------------------
 export function NotificationManager({ children }: { children: React.ReactNode }) {
 	const { notes } = useNotes()
-	const notesRef = useRef<Note[]>([])
 
+	const notesRef = useRef<Note[]>([])
 	useEffect(() => {
 		notesRef.current = notes
 	}, [notes])
@@ -137,22 +130,20 @@ export function NotificationManager({ children }: { children: React.ReactNode })
 
 	;(globalThis as any).__checkNotesBackground = checkNearbyNotesInternal
 
-	// Primer run
+	// Primer init — se ejecuta UNA vez
 	useEffect(() => {
-		requestAllPermissionsOnce().then(async (ok) => {
-			if (ok) await initializeNotifications()
-		})
+		initializeNotifications()
 	}, [])
 
-	// Re-init al volver desde Settings
+	// Al volver de background: SOLO renovar permisos, NO reiniciar servicio
 	useEffect(() => {
 		let current = AppState.currentState
 
 		const sub = AppState.addEventListener('change', async (next) => {
 			if (current.match(/inactive|background/) && next === 'active') {
-				const notif = await getNotificationPermission()
-				const loc = await getLocationPermission()
-				if (notif && loc) await initializeNotifications()
+				// Antes: initializeNotifications()
+				// Ahora: solo pedir permisos sin reiniciar servicio
+				await getNotificationPermission()
 			}
 			current = next
 		})
