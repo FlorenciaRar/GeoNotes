@@ -14,7 +14,7 @@ export function useNotes() {
 	const [error, setError] = useState<string | null>(null)
 	const [lastDoc, setLastDoc] = useState<any>(null)
 	const [hasMore, setHasMore] = useState<boolean>(true)
-
+/*
 	async function getNotes() {
 		if (!user) return
 
@@ -41,6 +41,30 @@ export function useNotes() {
 	useEffect(() => {
 		getNotes()
 	}, [lastDoc])
+*/
+
+useEffect(() => {
+    if (!user) return
+
+    const unsubscribe = getNotesAPI(
+        user.uid,
+        10,
+        (nuevasNotas, lastVisible) => {
+            setNotes(nuevasNotas)
+            setLastDoc(lastVisible)
+            setHasMore(!!lastVisible)
+            setLoading(false)
+            setError(null)
+        },
+        () => {
+            setError('Error al obtener notas')
+            setLoading(false)
+        }
+    )
+
+    return () => unsubscribe()
+}, [user]) // SOLO user
+
 
 	const loadMoreNotes = useCallback(async () => {
 		if (!user || !lastDoc || loadingMore || !hasMore) return
