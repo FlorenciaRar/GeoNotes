@@ -15,7 +15,7 @@ export function useNotes() {
 	const [lastDoc, setLastDoc] = useState<any>(null)
 	const [hasMore, setHasMore] = useState<boolean>(true)
 
-	useEffect(() => {
+	async function getNotes() {
 		if (!user) return
 
 		setLoading(true)
@@ -36,12 +36,16 @@ export function useNotes() {
 		)
 
 		return () => unsubscribe()
-	}, [user])
+	}
+
+	useEffect(() => {
+		getNotes()
+	}, [lastDoc])
 
 	const loadMoreNotes = useCallback(async () => {
 		if (!user || !lastDoc || loadingMore || !hasMore) return
+		setLoadingMore(true)
 		try {
-			setLoadingMore(true)
 			const { notas, lastVisible } = await getMoreNotesAPI(user.uid, lastDoc, 10)
 			if (notas.length === 0) {
 				setHasMore(false)
@@ -178,7 +182,7 @@ export function useNotes() {
 }
 
 
-	const deleteNote = async (noteId: string) => {
+	const deleteNote = async (noteId: string): Promise<void> => {
 		try {
 			setLoading(true)
 			setError(null)
