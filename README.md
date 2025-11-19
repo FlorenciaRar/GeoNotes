@@ -65,9 +65,9 @@ Muestra todos los temas disponibles para la aplicación y un preview de los elem
 
 
 ## Capturas de pantalla
-<img width="300" height="642" alt="image" src="https://github.com/user-attachments/assets/afb222a8-c598-400a-9c1e-7ff38538a41a" /> <img width="300" height="642" alt="image" src="https://github.com/user-attachments/assets/4a68f1ed-e5d9-451d-be3a-076a17486a14" /> <img width="300" height="642" alt="image" src="https://github.com/user-attachments/assets/6d1d1aa4-2c53-4ba9-be48-23c977a49ae3" />
-<img width="300" height="642" alt="image" src="https://github.com/user-attachments/assets/604646c9-077f-4414-803d-88d80be1e40e" /> <img width="300" height="642" alt="image" src="https://github.com/user-attachments/assets/87511f90-3a2c-43f5-aa41-598da434772e" /> <img width="300" height="642" alt="image" src="https://github.com/user-attachments/assets/5cd2bd64-cbeb-4cf6-9135-691fe6334820" />
-<img width="300" height="642" alt="image" src="https://github.com/user-attachments/assets/01b8bbda-c75a-430d-9119-583017b8eba9" /> <img width="300" height="642" alt="image" src="https://github.com/user-attachments/assets/20b10122-3e56-463f-a694-71296d608764" /> <img width="300" height="642" alt="image" src="https://github.com/user-attachments/assets/4ce747fb-0866-4d0c-901a-ec98e65a3ed0" />
+<img width="270" height="578" alt="image" src="https://github.com/user-attachments/assets/afb222a8-c598-400a-9c1e-7ff38538a41a" /> <img width="270" height="578" alt="image" src="https://github.com/user-attachments/assets/4a68f1ed-e5d9-451d-be3a-076a17486a14" /> <img width="270" height="578" alt="image" src="https://github.com/user-attachments/assets/6d1d1aa4-2c53-4ba9-be48-23c977a49ae3" />
+<img width="270" height="578" alt="image" src="https://github.com/user-attachments/assets/604646c9-077f-4414-803d-88d80be1e40e" /> <img width="270" height="578" alt="image" src="https://github.com/user-attachments/assets/87511f90-3a2c-43f5-aa41-598da434772e" /> <img width="270" height="578" alt="image" src="https://github.com/user-attachments/assets/5cd2bd64-cbeb-4cf6-9135-691fe6334820" />
+<img width="270" height="578" alt="image" src="https://github.com/user-attachments/assets/01b8bbda-c75a-430d-9119-583017b8eba9" /> <img width="270" height="578" alt="image" src="https://github.com/user-attachments/assets/20b10122-3e56-463f-a694-71296d608764" /> <img width="270" height="578" alt="image" src="https://github.com/user-attachments/assets/4ce747fb-0866-4d0c-901a-ec98e65a3ed0" />
 
 
 
