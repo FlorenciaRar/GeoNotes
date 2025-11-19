@@ -98,7 +98,11 @@ export default function NoteForm({ initialValues, onSubmit }: NoteFormProps) {
 										setFieldValue('longitude', longitude)
 									}}
 								/>
-
+								{/* Errores de ubicación */}
+								{touched.address && errors.address && (
+									<Text style={styles.error}>{errors.address}</Text>
+								)}
+								
 								<TextInput
 									placeholder='Título'
 									placeholderTextColor={themes.colors.onSurfaceVariant}
