@@ -1,6 +1,6 @@
 # GeoNotes
 
-Aplicacion para registrar notas geolocalizadas, realizado con React Native + Expo
+Aplicación para registrar notas geolocalizadas, realizado con React Native + Expo
 
 ### Integrantes
 - Bordet, Gastón
@@ -9,7 +9,7 @@ Aplicacion para registrar notas geolocalizadas, realizado con React Native + Exp
 - Strugo, Florencia
 
 ### Curso
-Desarrollo de aplicaciones moviles - Tecnicatura universitaria en desarrollo web - UNER 
+Desarrollo de aplicaciones móviles - Tecnicatura universitaria en desarrollo web - UNER 
 
 ### Año 
 2025 - Segundo cuatrimestre
